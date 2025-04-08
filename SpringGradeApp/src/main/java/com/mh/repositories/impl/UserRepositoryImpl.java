@@ -29,10 +29,10 @@ public class UserRepositoryImpl implements UserRepository {
     private BCryptPasswordEncoder passwordEncoder;
 
     @Override
-    public User getUserByUsername(String username) {
+    public User getUserByEmail(String email) {
         Session s = this.factory.getObject().getCurrentSession();
-        Query q = s.createNamedQuery("User.findByUsername", User.class);
-        q.setParameter("username", username);
+        Query q = s.createNamedQuery("User.findByEmail", User.class);
+        q.setParameter("email", email);
 
         return (User) q.getSingleResult();
     }
@@ -46,8 +46,8 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
-    public boolean authenticate(String username, String password) {
-        User u = this.getUserByUsername(username);
+    public boolean authenticate(String email, String password) {
+        User u = this.getUserByEmail(email);
 
         return this.passwordEncoder.matches(password, u.getPassword());
     }
