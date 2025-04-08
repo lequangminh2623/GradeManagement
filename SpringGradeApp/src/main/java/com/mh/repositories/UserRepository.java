@@ -12,7 +12,7 @@ import java.util.List;
  * @author Le Quang Minh
  */
 public interface UserRepository {
-    User getUserByUsername(String username);
+    User getUserByEmail(String email);
     User addUser(User u);
-    boolean authenticate(String username, String password);
+    boolean authenticate(String email, String password);
 }

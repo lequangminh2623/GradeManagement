@@ -59,6 +59,6 @@ public class ApiUserController {
     @RequestMapping("/secure/profile")
     @ResponseBody
     public ResponseEntity<User> getProfile(Principal principal) {
-        return new ResponseEntity<>(this.userDetailsService.getUserByUsername(principal.getName()), HttpStatus.OK);
+        return new ResponseEntity<>(this.userDetailsService.getUserByEmail(principal.getName()), HttpStatus.OK);
     }
 }

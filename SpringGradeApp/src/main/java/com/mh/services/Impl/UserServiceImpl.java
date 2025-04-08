@@ -39,15 +39,15 @@ public class UserServiceImpl implements UserService {
     private Cloudinary cloudinary;
 
     @Override
-    public User getUserByUsername(String username) {
-        return this.userRepo.getUserByUsername(username);
+    public User getUserByEmail(String email) {
+        return this.userRepo.getUserByEmail(email);
     }
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User u = this.getUserByUsername(username);
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        User u = this.getUserByEmail(email);
         if (u == null) {
-            throw new UsernameNotFoundException("Invalid username!");
+            throw new UsernameNotFoundException("Invalid email!");
         }
 
         Set<GrantedAuthority> authorities = new HashSet<>();
@@ -60,10 +60,15 @@ public class UserServiceImpl implements UserService {
     @Override
     public User addUser(Map<String, String> params, MultipartFile avatar) {
         User u = new User();
-        u.setName(params.get("name"));
+        u.setFirstName(params.get("firstName"));
+        u.setLastName(params.get("lastName"));
         u.setEmail(params.get("email"));
         u.setPassword(this.passwordEncoder.encode(params.get("password")));
-        u.setRole("ROLE_USER");
+        
+        if(params.get("role")!=null)
+            u.setRole(params.get("role"));
+        else
+            u.setRole("ROLE_STUDENT");
         
         if (!avatar.isEmpty()) {
             try {
@@ -78,8 +83,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public boolean authenticate(String username, String password) {
-        return this.userRepo.authenticate(username, password);
+    public boolean authenticate(String email, String password) {
+        return this.userRepo.authenticate(email, password);
     }
 
 }
