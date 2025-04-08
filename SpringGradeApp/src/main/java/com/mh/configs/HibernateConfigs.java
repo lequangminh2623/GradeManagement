@@ -4,6 +4,7 @@
  */
 package com.mh.configs;
 
+import io.github.cdimascio.dotenv.Dotenv;
 import java.util.Properties;
 import javax.sql.DataSource;
 import static org.hibernate.cfg.JdbcSettings.DIALECT;
@@ -27,6 +28,12 @@ public class HibernateConfigs {
 
     @Autowired
     Environment env;
+    
+    static {
+        Dotenv dotenv = Dotenv.load();
+        System.setProperty("hibernate.connection.username", dotenv.get("DB_USERNAME"));
+        System.setProperty("hibernate.connection.password", dotenv.get("DB_PASSWORD"));
+    }
 
     @Bean
     public LocalSessionFactoryBean getSessionFactory() {
