@@ -6,13 +6,23 @@ package com.mh.repositories;
 
 import com.mh.pojo.User;
 import java.util.List;
+import java.util.Map;
 
 /**
  *
  * @author Le Quang Minh
  */
 public interface UserRepository {
+
     User getUserByEmail(String email);
-    User addUser(User u);
+
     boolean authenticate(String email, String password);
+
+    List<User> getUsers(Map<String, String> params);
+
+    User getUserById(Integer id);
+
+    void deleteUser(Integer id);
+    
+    User saveUser(User user);
 }

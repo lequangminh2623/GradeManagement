@@ -46,4 +46,27 @@ public class StudentRepositoryImpl implements StudentRepository {
         Query query = session.createQuery(cq);
         return query.getResultList();
     }
+
+    @Override
+    public Student saveStudent(Student student) {
+        Session session = this.factory.getObject().getCurrentSession();
+
+        if (student.getId() == null || student.getId() == 0) {
+            session.persist(student);
+        } else {
+            session.merge(student);
+        }
+
+        return student;
+    }
+
+    @Override
+    public void deleteStudentByUserId(int userId) {
+        Session session = this.factory.getObject().getCurrentSession();
+        Student student = session.get(Student.class, userId);
+        if (student != null) {
+            session.remove(student);
+        }
+    }
+
 }

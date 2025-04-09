@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -34,12 +35,22 @@ public class ApiUserController {
 
     @Autowired
     private UserService userDetailsService;
+    
+    @Autowired
+    private BCryptPasswordEncoder passwordEncoder;
 
     @PostMapping(path = "/users", 
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE, 
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<User> create(@RequestParam Map<String, String> params, @RequestParam(value = "avatar") MultipartFile avatar) {
-        return new ResponseEntity<>(this.userDetailsService.addUser(params, avatar), HttpStatus.CREATED);
+        User u = new User();
+        u.setFirstName(params.get("firstName"));
+        u.setLastName(params.get("lastName"));
+        u.setEmail(params.get("email"));
+        u.setPassword(this.passwordEncoder.encode(params.get("password")));
+        u.setFile(avatar);
+        
+        return new ResponseEntity<>(this.userDetailsService.saveUser(u), HttpStatus.CREATED);
     }
 
     @PostMapping("/login")
