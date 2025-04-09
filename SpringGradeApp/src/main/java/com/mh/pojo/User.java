@@ -18,12 +18,14 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
+import jakarta.persistence.Transient;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.Set;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  *
@@ -61,7 +63,7 @@ public class User implements Serializable {
     @Size(min = 1, max = 255)
     @Column(name = "last_name")
     private String lastName;
-    @Pattern(regexp="[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?", message="Invalid email")//if the field contains email address consider using this annotation to enforce field validation
+    @Pattern(regexp = "^[A-Za-z0-9._%+-]+@ou\\.edu\\.vn$", message = "Email phải có đuôi @ou.edu.vn")//if the field contains email address consider using this annotation to enforce field validation
     @Basic(optional = false)
     @NotNull
     @Size(min = 1, max = 255)
@@ -98,6 +100,8 @@ public class User implements Serializable {
     private Set<Classroom> classroomSet;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
     private Set<ForumReply> forumReplySet;
+    @Transient
+    private MultipartFile file;
 
     public User() {
     }
@@ -211,7 +215,7 @@ public class User implements Serializable {
     public void setForumReplySet(Set<ForumReply> forumReplySet) {
         this.forumReplySet = forumReplySet;
     }
-    
+
     public String getFirstName() {
         return firstName;
     }
@@ -252,5 +256,19 @@ public class User implements Serializable {
     public String toString() {
         return "com.mh.pojo.User[ id=" + id + " ]";
     }
-    
+
+    /**
+     * @return the file
+     */
+    public MultipartFile getFile() {
+        return file;
+    }
+
+    /**
+     * @param file the file to set
+     */
+    public void setFile(MultipartFile file) {
+        this.file = file;
+    }
+
 }

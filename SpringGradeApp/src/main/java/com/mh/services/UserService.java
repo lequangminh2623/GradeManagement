@@ -5,6 +5,7 @@
 package com.mh.services;
 
 import com.mh.pojo.User;
+import java.util.List;
 import java.util.Map;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.multipart.MultipartFile;
@@ -13,9 +14,17 @@ import org.springframework.web.multipart.MultipartFile;
  *
  * @author Le Quang Minh
  */
-public interface UserService extends UserDetailsService
-{
+public interface UserService extends UserDetailsService {
+
     User getUserByEmail(String email);
-    User addUser(Map<String, String> params, MultipartFile avatar);
+
     boolean authenticate(String email, String password);
+
+    List<User> getUsers(Map<String, String> params);
+
+    User saveUser(User user);
+
+    User getUserById(Integer id);
+
+    void deleteUser(Integer id);
 }

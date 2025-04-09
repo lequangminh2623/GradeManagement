@@ -13,4 +13,8 @@ import java.util.List;
  */
 public interface StudentService {
     List<Student> getStudentByUsername(String username);
+    
+    Student saveStudent(Student student);
+    
+    void deleteStudentByUserId(int userId);
 }

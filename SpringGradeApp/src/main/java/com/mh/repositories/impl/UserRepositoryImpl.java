@@ -7,7 +7,14 @@ package com.mh.repositories.impl;
 import com.mh.pojo.User;
 import com.mh.repositories.UserRepository;
 import jakarta.persistence.Query;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
@@ -23,8 +30,11 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class UserRepositoryImpl implements UserRepository {
 
+    private static final int PAGE_SIZE = 10;
+
     @Autowired
     private LocalSessionFactoryBean factory;
+
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
 
@@ -38,17 +48,79 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
-    public User addUser(User u) {
-        Session s = this.factory.getObject().getCurrentSession();
-        s.persist(u);
-
-        return u;
+    public boolean authenticate(String email, String password) {
+        User u = this.getUserByEmail(email);
+        return this.passwordEncoder.matches(password, u.getPassword());
     }
 
     @Override
-    public boolean authenticate(String email, String password) {
-        User u = this.getUserByEmail(email);
+    public List<User> getUsers(Map<String, String> params) {
+        Session s = this.factory.getObject().getCurrentSession();
+        CriteriaBuilder cb = s.getCriteriaBuilder();
+        CriteriaQuery<User> cq = cb.createQuery(User.class);
+        Root<User> root = cq.from(User.class);
+        cq.select(root);
 
-        return this.passwordEncoder.matches(password, u.getPassword());
+        List<Predicate> predicates = new ArrayList<>();
+
+        if (params != null) {
+            String kw = params.get("kw");
+            if (kw != null && !kw.isEmpty()) {
+                Predicate firstNameLike = cb.like(cb.lower(root.get("firstName")), "%" + kw.toLowerCase() + "%");
+                Predicate lastNameLike = cb.like(cb.lower(root.get("lastName")), "%" + kw.toLowerCase() + "%");
+                predicates.add(cb.or(firstNameLike, lastNameLike));
+            }
+
+            String role = params.get("role");
+            if (role != null && !role.isEmpty()) {
+                predicates.add(cb.equal(root.get("role"), role));
+            }
+
+            cq.where(predicates.toArray(new Predicate[0]));
+
+            String sortBy = params.get("sortBy");
+            if (sortBy != null && !sortBy.isEmpty()) {
+                cq.orderBy(cb.asc(root.get(sortBy)));
+            }
+        }
+
+        Query query = s.createQuery(cq);
+
+        if (params != null && params.containsKey("page")) {
+            int page = Integer.parseInt(params.get("page"));
+            int start = (page - 1) * PAGE_SIZE;
+            query.setMaxResults(PAGE_SIZE);
+            query.setFirstResult(start);
+        }
+
+        return query.getResultList();
     }
+
+    @Override
+    public User getUserById(Integer id) {
+        Session s = this.factory.getObject().getCurrentSession();
+        return s.get(User.class, id);
+    }
+
+    @Override
+    public void deleteUser(Integer id) {
+        Session s = this.factory.getObject().getCurrentSession();
+        User u = this.getUserById(id);
+        if (u != null) {
+            s.remove(u);
+        }
+    }
+
+    @Override
+    public User saveUser(User user) {
+        Session session = this.factory.getObject().getCurrentSession();
+
+        if (user.getId() == null || user.getId() == 0) {
+            session.persist(user);
+        } else {
+            session.merge(user);
+        }
+        return user;
+    }
+
 }

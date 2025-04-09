@@ -10,7 +10,9 @@ import com.mh.pojo.User;
 import com.mh.repositories.UserRepository;
 import com.mh.services.UserService;
 import java.io.IOException;
+import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
@@ -22,7 +24,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 /**
  *
@@ -58,33 +59,47 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User addUser(Map<String, String> params, MultipartFile avatar) {
-        User u = new User();
-        u.setFirstName(params.get("firstName"));
-        u.setLastName(params.get("lastName"));
-        u.setEmail(params.get("email"));
-        u.setPassword(this.passwordEncoder.encode(params.get("password")));
-        
-        if(params.get("role")!=null)
-            u.setRole(params.get("role"));
-        else
-            u.setRole("ROLE_STUDENT");
-        
-        if (!avatar.isEmpty()) {
+    public boolean authenticate(String email, String password) {
+        return this.userRepo.authenticate(email, password);
+    }
+
+    @Override
+    public User saveUser(User user) {
+        if (user.getPassword() == null) {
+            user.setPassword(this.passwordEncoder.encode("1"));
+        }
+        if (user.getCreatedDate() == null) {
+            user.setCreatedDate(new Date());
+        }
+        if (user.getRole() == null) {
+            user.setRole("ROLE_STUDENT");
+        }
+         if (!user.getFile().isEmpty()) {
             try {
-                Map res = cloudinary.uploader().upload(avatar.getBytes(), ObjectUtils.asMap("resource_type", "auto"));
-                u.setAvatar(res.get("secure_url").toString());
+                Map res = cloudinary.uploader().upload(user.getFile().getBytes(),
+                        ObjectUtils.asMap("resource_type", "auto"));
+                user.setAvatar(res.get("secure_url").toString());
             } catch (IOException ex) {
                 Logger.getLogger(UserServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
-        
-        return this.userRepo.addUser(u);
+        user.setUpdatedDate(new Date());
+        return userRepo.saveUser(user);
     }
 
     @Override
-    public boolean authenticate(String email, String password) {
-        return this.userRepo.authenticate(email, password);
+    public User getUserById(Integer id) {
+        return userRepo.getUserById(id);
+    }
+
+    @Override
+    public void deleteUser(Integer id) {
+        userRepo.deleteUser(id);
+    }
+
+    @Override
+    public List<User> getUsers(Map<String, String> params) {
+        return userRepo.getUsers(params);
     }
 
 }
