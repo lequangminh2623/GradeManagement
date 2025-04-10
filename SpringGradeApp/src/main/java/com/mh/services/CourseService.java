@@ -6,11 +6,20 @@ package com.mh.services;
 
 import com.mh.pojo.Course;
 import java.util.List;
+import java.util.Map;
 
 /**
  *
  * @author Le Quang Minh
  */
 public interface CourseService {
-    List<Course> getCourses();
+
+    List<Course> getCourses(Map<String, String> params);
+
+    Course saveCourse(Course course);
+
+    Course getCourseById(int id);
+
+    void deleteCourseById(int id);
+
 }

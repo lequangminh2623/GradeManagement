@@ -59,39 +59,39 @@ public class UserController {
     }
 
     @PostMapping("/users")
-public String saveUser(@ModelAttribute("user") @Valid User user, Model model) {
-    try {
-        if ("ROLE_STUDENT".equals(user.getRole())) {
-            Student s = user.getStudent();
-            if (s != null) {
-                userService.saveUser(user);
-                s.setId(user.getId());
-                studentService.saveStudent(s);
-            }
-        } else {
-            userService.saveUser(user);
-            studentService.deleteStudentByUserId(user.getId());
-        }
-
-        return "redirect:/users";
-    } catch (Exception e) {
-        Throwable root = ExceptionUtils.getRootCause(e);
-        if (root instanceof java.sql.SQLIntegrityConstraintViolationException && root.getMessage().contains("Duplicate entry")) {
-            if (root.getMessage().contains("user.email")) {
-                model.addAttribute("errorMessage", "Email này đã tồn tại.");
-            } else if (root.getMessage().contains("student.code")) {
-                model.addAttribute("errorMessage", "Mã số sinh viên đã tồn tại.");
+    public String saveUser(@ModelAttribute("user") @Valid User user, Model model) {
+        try {
+            if ("ROLE_STUDENT".equals(user.getRole())) {
+                Student s = user.getStudent();
+                if (s != null) {
+                    userService.saveUser(user);
+                    s.setId(user.getId());
+                    studentService.saveStudent(s);
+                }
             } else {
-                model.addAttribute("errorMessage", "Dữ liệu đã bị trùng.");
+                userService.saveUser(user);
+                studentService.deleteStudentByUserId(user.getId());
             }
-        } else {
-            model.addAttribute("errorMessage", "Đã xảy ra lỗi: " + root.getMessage());
-        }
 
-        model.addAttribute("user", user);
-        return "user-form";
+            return "redirect:/users";
+        } catch (Exception e) {
+            Throwable root = ExceptionUtils.getRootCause(e);
+            if (root instanceof java.sql.SQLIntegrityConstraintViolationException && root.getMessage().contains("Duplicate entry")) {
+                if (root.getMessage().contains("user.email")) {
+                    model.addAttribute("errorMessage", "Email này đã tồn tại.");
+                } else if (root.getMessage().contains("student.code")) {
+                    model.addAttribute("errorMessage", "Mã số sinh viên đã tồn tại.");
+                } else {
+                    model.addAttribute("errorMessage", "Dữ liệu đã bị trùng.");
+                }
+            } else {
+                model.addAttribute("errorMessage", "Đã xảy ra lỗi: " + root.getMessage());
+            }
+
+            model.addAttribute("user", user);
+            return "user-form";
+        }
     }
-}
 
     @GetMapping("/users/{id}")
     public String updateUser(@PathVariable("id") Integer id, Model model) {
