@@ -34,9 +34,6 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    @Autowired
-    private StudentService studentService;
-
     @GetMapping("/login")
     public String loginView() {
         return "login";
@@ -62,16 +59,13 @@ public class UserController {
         try {
             if ("ROLE_STUDENT".equals(user.getRole())) {
                 Student s = user.getStudent();
-                if (s != null) {
-                    userService.saveUser(user);
-                    s.setId(user.getId());
-                    studentService.saveStudent(s);
+                if (s.getId() == null) {
+                    s.setUser(user);
                 }
             } else {
-                userService.saveUser(user);
-                studentService.deleteStudentByUserId(user.getId());
+                user.setStudent(null);
             }
-
+            userService.saveUser(user);
             return "redirect:/users";
         } catch (Exception e) {
             Throwable root = ExceptionUtils.getRootCause(e);
