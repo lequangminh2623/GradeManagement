@@ -6,11 +6,21 @@ package com.mh.repositories;
 
 import com.mh.pojo.AcademicYear;
 import java.util.List;
+import java.util.Map;
 
 /**
  *
  * @author Le Quang Minh
  */
 public interface AcademicYearRepository {
-    List<AcademicYear> getAcademicYears();
+
+    List<AcademicYear> getAcademicYears(Map<String, String> params);
+
+    int countYears(Map<String, String> params);
+
+    AcademicYear saveYear(AcademicYear year);
+
+    AcademicYear getYearById(int id);
+
+    void deleteYearById(int id);
 }

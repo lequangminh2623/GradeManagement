@@ -13,5 +13,15 @@ import java.util.Map;
  * @author Le Quang Minh
  */
 public interface CourseService {
+
     List<Course> getCourses(Map<String, String> params);
+
+    Course saveCourse(Course course);
+
+    Course getCourseById(int id);
+
+    void deleteCourseById(int id);
+
+    int countCourse(Map<String, String> params);
+
 }

@@ -15,4 +15,13 @@ import java.util.Map;
 public interface CourseRepository {
 
     List<Course> getCourses(Map<String, String> params);
+
+    Course saveCourse(Course course);
+
+    Course getCourseById(int id);
+
+    void deleteCourseById(int id);
+
+    int countCourse(Map<String, String> params);
+
 }

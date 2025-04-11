@@ -17,6 +17,7 @@ import jakarta.persistence.NamedQuery;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import java.io.Serializable;
 import java.util.Set;
@@ -41,7 +42,8 @@ public class AcademicYear implements Serializable {
     private Integer id;
     @Basic(optional = false)
     @NotNull
-    @Size(min = 1, max = 9)
+    @Size(min = 1, max = 9, message = "abc")
+    @Pattern(regexp = "^[0-9]{4}-[0-9]{4}$", message = "Năm học phải có định dạng yyyy-yyyy")
     @Column(name = "year")
     private String year;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "academicYear")
@@ -107,5 +109,5 @@ public class AcademicYear implements Serializable {
     public String toString() {
         return "com.mh.pojo.AcademicYear[ id=" + id + " ]";
     }
-    
+
 }

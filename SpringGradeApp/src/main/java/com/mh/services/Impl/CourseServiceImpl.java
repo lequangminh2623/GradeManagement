@@ -18,14 +18,34 @@ import org.springframework.stereotype.Service;
  * @author Le Quang Minh
  */
 @Service
-public class CourseServiceImpl implements CourseService{
-    
+public class CourseServiceImpl implements CourseService {
+
     @Autowired
-    CourseRepository courseRepo;
+    private CourseRepository coursesRepotitory;
 
     @Override
     public List<Course> getCourses(Map<String, String> params) {
-        return this.courseRepo.getCourses(params);
+        return this.coursesRepotitory.getCourses(params);
+    }
+
+    @Override
+    public Course saveCourse(Course course) {
+        return this.coursesRepotitory.saveCourse(course);
+    }
+
+    @Override
+    public Course getCourseById(int id) {
+        return this.coursesRepotitory.getCourseById(id);
+    }
+
+    @Override
+    public void deleteCourseById(int id) {
+        this.coursesRepotitory.deleteCourseById(id);
+    }
+
+    @Override
+    public int countCourse(Map<String, String> params) {
+        return this.coursesRepotitory.countCourse(params);
     }
 
 }
