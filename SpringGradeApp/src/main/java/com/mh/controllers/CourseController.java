@@ -7,6 +7,7 @@ package com.mh.controllers;
 import com.mh.pojo.Course;
 import com.mh.services.CourseService;
 import com.mh.utils.ExceptionUtils;
+import com.mh.utils.PageSize;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.Map;
@@ -29,8 +30,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 @Controller
 public class CourseController {
 
-    private static final int PAGE_SIZE = 10;
-
     @Autowired
     private CourseService courseService;
 
@@ -45,7 +44,7 @@ public class CourseController {
         List<Course> courses = this.courseService.getCourses(params);
         model.addAttribute("courses", courses);
         model.addAttribute("currentPage", Integer.parseInt(params.get("page")));
-        model.addAttribute("totalPages", (int) Math.ceil((double) this.courseService.countCourse(params) / PAGE_SIZE));
+        model.addAttribute("totalPages", (int) Math.ceil((double) this.courseService.countCourse(params) / PageSize.COURSE_PAGE_SIZE.getSize()));
         model.addAttribute("kw", params.get("kw"));
         return "/course/course-list";
     }

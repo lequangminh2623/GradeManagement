@@ -1,0 +1,41 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <title>Thêm/Cập nhật năm học</title>
+    <th:block th:replace="base :: bootstrap"></th:block>
+</head>
+<body class="d-flex flex-column min-vh-100">
+    <p th:replace="base :: header"></p>
+    <main class="flex-grow-1 container mt-5">
+        <h2 class="text-center text-primary mb-4"
+            th:text="${academicYear.id == null ? 'Thêm năm học mới' : 'Cập nhật năm học'}">
+        </h2>
+        <div th:if="${errorMessage}" class="alert alert-danger" role="alert">
+            <span th:text="${errorMessage}"></span>
+        </div>
+        <form method="post"
+              th:action="@{/years}"
+              th:object="${academicYear}"
+              class="row g-3 needs-validation">
+
+            <div>
+                <label for="year" class="form-label">Tên năm học:</label>
+                <input type="text" class="form-control" id="year" th:field="*{year}" placeholder="2024-2025" required  
+                       th:classappend="${#fields.hasErrors('year')} ? 'is-invalid'"/>
+                <div class="invalid-feedback" th:errors="*{year}"></div>
+            </div>
+
+            <input type="hidden" th:field="*{id}" />
+
+            <div>
+                <button type="submit" class="btn btn-success">
+                    <span th:if="${academicYear.id == null}">➕ Thêm năm học</span>
+                    <span th:unless="${academicYear.id == null}">💾 Cập nhật năm học</span>
+                </button>
+            </div>
+        </form>
+    </main>
+    <p th:replace="base :: footer"></p>
+    <script th:src="@{/js/user.js}"></script>
+</body>
+</html>

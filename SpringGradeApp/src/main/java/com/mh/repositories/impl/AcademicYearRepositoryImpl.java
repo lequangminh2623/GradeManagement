@@ -5,9 +5,17 @@
 package com.mh.repositories.impl;
 
 import com.mh.pojo.AcademicYear;
+import com.mh.pojo.AcademicYear;
 import com.mh.repositories.AcademicYearRepository;
+import com.mh.utils.PageSize;
 import jakarta.persistence.Query;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
@@ -25,9 +33,78 @@ public class AcademicYearRepositoryImpl implements AcademicYearRepository {
     @Autowired
     private LocalSessionFactoryBean factory;
     
-    public List<AcademicYear> getAcademicYears() {
-        Session s = this.factory.getObject().getCurrentSession();
-        Query q = s.createQuery("FROM AcademicYear", AcademicYear.class);
-        return q.getResultList();
+    public List<AcademicYear> getAcademicYears(Map<String, String> params) {
+        Session session = this.factory.getObject().getCurrentSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<AcademicYear> cq = cb.createQuery(AcademicYear.class);
+        Root<AcademicYear> root = cq.from(AcademicYear.class);
+        
+        List<Predicate> predicates = new ArrayList<>();
+        
+        String kw = params.get("kw");
+        System.out.println(kw);
+        if (kw != null && !kw.isEmpty()) {
+            Predicate namePredicate = cb.like(root.get("year"), "%" + kw + "%");
+            predicates.add(namePredicate);
+        }
+        
+        cq.where(predicates.toArray(new Predicate[0]));
+        
+        Query query = session.createQuery(cq);
+        
+        int page = Integer.parseInt(params.get("page"));
+        int start = (page - 1) * PageSize.YEAR_PAGE_SIZE.getSize();
+        query.setMaxResults(PageSize.YEAR_PAGE_SIZE.getSize());
+        query.setFirstResult(start);
+        
+        return query.getResultList();
     }
+    
+    @Override
+    public int countYears(Map<String, String> params) {
+        Session session = this.factory.getObject().getCurrentSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<Long> cq = cb.createQuery(Long.class);
+        Root<AcademicYear> root = cq.from(AcademicYear.class);
+        
+        cq.select(cb.count(root));
+        
+        String kw = params.get("kw");
+        if (kw != null && !kw.isEmpty()) {
+            Predicate predicate = cb.like(root.get("year"), "%" + kw + "%");
+            cq.where(predicate);
+        }
+        
+        Long result = session.createQuery(cq).getSingleResult();
+        return result.intValue();
+    }
+    
+    @Override
+    public AcademicYear saveYear(AcademicYear year) {
+        Session session = this.factory.getObject().getCurrentSession();
+        
+        if (year.getId() == null || year.getId() == 0) {
+            session.persist(year);
+        } else {
+            session.merge(year);
+        }
+        
+        return year;
+    }
+    
+    @Override
+    public AcademicYear getYearById(int id) {
+        Session session = this.factory.getObject().getCurrentSession();
+        return session.get(AcademicYear.class, id);
+    }
+    
+    @Override
+    public void deleteYearById(int id) {
+        Session session = this.factory.getObject().getCurrentSession();
+        AcademicYear year = session.get(AcademicYear.class, id);
+        if (year != null) {
+            session.remove(year);
+        }
+    }
+    
 }
