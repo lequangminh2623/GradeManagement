@@ -45,7 +45,7 @@ public class CourseController {
         List<Course> courses = this.courseService.getCourses(params);
         model.addAttribute("courses", courses);
         model.addAttribute("currentPage", Integer.parseInt(params.get("page")));
-        model.addAttribute("totalPages", (int) Math.ceil((double) courses.size() / PAGE_SIZE));
+        model.addAttribute("totalPages", (int) Math.ceil((double) this.courseService.countCourse(params) / PAGE_SIZE));
         model.addAttribute("kw", params.get("kw"));
         return "/course/course-list";
     }

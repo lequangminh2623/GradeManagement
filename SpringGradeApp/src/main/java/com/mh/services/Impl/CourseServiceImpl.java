@@ -41,7 +41,10 @@ public class CourseServiceImpl implements CourseService {
     public void deleteCourseById(int id) {
         this.coursesRepotitory.deleteCourseById(id);
     }
-    
-    
+
+    @Override
+    public int countCourse(Map<String, String> params) {
+        return this.coursesRepotitory.countCourse(params);
+    }
 
 }

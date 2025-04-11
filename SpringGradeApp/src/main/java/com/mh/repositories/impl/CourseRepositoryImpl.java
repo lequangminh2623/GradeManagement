@@ -53,7 +53,7 @@ public class CourseRepositoryImpl implements CourseRepository {
         Query query = session.createQuery(cq);
 
         int page = Integer.parseInt(params.get("page"));
-        int start = (page - 1) * PAGE_SIZE;        
+        int start = (page - 1) * PAGE_SIZE;
         query.setMaxResults(PAGE_SIZE);
         query.setFirstResult(start);
 
@@ -87,6 +87,25 @@ public class CourseRepositoryImpl implements CourseRepository {
         if (course != null) {
             session.remove(course);
         }
+    }
+
+    @Override
+    public int countCourse(Map<String, String> params) {
+        Session session = this.factory.getObject().getCurrentSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<Long> cq = cb.createQuery(Long.class);
+        Root<Course> root = cq.from(Course.class);
+
+        cq.select(cb.count(root));
+
+        String kw = params.get("kw");
+        if (kw != null && !kw.isEmpty()) {
+            Predicate predicate = cb.like(root.get("name"), "%" + kw + "%");
+            cq.where(predicate);
+        }
+
+        Long result = session.createQuery(cq).getSingleResult();
+        return result.intValue();
     }
 
 }

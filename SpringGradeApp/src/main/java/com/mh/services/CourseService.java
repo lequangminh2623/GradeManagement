@@ -22,4 +22,6 @@ public interface CourseService {
 
     void deleteCourseById(int id);
 
+    int countCourse(Map<String, String> params);
+
 }

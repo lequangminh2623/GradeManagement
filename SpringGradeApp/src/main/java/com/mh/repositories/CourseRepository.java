@@ -22,4 +22,6 @@ public interface CourseRepository {
 
     void deleteCourseById(int id);
 
+    int countCourse(Map<String, String> params);
+
 }
