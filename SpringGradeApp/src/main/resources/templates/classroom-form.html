@@ -1,0 +1,101 @@
+<!-- Form classroom -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <title>Lớp học</title>
+    <th:block th:replace="base :: bootstrap"></th:block>
+    <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.css" rel="stylesheet" />
+</head>
+<body>
+    <p th:replace="base :: header"></p>
+    <main class="container py-5">
+        <h2 class="mb-4" th:text="${classroom.id == null ? 'Thêm lớp học' : 'Cập nhật lớp học'}"></h2>
+
+        <form method="post" th:action="@{/classrooms}" th:object="${classroom}" class="row g-3">
+            <input type="hidden" th:field="*{id}" />
+
+            <div class="col-md-6">
+                <label class="form-label">Tên lớp:</label>
+                <input type="text" class="form-control" th:field="*{name}" required />
+            </div>
+
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label">Giảng viên:</label>
+                    <select th:field="*{lecturer.id}" id="lecturerSelect" class="form-select">
+                        <option value="">-- Chọn giảng viên --</option>
+                        <option th:each="l : ${lecturers}" 
+                                th:value="${l.id}" 
+                                th:text="${l.id + ' - ' + l.lastName + ' ' + l.firstName}">
+                        </option>
+                    </select>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">Môn học:</label>
+                    <select th:field="*{course.id}" id="courseSelect" class="form-select">
+                        <option value="">-- Chọn môn học --</option>
+                        <option th:each="c : ${courses}" 
+                                th:value="${c.id}" 
+                                th:text="${c.name}">
+                        </option>
+                    </select>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">Học kỳ:</label>
+                    <select th:field="*{semester.id}" id="semesterSelect" class="form-select">
+                        <option value="">-- Chọn học kỳ --</option>
+                        <option th:each="s : ${semesters}" 
+                                th:value="${s.id}" 
+                                th:text="${s.academicYear.year + ' - ' + s.semesterType}">
+                        </option>
+                    </select>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">Thêm sinh viên:</label>
+                    <select name="studentIds[]" id="studentSelect" multiple class="form-select">
+                        <option th:each="s : ${students}" 
+                                th:value="${s.id}" 
+                                th:text="${s.code + ' - ' + s.user.firstName + ' ' + s.user.lastName}">
+                        </option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="col-12 mt-4">
+                <h5>Danh sách sinh viên đã thêm</h5>
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>MSSV</th>
+                            <th>Họ tên</th>
+                            <th>Hành động</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="s : ${classroom.studentSet}">
+                            <td th:text="${s.code}"></td>
+                            <td th:text="${s.user.firstName + ' ' + s.user.lastName}"></td>
+                            <td>
+                                <button class="btn btn-danger" th:onclick="'removeStudentFromClassroom(\''+@{/classrooms/}+'\','+${classroom.id}+','+${s.id}+')'">🗑</button>
+                            </td>
+                        </tr>
+                    </tbody>
+
+                </table>
+            </div>
+
+            <div class="col-12">
+                <button type="submit" class="btn btn-primary">💾 Lưu lớp học</button>
+                <a th:href="@{/classrooms}" class="btn btn-secondary">⬅️ Quay lại</a>
+            </div>
+        </form>
+    </main>
+    <p th:replace="base :: footer"></p>
+    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
+    <script th:src="@{/js/classroom.js}"></script>
+
+</body>
+</html>

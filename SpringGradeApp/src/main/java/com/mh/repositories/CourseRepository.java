@@ -6,11 +6,13 @@ package com.mh.repositories;
 
 import com.mh.pojo.Course;
 import java.util.List;
+import java.util.Map;
 
 /**
  *
  * @author Le Quang Minh
  */
 public interface CourseRepository {
-    List<Course> getCourses();
+
+    List<Course> getCourses(Map<String, String> params);
 }

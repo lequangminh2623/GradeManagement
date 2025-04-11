@@ -5,8 +5,12 @@
 package com.mh.services.Impl;
 
 import com.mh.pojo.Course;
+import com.mh.repositories.CourseRepository;
 import com.mh.services.CourseService;
+import com.nimbusds.jose.crypto.impl.AAD;
 import java.util.List;
+import java.util.Map;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
@@ -15,10 +19,13 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class CourseServiceImpl implements CourseService{
+    
+    @Autowired
+    CourseRepository courseRepo;
 
     @Override
-    public List<Course> getCourses() {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    public List<Course> getCourses(Map<String, String> params) {
+        return this.courseRepo.getCourses(params);
     }
-    
+
 }

@@ -12,7 +12,6 @@ import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import org.hibernate.Session;
@@ -30,7 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class UserRepositoryImpl implements UserRepository {
 
-    private static final int PAGE_SIZE = 10;
+    private static final int PAGE_SIZE = 15;
 
     @Autowired
     private LocalSessionFactoryBean factory;
