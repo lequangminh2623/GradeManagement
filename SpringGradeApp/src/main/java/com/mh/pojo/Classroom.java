@@ -22,6 +22,7 @@ import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.io.Serializable;
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -49,8 +50,9 @@ public class Classroom implements Serializable {
     @Column(name = "name")
     private String name;
     @Size(max = 6)
+    @NotNull
     @Column(name = "grade_status")
-    private String gradeStatus;
+    private String gradeStatus="DRAFT";
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "classroom")
     private Set<ForumPost> forumPostSet;
     @ManyToMany
@@ -59,7 +61,7 @@ public class Classroom implements Serializable {
             joinColumns = @JoinColumn(name = "classroom_id"),
             inverseJoinColumns = @JoinColumn(name = "student_id")
     )
-    private Set<Student> studentSet;
+    private Set<Student> studentSet = new HashSet<>();
     @JoinColumn(name = "course_id", referencedColumnName = "id")
     @ManyToOne(optional = false)
     private Course course;

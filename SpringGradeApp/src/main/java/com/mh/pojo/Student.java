@@ -11,6 +11,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToMany;
+import jakarta.persistence.MapsId;
 import jakarta.persistence.NamedQueries;
 import jakarta.persistence.NamedQuery;
 import jakarta.persistence.OneToMany;
@@ -44,8 +45,9 @@ public class Student implements Serializable {
     @Size(min = 1, max = 10)
     @Column(name = "code")
     private String code;
-    @JoinColumn(name = "id", referencedColumnName = "id", insertable = false, updatable = false)
-    @OneToOne(optional = false)
+    @OneToOne
+    @MapsId
+    @JoinColumn(name = "id")
     private User user;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "student")
     private Set<GradeDetail> gradeDetailSet;
@@ -105,7 +107,6 @@ public class Student implements Serializable {
 
     @Override
     public boolean equals(Object object) {
-        // TODO: Warning - this method won't work in the case the id fields are not set
         if (!(object instanceof Student)) {
             return false;
         }

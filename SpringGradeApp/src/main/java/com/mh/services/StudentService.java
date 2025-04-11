@@ -6,15 +6,15 @@ package com.mh.services;
 
 import com.mh.pojo.Student;
 import java.util.List;
+import java.util.Map;
 
 /**
  *
  * @author Le Quang Minh
  */
 public interface StudentService {
-    List<Student> getStudentByUsername(String username);
     
-    Student saveStudent(Student student);
+    List<Student> getStudents(Map<String, String> params);
     
-    void deleteStudentByUserId(int userId);
+    Student getStudentByUserId(int userId);
 }

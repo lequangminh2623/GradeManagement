@@ -11,8 +11,11 @@ import jakarta.persistence.Query;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
@@ -31,42 +34,58 @@ public class StudentRepositoryImpl implements StudentRepository {
     private LocalSessionFactoryBean factory;
 
     @Override
-    public List<Student> getStudentByUsername(String username) {
-        Session session = factory.getObject().getCurrentSession();
-        CriteriaBuilder cb = session.getCriteriaBuilder();
+    public List<Student> getStudents(Map<String, String> params) {
+        Session s = this.factory.getObject().getCurrentSession();
+        CriteriaBuilder cb = s.getCriteriaBuilder();
         CriteriaQuery<Student> cq = cb.createQuery(Student.class);
         Root<Student> root = cq.from(Student.class);
+        Join<Student, User> userJoin = root.join("user");
+
         cq.select(root);
 
-        if (username != null && !username.isEmpty()) {
-            Join<Student, User> userJoin = root.join("user"); // Liên kết bảng User với Student
-            cq.where(cb.equal(userJoin.get("name"), username));
+        List<Predicate> predicates = new ArrayList<>();
+
+        if (params != null) {
+            String kw = params.get("kw");
+            if (kw != null && !kw.isEmpty()) {
+                String pattern = "%" + kw.toLowerCase() + "%";
+
+                Predicate firstNameLike = cb.like(cb.lower(userJoin.get("firstName")), pattern);
+                Predicate lastNameLike = cb.like(cb.lower(userJoin.get("lastName")), pattern);
+                Predicate codeLike = cb.like(cb.lower(root.get("code")), pattern);
+
+                predicates.add(cb.or(firstNameLike, lastNameLike, codeLike));
+            }
+
+            String role = params.get("role");
+            if (role != null && !role.isEmpty()) {
+                predicates.add(cb.equal(userJoin.get("role"), role));
+            }
+
+            cq.where(predicates.toArray(new Predicate[0]));
         }
 
-        Query query = session.createQuery(cq);
+        Query query = s.createQuery(cq);
         return query.getResultList();
     }
 
     @Override
-    public Student saveStudent(Student student) {
-        Session session = this.factory.getObject().getCurrentSession();
+    public Student getStudentByUserId(int userId) {
+        Session s = this.factory.getObject().getCurrentSession();
 
-        if (student.getId() == null || student.getId() == 0) {
-            session.persist(student);
-        } else {
-            session.merge(student);
-        }
+        CriteriaBuilder cb = s.getCriteriaBuilder();
+        CriteriaQuery<Student> cq = cb.createQuery(Student.class);
+        Root<Student> root = cq.from(Student.class);
 
-        return student;
-    }
+        root.fetch("user");
 
-    @Override
-    public void deleteStudentByUserId(int userId) {
-        Session session = this.factory.getObject().getCurrentSession();
-        Student student = session.get(Student.class, userId);
-        if (student != null) {
-            session.remove(student);
-        }
+        // Điều kiện: user.id = userId
+        cq.select(root).where(cb.equal(root.get("user").get("id"), userId));
+
+        Query q = s.createQuery(cq);
+        List<Student> results = q.getResultList();
+
+        return results.isEmpty() ? null : results.get(0);
     }
 
 }
