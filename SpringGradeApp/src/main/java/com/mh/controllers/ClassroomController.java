@@ -11,6 +11,7 @@ import com.mh.services.ClassroomService;
 import com.mh.services.CourseService;
 import com.mh.services.SemesterService;
 import com.mh.services.UserService;
+import com.mh.utils.PageSize;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -54,9 +55,18 @@ public class ClassroomController {
 
     @GetMapping("")
     public String listClassrooms(Model model, @RequestParam Map<String, String> params) {
+        String page = params.get("page");
+
+        if (page == null || page.isEmpty()) {
+            params.put("page", "1");
+        }
+        
         List<Classroom> classrooms = this.classroomService.getClassrooms(params);
         model.addAttribute("classrooms", classrooms);
-        return "classroom-list";
+        model.addAttribute("currentPage", Integer.parseInt(params.get("page")));
+        model.addAttribute("totalPages", (int) Math.ceil((double) this.classroomService.countClassroom(params) / PageSize.CLASSROOM_PAGE_SIZE.getSize()));
+        model.addAttribute("kw", params.get("kw"));
+        return "/classroom/classroom-list";
     }
 
     @GetMapping("/add")
@@ -70,7 +80,7 @@ public class ClassroomController {
         model.addAttribute("semesters", semesterService.getSemesters(null));
         model.addAttribute("lecturers", userService.getUsers(role));
 
-        return "classroom-form";
+        return "/classroom/classroom-form";
     }
 
     @GetMapping("/{id}")
@@ -89,7 +99,7 @@ public class ClassroomController {
         model.addAttribute("semesters", semesterService.getSemesters(null));
         model.addAttribute("lecturers", userService.getUsers(role));
 
-        return "classroom-form";
+        return "/classrooms/classroom-form";
     }
 
     @PostMapping("")

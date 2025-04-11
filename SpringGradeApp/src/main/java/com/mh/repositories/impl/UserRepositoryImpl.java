@@ -121,5 +121,24 @@ public class UserRepositoryImpl implements UserRepository {
         }
         return user;
     }
+    
+    @Override
+    public int countUser(Map<String, String> params) {
+        Session session = this.factory.getObject().getCurrentSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<Long> cq = cb.createQuery(Long.class);
+        Root<User> root = cq.from(User.class);
+
+        cq.select(cb.count(root));
+
+        String kw = params.get("kw");
+        if (kw != null && !kw.isEmpty()) {
+            Predicate predicate = cb.like(root.get("name"), "%" + kw + "%");
+            cq.where(predicate);
+        }
+
+        Long result = session.createQuery(cq).getSingleResult();
+        return result.intValue();
+    }
 
 }

@@ -48,9 +48,8 @@ public class ClassroomRepositoryImpl implements ClassroomRepository {
         if (params != null) {
             String kw = params.get("kw");
             if (kw != null && !kw.isEmpty()) {
-                Predicate firstNameLike = cb.like(cb.lower(root.get("firstName")), "%" + kw.toLowerCase() + "%");
-                Predicate lastNameLike = cb.like(cb.lower(root.get("lastName")), "%" + kw.toLowerCase() + "%");
-                predicates.add(cb.or(firstNameLike, lastNameLike));
+                Predicate namePredicate = cb.like(root.get("name"), "%" + kw + "%");
+                predicates.add(namePredicate);
             }
 
             String role = params.get("role");
@@ -119,5 +118,24 @@ public class ClassroomRepositoryImpl implements ClassroomRepository {
         return session.createQuery(hql, Classroom.class)
                 .setParameter("id", id)
                 .uniqueResult();
+    }
+
+    @Override
+    public int countClassroom(Map<String, String> params) {
+        Session session = this.factory.getObject().getCurrentSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<Long> cq = cb.createQuery(Long.class);
+        Root<Classroom> root = cq.from(Classroom.class);
+
+        cq.select(cb.count(root));
+
+        String kw = params.get("kw");
+        if (kw != null && !kw.isEmpty()) {
+            Predicate predicate = cb.like(root.get("name"), "%" + kw + "%");
+            cq.where(predicate);
+        }
+
+        Long result = session.createQuery(cq).getSingleResult();
+        return result.intValue();
     }
 }

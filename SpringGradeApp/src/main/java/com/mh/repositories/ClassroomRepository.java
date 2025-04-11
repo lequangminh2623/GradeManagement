@@ -23,4 +23,6 @@ public interface ClassroomRepository {
     void deleteClassroom(Integer id);
     
     Classroom getClassroomWithStudents(Integer id);
+    
+    int countClassroom(Map<String, String> params);
 }

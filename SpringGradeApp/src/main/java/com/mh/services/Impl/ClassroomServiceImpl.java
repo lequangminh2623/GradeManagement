@@ -65,4 +65,9 @@ public class ClassroomServiceImpl implements ClassroomService {
 
         this.saveClassroom(classroom);
     }
+
+    @Override
+    public int countClassroom(Map<String, String> params) {
+        return this.classroomRepo.countClassroom(params);
+    }
 }

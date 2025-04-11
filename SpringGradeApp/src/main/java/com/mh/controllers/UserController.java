@@ -9,6 +9,7 @@ import com.mh.pojo.User;
 import com.mh.services.StudentService;
 import com.mh.services.UserService;
 import com.mh.utils.ExceptionUtils;
+import com.mh.utils.PageSize;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.Map;
@@ -41,9 +42,18 @@ public class UserController {
 
     @GetMapping("/users")
     public String listUsers(Model model, @RequestParam Map<String, String> params) {
+        String page = params.get("page");
+
+        if (page == null || page.isEmpty()) {
+            params.put("page", "1");
+        }
+        
         List<User> users = this.userService.getUsers(params);
         model.addAttribute("users", users);
-        return "/user-list";
+        model.addAttribute("currentPage", Integer.parseInt(params.get("page")));
+        model.addAttribute("totalPages", (int) Math.ceil((double) this.userService.countUser(params) / PageSize.USER_PAGE_SIZE.getSize()));
+        model.addAttribute("kw", params.get("kw"));
+        return "/user/user-list";
     }
 
     @GetMapping("/users/add")
@@ -51,7 +61,7 @@ public class UserController {
         User user = new User();
         user.setStudent(new Student());
         model.addAttribute("user", user);
-        return "user-form";
+        return "/user/user-form";
     }
 
     @PostMapping("/users")
@@ -82,7 +92,7 @@ public class UserController {
             }
 
             model.addAttribute("user", user);
-            return "user-form";
+            return "/user/user-form";
         }
     }
 
@@ -91,7 +101,7 @@ public class UserController {
         User user = userService.getUserById(id);
         model.addAttribute("user", user);
 
-        return "user-form";
+        return "/user/user-form";
     }
 
     @DeleteMapping("/users/{id}")

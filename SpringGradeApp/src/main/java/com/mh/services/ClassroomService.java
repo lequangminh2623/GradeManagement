@@ -25,4 +25,6 @@ public interface ClassroomService {
     void removeStudentFromClass(int classId, int studentId);
     
     Classroom getClassroomWithStudents(Integer id);
+    
+    int countClassroom(Map<String, String> params);
 }
