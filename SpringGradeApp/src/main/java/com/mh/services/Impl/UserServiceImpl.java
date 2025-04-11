@@ -102,4 +102,9 @@ public class UserServiceImpl implements UserService {
         return userRepo.getUsers(params);
     }
 
+    @Override
+    public int countUser(Map<String, String> params) {
+        return this.userRepo.countUser(params);
+    }
+
 }

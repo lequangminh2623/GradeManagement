@@ -25,4 +25,6 @@ public interface UserRepository {
     void deleteUser(Integer id);
     
     User saveUser(User user);
+    
+    int countUser(Map<String, String> params);
 }
