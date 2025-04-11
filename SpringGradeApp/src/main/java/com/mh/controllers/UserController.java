@@ -34,9 +34,6 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    @Autowired
-    private StudentService studentService;
-
     @GetMapping("/login")
     public String loginView() {
         return "login";
@@ -62,9 +59,6 @@ public class UserController {
         try {
             if ("ROLE_STUDENT".equals(user.getRole())) {
                 Student s = user.getStudent();
-                System.out.println(user.getId());
-                System.out.println(s.getId());
-                System.out.println(s.getCode());
                 if (s.getId() == null) {
                     s.setUser(user);
                 }
