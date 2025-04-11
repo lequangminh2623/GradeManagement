@@ -25,6 +25,9 @@
                             <a class="nav-link" th:href="@{/users}" sec:authorize="isAuthenticated()">Người dùng</a>
                         </li>
                         <li class="nav-item" >
+                            <a class="nav-link" th:href="@{/classrooms}" sec:authorize="isAuthenticated()">Lớp học</a>
+                        </li>
+                        <li class="nav-item" >
                             <a class="nav-link" th:href="@{/logout}" sec:authorize="isAuthenticated()">Đăng xuất</a>
                         </li>
                     </ul>

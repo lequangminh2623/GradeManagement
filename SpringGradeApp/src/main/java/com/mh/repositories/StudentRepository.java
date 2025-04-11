@@ -6,15 +6,14 @@ package com.mh.repositories;
 
 import com.mh.pojo.Student;
 import java.util.List;
+import java.util.Map;
 
 /**
  *
  * @author Le Quang Minh
  */
 public interface StudentRepository {
-    List<Student> getStudentByUsername(String username);
+    List<Student> getStudents(Map<String, String> params);
     
-    Student saveStudent(Student student);
-    
-    void deleteStudentByUserId(int userId);
+    Student getStudentByUserId(int userId);
 }

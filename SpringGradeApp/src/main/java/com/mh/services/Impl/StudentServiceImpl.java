@@ -10,12 +10,12 @@ import com.mh.services.StudentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;
+import java.util.Map;
 
 /**
  *
  * @author Le Quang Minh
  */
-
 @Service
 public class StudentServiceImpl implements StudentService {
 
@@ -23,17 +23,12 @@ public class StudentServiceImpl implements StudentService {
     private StudentRepository studentRepo;
 
     @Override
-    public List<Student> getStudentByUsername(String username) {
-        return studentRepo.getStudentByUsername(username);
+    public List<Student> getStudents(Map<String, String> params) {
+        return this.studentRepo.getStudents(params);
     }
 
     @Override
-    public Student saveStudent(Student student) {
-        return studentRepo.saveStudent(student);
-    }
-
-    @Override
-    public void deleteStudentByUserId(int userId) {
-        this.studentRepo.deleteStudentByUserId(userId);
+    public Student getStudentByUserId(int userId) {
+        return this.studentRepo.getStudentByUserId(userId);
     }
 }

@@ -6,11 +6,21 @@ package com.mh.repositories;
 
 import com.mh.pojo.Classroom;
 import java.util.List;
+import java.util.Map;
 
 /**
  *
  * @author Le Quang Minh
  */
 public interface ClassroomRepository {
-    List<Classroom> getClassrooms();
+
+    List<Classroom> getClassrooms(Map<String, String> params);
+
+    Classroom saveClassroom(Classroom classroom);
+
+    Classroom getClassroomById(Integer id);
+
+    void deleteClassroom(Integer id);
+    
+    Classroom getClassroomWithStudents(Integer id);
 }

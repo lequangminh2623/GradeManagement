@@ -10,6 +10,7 @@ import com.mh.services.SemesterService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;
+import java.util.Map;
 /**
  *
  * @author Le Quang Minh
@@ -24,5 +25,10 @@ public class SemesterServiceImpl implements SemesterService {
     @Override
     public List<Semester> getSemestersByAcademicYearName(String year) {
         return semesterRepo.getSemestersByAcademicYearName(year);
+    }
+
+    @Override
+    public List<Semester> getSemesters(Map<String, String> params) {
+        return this.semesterRepo.getSemesters(params);
     }
 }
