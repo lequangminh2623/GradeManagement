@@ -42,7 +42,7 @@
                         <td th:text="${c.name}"></td>
                         <td>
                             <a th:href="@{'/courses/' + ${c.id}}" class="btn btn-warning">✏️</a>
-                            <button class="btn btn-danger" th:onclick="'deleteUser(\''+@{/courses/}+'\','+${c.id}+')'">🗑️</button>
+                            <button class="btn btn-danger" th:onclick="'deleteCourse(\''+@{/courses/}+'\','+${c.id}+')'">🗑️</button>
                         </td>
                     </tr>
 
@@ -87,6 +87,6 @@
     </main>
 
     <p th:replace="base :: footer"></p>
-    <script th:src="@{/js/user.js}"></script>
+    <script th:src="@{/js/course.js}"></script>
 </body>
 </html>

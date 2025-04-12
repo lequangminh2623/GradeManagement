@@ -12,7 +12,10 @@ import jakarta.validation.Valid;
 import java.util.List;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -90,9 +93,18 @@ public class AcademicYearController {
     }
 
     @DeleteMapping("/years/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public String deleteYear(@PathVariable(value = "id") int id) {
-        this.academicYearService.deleteYearById(id);
-        return "redirect:/ years";
+    public ResponseEntity<String> deleteCourse(@PathVariable("id") int id) {
+        try {
+            this.academicYearService.deleteYearById(id);
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        } catch (DataIntegrityViolationException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .contentType(MediaType.parseMediaType("text/plain; charset=UTF-8"))
+                    .body("Không thể xóa năm học này.");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .contentType(MediaType.parseMediaType("text/plain; charset=UTF-8"))
+                    .body("Đã xảy ra lỗi: " + e.getMessage());
+        }
     }
 }
