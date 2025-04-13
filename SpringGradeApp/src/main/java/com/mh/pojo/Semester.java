@@ -45,9 +45,9 @@ public class Semester implements Serializable {
     @Size(min = 1, max = 11)
     @Column(name = "semester_type")
     private String semesterType;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "semester")
+    @OneToMany(mappedBy = "semester")
     private Set<GradeDetail> gradeDetailSet;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "semester")
+    @OneToMany(mappedBy = "semester")
     private Set<Classroom> classroomSet;
     @JoinColumn(name = "academic_year_id", referencedColumnName = "id")
     @ManyToOne(optional = false)

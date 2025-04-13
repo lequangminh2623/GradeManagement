@@ -12,7 +12,10 @@ import jakarta.validation.Valid;
 import java.util.List;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -83,10 +86,20 @@ public class CourseController {
         return "/course/course-form";
     }
 
-    @DeleteMapping("courses/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteCourse(@PathVariable(value = "id") int id) {
-        this.courseService.deleteCourseById(id);
+    @DeleteMapping("/courses/{id}")
+    public ResponseEntity<String> deleteCourse(@PathVariable("id") int id) {
+        try {
+            this.courseService.deleteCourseById(id);
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        } catch (DataIntegrityViolationException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .contentType(MediaType.parseMediaType("text/plain; charset=UTF-8"))
+                    .body("Không thể xóa môn học này.");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .contentType(MediaType.parseMediaType("text/plain; charset=UTF-8"))
+                    .body("Đã xảy ra lỗi: " + e.getMessage());
+        }
     }
-
+   
 }

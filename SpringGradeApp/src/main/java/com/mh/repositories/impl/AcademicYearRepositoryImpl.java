@@ -43,21 +43,22 @@ public class AcademicYearRepositoryImpl implements AcademicYearRepository {
 
         if (params != null) {
             String kw = params.get("kw");
-            System.out.println(kw);
             if (kw != null && !kw.isEmpty()) {
                 Predicate namePredicate = cb.like(root.get("year"), "%" + kw + "%");
                 predicates.add(namePredicate);
             }
-
-            cq.where(predicates.toArray(new Predicate[0]));
         }
-        
+
+        cq.where(predicates.toArray(new Predicate[0]));
+
         Query query = session.createQuery(cq);
 
-        int page = Integer.parseInt(params.get("page"));
-        int start = (page - 1) * PageSize.YEAR_PAGE_SIZE.getSize();
-        query.setMaxResults(PageSize.YEAR_PAGE_SIZE.getSize());
-        query.setFirstResult(start);
+        if (params != null && params.containsKey("page")) {
+            int page = Integer.parseInt(params.get("page"));
+            int start = (page - 1) * PageSize.YEAR_PAGE_SIZE.getSize();
+            query.setMaxResults(PageSize.YEAR_PAGE_SIZE.getSize());
+            query.setFirstResult(start);
+        }
 
         return query.getResultList();
     }
