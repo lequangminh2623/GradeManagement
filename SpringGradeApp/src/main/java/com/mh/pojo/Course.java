@@ -43,9 +43,9 @@ public class Course implements Serializable {
     @Size(min = 1, max = 255)
     @Column(name = "name")
     private String name;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "course")
+    @OneToMany(mappedBy = "course")
     private Set<GradeDetail> gradeDetailSet;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "course")
+    @OneToMany(mappedBy = "course")
     private Set<Classroom> classroomSet;
 
     public Course() {
@@ -116,5 +116,5 @@ public class Course implements Serializable {
     public String toString() {
         return "com.mh.pojo.Course[ id=" + id + " ]";
     }
-    
+
 }

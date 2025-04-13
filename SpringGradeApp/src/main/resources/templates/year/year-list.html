@@ -44,7 +44,7 @@
                         <td th:text="${y.year}"></td>
                         <td>
                             <a th:href="@{'/years/' + ${y.id}}" class="btn btn-warning">✏️</a>
-                            <button class="btn btn-danger" th:onclick="'deleteUser(\''+@{/years/}+'\','+${y.id}+')'">🗑️</button>
+                            <button class="btn btn-danger" th:onclick="'deleteYear(\''+@{/years/}+'\','+${y.id}+')'">🗑️</button>
                         </td>
                         <td><a th:href="@{'/years/' + ${y.id} + '/semesters'}" class="btn btn-info">Xem học kỳ <i class="fa-solid fa-chevron-right"></i></a></td>
                     </tr>
@@ -89,6 +89,6 @@
     </main>
 
     <p th:replace="base :: footer"></p>
-    <script th:src="@{/js/user.js}"></script>
+    <script th:src="@{/js/year.js}"></script>
 </body>
 </html>

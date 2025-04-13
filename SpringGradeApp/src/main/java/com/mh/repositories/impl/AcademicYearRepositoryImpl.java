@@ -29,75 +29,78 @@ import org.springframework.transaction.annotation.Transactional;
 @Repository
 @Transactional
 public class AcademicYearRepositoryImpl implements AcademicYearRepository {
-    
+
     @Autowired
     private LocalSessionFactoryBean factory;
-    
+
     public List<AcademicYear> getAcademicYears(Map<String, String> params) {
         Session session = this.factory.getObject().getCurrentSession();
         CriteriaBuilder cb = session.getCriteriaBuilder();
         CriteriaQuery<AcademicYear> cq = cb.createQuery(AcademicYear.class);
         Root<AcademicYear> root = cq.from(AcademicYear.class);
-        
+
         List<Predicate> predicates = new ArrayList<>();
-        
-        String kw = params.get("kw");
-        System.out.println(kw);
-        if (kw != null && !kw.isEmpty()) {
-            Predicate namePredicate = cb.like(root.get("year"), "%" + kw + "%");
-            predicates.add(namePredicate);
+
+        if (params != null) {
+            String kw = params.get("kw");
+            if (kw != null && !kw.isEmpty()) {
+                Predicate namePredicate = cb.like(root.get("year"), "%" + kw + "%");
+                predicates.add(namePredicate);
+            }
         }
-        
+
         cq.where(predicates.toArray(new Predicate[0]));
-        
+
         Query query = session.createQuery(cq);
-        
-        int page = Integer.parseInt(params.get("page"));
-        int start = (page - 1) * PageSize.YEAR_PAGE_SIZE.getSize();
-        query.setMaxResults(PageSize.YEAR_PAGE_SIZE.getSize());
-        query.setFirstResult(start);
+
+        if (params != null && params.containsKey("page")) {
+            int page = Integer.parseInt(params.get("page"));
+            int start = (page - 1) * PageSize.YEAR_PAGE_SIZE.getSize();
+            query.setMaxResults(PageSize.YEAR_PAGE_SIZE.getSize());
+            query.setFirstResult(start);
+        }
         
         return query.getResultList();
     }
-    
+
     @Override
     public int countYears(Map<String, String> params) {
         Session session = this.factory.getObject().getCurrentSession();
         CriteriaBuilder cb = session.getCriteriaBuilder();
         CriteriaQuery<Long> cq = cb.createQuery(Long.class);
         Root<AcademicYear> root = cq.from(AcademicYear.class);
-        
+
         cq.select(cb.count(root));
-        
+
         String kw = params.get("kw");
         if (kw != null && !kw.isEmpty()) {
             Predicate predicate = cb.like(root.get("year"), "%" + kw + "%");
             cq.where(predicate);
         }
-        
+
         Long result = session.createQuery(cq).getSingleResult();
         return result.intValue();
     }
-    
+
     @Override
     public AcademicYear saveYear(AcademicYear year) {
         Session session = this.factory.getObject().getCurrentSession();
-        
+
         if (year.getId() == null || year.getId() == 0) {
             session.persist(year);
         } else {
             session.merge(year);
         }
-        
+
         return year;
     }
-    
+
     @Override
     public AcademicYear getYearById(int id) {
         Session session = this.factory.getObject().getCurrentSession();
         return session.get(AcademicYear.class, id);
     }
-    
+
     @Override
     public void deleteYearById(int id) {
         Session session = this.factory.getObject().getCurrentSession();
@@ -106,5 +109,5 @@ public class AcademicYearRepositoryImpl implements AcademicYearRepository {
             session.remove(year);
         }
     }
-    
+
 }
