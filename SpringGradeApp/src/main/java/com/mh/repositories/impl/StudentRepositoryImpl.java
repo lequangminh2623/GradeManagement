@@ -78,8 +78,6 @@ public class StudentRepositoryImpl implements StudentRepository {
         Root<Student> root = cq.from(Student.class);
 
         root.fetch("user");
-
-        // Điều kiện: user.id = userId
         cq.select(root).where(cb.equal(root.get("user").get("id"), userId));
 
         Query q = s.createQuery(cq);

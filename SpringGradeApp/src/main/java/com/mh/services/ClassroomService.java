@@ -16,13 +16,11 @@ public interface ClassroomService {
 
     List<Classroom> getClassrooms(Map<String, String> params);
 
-    Classroom saveClassroom(Classroom classroom);
+    Classroom saveClassroom(Classroom classroom, List<Integer> studentIds);
 
     Classroom getClassroomById(Integer id);
 
     void deleteClassroom(Integer id);
-    
-    void removeStudentFromClass(int classId, int studentId);
     
     Classroom getClassroomWithStudents(Integer id);
     

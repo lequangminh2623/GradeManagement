@@ -5,17 +5,19 @@
 package com.mh.repositories.impl;
 
 import com.mh.pojo.Classroom;
-import com.mh.pojo.Classroom;
 import com.mh.pojo.Student;
 import com.mh.repositories.ClassroomRepository;
+import com.mh.utils.PageSize;
 import jakarta.persistence.Query;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
@@ -29,8 +31,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Repository
 @Transactional
 public class ClassroomRepositoryImpl implements ClassroomRepository {
-
-    private static final int PAGE_SIZE = 15;
 
     @Autowired
     private LocalSessionFactoryBean factory;
@@ -52,11 +52,6 @@ public class ClassroomRepositoryImpl implements ClassroomRepository {
                 predicates.add(namePredicate);
             }
 
-            String role = params.get("role");
-            if (role != null && !role.isEmpty()) {
-                predicates.add(cb.equal(root.get("role"), role));
-            }
-
             cq.where(predicates.toArray(new Predicate[0]));
 
             String sortBy = params.get("sortBy");
@@ -69,8 +64,8 @@ public class ClassroomRepositoryImpl implements ClassroomRepository {
 
         if (params != null && params.containsKey("page")) {
             int page = Integer.parseInt(params.get("page"));
-            int start = (page - 1) * PAGE_SIZE;
-            query.setMaxResults(PAGE_SIZE);
+            int start = (page - 1) * PageSize.CLASSROOM_PAGE_SIZE.getSize();
+            query.setMaxResults(PageSize.CLASSROOM_PAGE_SIZE.getSize());
             query.setFirstResult(start);
         }
 
@@ -78,15 +73,40 @@ public class ClassroomRepositoryImpl implements ClassroomRepository {
     }
 
     @Override
-    public Classroom saveClassroom(Classroom classroom) {
+    public Classroom saveClassroom(Classroom classroom, List<Integer> studentIds) {
         Session session = this.factory.getObject().getCurrentSession();
+        Classroom persistentClassroom;
 
-        if (classroom.getId() == null || classroom.getId() == 0) {
-            session.persist(classroom);
+        if (classroom.getId() != null && classroom.getId() != 0) {
+            persistentClassroom = session.get(Classroom.class, classroom.getId());
         } else {
-            session.merge(classroom);
+            persistentClassroom = classroom;
         }
-        return classroom;
+
+        if (studentIds != null) {
+            Set<Student> newStudents = new HashSet<>();
+
+            for (Integer studentId : studentIds) {
+                Student s = session.get(Student.class, studentId);
+                if (s != null) {
+                    newStudents.add(s);
+                }
+            }
+
+            if (persistentClassroom.getStudentSet() != null) {
+                persistentClassroom.getStudentSet().addAll(newStudents);
+            } else {
+                persistentClassroom.setStudentSet(newStudents);
+            }
+        }
+
+        if (persistentClassroom.getId() == null || persistentClassroom.getId() == 0) {
+            session.persist(persistentClassroom);
+        } else {
+            session.merge(persistentClassroom);
+        }
+
+        return persistentClassroom;
     }
 
     @Override

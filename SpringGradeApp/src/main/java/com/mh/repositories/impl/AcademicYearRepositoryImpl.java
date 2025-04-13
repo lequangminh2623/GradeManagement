@@ -59,7 +59,7 @@ public class AcademicYearRepositoryImpl implements AcademicYearRepository {
             query.setMaxResults(PageSize.YEAR_PAGE_SIZE.getSize());
             query.setFirstResult(start);
         }
-        
+
         return query.getResultList();
     }
 

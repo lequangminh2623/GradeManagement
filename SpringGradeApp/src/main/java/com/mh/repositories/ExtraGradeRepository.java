@@ -8,5 +8,4 @@ import java.util.List;
  * @author Le Quang Minh
  */
 public interface ExtraGradeRepository {
-    List<ExtraGrade> getExtraGradesByGradeDetailId(int gradeDetailId);
 }

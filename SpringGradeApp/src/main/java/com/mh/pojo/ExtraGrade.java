@@ -18,6 +18,7 @@ import jakarta.persistence.Table;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import java.io.Serializable;
+import java.util.Objects;
 
 /**
  *
@@ -37,12 +38,15 @@ public class ExtraGrade implements Serializable {
     @Basic(optional = false)
     @Column(name = "id")
     private Integer id;
-    @Max(value=10)  @Min(value=0)//if you know range of your decimal fields consider using these annotations to enforce field validation
+    @Max(value = 10)
+    @Min(value = 0)//if you know range of your decimal fields consider using these annotations to enforce field validation
     @Column(name = "grade")
     private Double grade;
     @JoinColumn(name = "grade_detail_id", referencedColumnName = "id")
     @ManyToOne(optional = false)
     private GradeDetail gradeDetail;
+    @Column(name = "grade_index", nullable = false)
+    private Integer gradeIndex;
 
     public ExtraGrade() {
     }
@@ -75,29 +79,38 @@ public class ExtraGrade implements Serializable {
         this.gradeDetail = gradeDetail;
     }
 
-    @Override
-    public int hashCode() {
-        int hash = 0;
-        hash += (id != null ? id.hashCode() : 0);
-        return hash;
+    public Integer getGradeIndex() {
+        return gradeIndex;
+    }
+
+    public void setGradeIndex(Integer gradeIndex) {
+        this.gradeIndex = gradeIndex;
     }
 
     @Override
     public boolean equals(Object object) {
-        // TODO: Warning - this method won't work in the case the id fields are not set
-        if (!(object instanceof ExtraGrade)) {
+        if (this == object) {
+            return true;
+        }
+        if (object == null || getClass() != object.getClass()) {
             return false;
         }
         ExtraGrade other = (ExtraGrade) object;
-        if ((this.id == null && other.id != null) || (this.id != null && !this.id.equals(other.id))) {
-            return false;
-        }
-        return true;
+
+        return Objects.equals(this.id, other.id)
+                && Objects.equals(this.gradeIndex, other.gradeIndex)
+                && Objects.equals(this.grade, other.grade);
+    }
+
+    @Override
+    public int hashCode() {
+        // Include multiple fields for better uniqueness
+        return Objects.hash(id, gradeIndex, grade);
     }
 
     @Override
     public String toString() {
         return "com.mh.pojo.ExtraGrade[ id=" + id + " ]";
     }
-    
+
 }

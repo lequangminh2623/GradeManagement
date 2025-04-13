@@ -24,19 +24,4 @@ public class ExtraGradeRepositoryImpl implements ExtraGradeRepository {
 
     @Autowired
     private LocalSessionFactoryBean factory;
-
-    @Override
-    public List<ExtraGrade> getExtraGradesByGradeDetailId(int gradeDetailId) {
-        Session session = this.factory.getObject().getCurrentSession();
-        CriteriaBuilder cb = session.getCriteriaBuilder();
-        CriteriaQuery<ExtraGrade> cq = cb.createQuery(ExtraGrade.class);
-        Root<ExtraGrade> root = cq.from(ExtraGrade.class);
-        cq.select(root);
-
-        Predicate predicate = cb.equal(root.get("gradeDetail").get("id"), gradeDetailId);
-        cq.where(predicate);
-
-        Query query = session.createQuery(cq);
-        return query.getResultList();
-    }
 }

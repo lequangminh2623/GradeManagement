@@ -5,16 +5,13 @@
 package com.mh.services.Impl;
 
 import com.mh.pojo.Classroom;
-import com.mh.pojo.Student;
 import com.mh.repositories.ClassroomRepository;
-import com.mh.repositories.StudentRepository;
 import com.mh.services.ClassroomService;
 import com.mh.services.StudentService;
 import java.util.List;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  *
@@ -30,8 +27,8 @@ public class ClassroomServiceImpl implements ClassroomService {
     StudentService studentService;
 
     @Override
-    public Classroom saveClassroom(Classroom classroom) {
-        return this.classroomRepo.saveClassroom(classroom);
+    public Classroom saveClassroom(Classroom classroom, List<Integer> studentIds) {
+        return this.classroomRepo.saveClassroom(classroom, studentIds);
     }
 
     @Override
@@ -52,18 +49,6 @@ public class ClassroomServiceImpl implements ClassroomService {
     @Override
     public Classroom getClassroomWithStudents(Integer id) {
         return this.classroomRepo.getClassroomWithStudents(id);
-    }
-
-    @Override
-    @Transactional
-    public void removeStudentFromClass(int classId, int studentId) {
-        Classroom classroom = this.getClassroomById(classId);
-        Student student = studentService.getStudentByUserId(studentId);
-
-        classroom.getStudentSet().remove(student);
-        student.getClassroomSet().remove(classroom);
-
-        this.saveClassroom(classroom);
     }
 
     @Override

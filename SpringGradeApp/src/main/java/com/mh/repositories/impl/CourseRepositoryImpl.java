@@ -47,9 +47,9 @@ public class CourseRepositoryImpl implements CourseRepository {
                 Predicate namePredicate = cb.like(root.get("name"), "%" + kw + "%");
                 predicates.add(namePredicate);
             }
-        }
 
-        cq.where(predicates.toArray(new Predicate[0]));
+            cq.where(predicates.toArray(new Predicate[0]));
+        }
 
         Query query = session.createQuery(cq);
 

@@ -6,14 +6,21 @@ package com.mh.controllers;
 
 import com.mh.pojo.Student;
 import com.mh.pojo.Classroom;
+import com.mh.pojo.ExtraGrade;
+import com.mh.pojo.GradeDetail;
+import com.mh.pojo.User;
 import com.mh.services.StudentService;
 import com.mh.services.ClassroomService;
 import com.mh.services.CourseService;
+import com.mh.services.ExtraGradeService;
+import com.mh.services.GradeDetailService;
 import com.mh.services.SemesterService;
 import com.mh.services.UserService;
 import com.mh.utils.PageSize;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -44,11 +51,15 @@ public class ClassroomController {
 
     @Autowired
     private StudentService studentService;
+
     @Autowired
     private CourseService courseService;
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private GradeDetailService gradeDetailService;
 
     @Autowired
     private SemesterService semesterService;
@@ -60,7 +71,7 @@ public class ClassroomController {
         if (page == null || page.isEmpty()) {
             params.put("page", "1");
         }
-        
+
         List<Classroom> classrooms = this.classroomService.getClassrooms(params);
         model.addAttribute("classrooms", classrooms);
         model.addAttribute("currentPage", Integer.parseInt(params.get("page")));
@@ -71,51 +82,73 @@ public class ClassroomController {
 
     @GetMapping("/add")
     public String addClassroom(Model model, Map<String, String> params) {
-        Map<String, String> role = new HashMap<>();
-        role.put("role", "ROLE_LECTURER");
+        Map<String, String> roleLecturer = new HashMap<>();
+        roleLecturer.put("role", "ROLE_LECTURER");
 
+        Map<Integer, GradeDetail> gradeMap = new HashMap<>();
+
+        model.addAttribute("gradeMap", gradeMap);
         model.addAttribute("classroom", new Classroom());
         model.addAttribute("students", studentService.getStudents(null));
         model.addAttribute("courses", courseService.getCourses(null));
         model.addAttribute("semesters", semesterService.getSemesters(null));
-        model.addAttribute("lecturers", userService.getUsers(role));
+        model.addAttribute("lecturers", userService.getUsers(roleLecturer));
 
         return "/classroom/classroom-form";
     }
 
     @GetMapping("/{id}")
-    public String updateClassroom(@PathVariable("id") Integer id, Model model, Map<String, String> params) {
-        Map<String, String> role = new HashMap<>();
-        role.put("role", "ROLE_LECTURER");
+    public String updateClassroom(@PathVariable("id") Integer id, Model model) {
+        Map<String, String> roleLecturer = new HashMap<>();
+        roleLecturer.put("role", "ROLE_LECTURER");
 
         Classroom classroom = classroomService.getClassroomWithStudents(id);
         if (classroom.getStudentSet() == null) {
             classroom.setStudentSet(new HashSet<>());
         }
 
+        Map<Integer, GradeDetail> gradeMap = new HashMap<>();
+        for (Student s : classroom.getStudentSet()) {
+            Map<String, Integer> ref = new HashMap<>();
+            ref.put("classroomId", classroom.getId());
+            ref.put("studentId", s.getId());
+            List<GradeDetail> gradeDetails = gradeDetailService.getGradeDetail(ref);
+            GradeDetail gd = null;
+
+            if (!gradeDetails.isEmpty()) {
+                gd = gradeDetails.get(0);
+            } else {
+                gd = new GradeDetail();
+                gd.setMidtermGrade(null);
+                gd.setFinalGrade(null);
+                gd.setExtraGradeSet(new HashSet<>());
+            }
+            gradeMap.put(s.getId(), gd);
+        }
+
         model.addAttribute("classroom", classroom);
+        model.addAttribute("gradeMap", gradeMap);
         model.addAttribute("students", studentService.getStudents(null));
         model.addAttribute("courses", courseService.getCourses(null));
         model.addAttribute("semesters", semesterService.getSemesters(null));
-        model.addAttribute("lecturers", userService.getUsers(role));
+        model.addAttribute("lecturers", userService.getUsers(roleLecturer));
 
-        return "/classrooms/classroom-form";
+        return "/classroom/classroom-form";
     }
 
     @PostMapping("")
-    public String saveClassroom(@ModelAttribute("classroom") Classroom classroom,
-            @RequestParam(name = "studentIds", required = false) List<Integer> studentIds) {
+    public String saveClassroom(@ModelAttribute Classroom classroom,
+            @RequestParam(name = "studentIds", required = false) List<Integer> studentIds,
+            @RequestParam Map<String, String> allParams) {
 
-        Classroom existing = classroomService.getClassroomWithStudents(classroom.getId());
+        Classroom savedClassroom = this.classroomService.saveClassroom(classroom, studentIds);
 
-        if (studentIds != null) {
-            Set<Student> selectedStudents = studentIds.stream()
-                    .map(studentService::getStudentByUserId)
-                    .collect(Collectors.toSet());
-            existing.getStudentSet().addAll(selectedStudents);
-        }
+        Set<Student> allStudents = this.classroomService.getClassroomWithStudents(savedClassroom.getId()).getStudentSet();
 
-        classroomService.saveClassroom(existing);
+        if (allStudents != null)
+            for (Student student : allStudents)
+                gradeDetailService.saveGradesForStudent(student, savedClassroom, allParams);
+
         return "redirect:/classrooms";
     }
 
@@ -130,7 +163,17 @@ public class ClassroomController {
     public void removeStudentFromClass(
             @PathVariable("classId") Integer classId,
             @PathVariable("studentId") Integer studentId) {
-        classroomService.removeStudentFromClass(classId, studentId);
+
+        Classroom classroom = classroomService.getClassroomById(classId);
+        Set<Student> currentStudents = classroom.getStudentSet();
+
+        currentStudents.removeIf(s -> s.getUser().getId().equals(studentId));
+
+        List<Integer> updatedStudentIds = currentStudents.stream()
+                .map(s -> s.getUser().getId())
+                .collect(Collectors.toList());
+
+        classroomService.saveClassroom(classroom, updatedStudentIds);
     }
 
 }

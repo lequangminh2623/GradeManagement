@@ -1,14 +1,18 @@
 package com.mh.repositories.impl;
 
+import com.mh.pojo.ExtraGrade;
 import com.mh.pojo.GradeDetail;
 import com.mh.repositories.GradeDetailRepository;
 import jakarta.persistence.Query;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
@@ -27,28 +31,71 @@ public class GradeDetailRepositoryImpl implements GradeDetailRepository {
     private LocalSessionFactoryBean factory;
 
     @Override
-    public List<GradeDetail> getGradeDetailsByStudentIdAndSubjectId(Integer studentId, Integer subjectId) {
-        Session session = factory.getObject().getCurrentSession();
-        CriteriaBuilder cb = session.getCriteriaBuilder();
+    public List<GradeDetail> getGradeDetail(Map<String, Integer> params) {
+        Session s = this.factory.getObject().getCurrentSession();
+        CriteriaBuilder cb = s.getCriteriaBuilder();
         CriteriaQuery<GradeDetail> cq = cb.createQuery(GradeDetail.class);
         Root<GradeDetail> root = cq.from(GradeDetail.class);
         cq.select(root);
 
         List<Predicate> predicates = new ArrayList<>();
 
-        if (studentId != null) {
-            predicates.add(cb.equal(root.get("student").get("id"), studentId));
+        if (params != null) {
+            Integer studentId = params.get("studentId");
+            if (studentId != null) {
+                predicates.add(cb.equal(root.get("student").get("id"), studentId));
+            }
+
+            Integer courseId = params.get("courseId");
+            if (courseId != null) {
+                predicates.add(cb.equal(root.get("course").get("id"), courseId));
+            }
+
+            Integer semesterId = params.get("semesterId");
+            if (semesterId != null) {
+                predicates.add(cb.equal(root.get("semester").get("id"), semesterId));
+            }
+
+            Integer classroomId = params.get("classroomId");
+            if (classroomId != null) {
+                Join<Object, Object> studentJoin = root.join("student");
+                Join<Object, Object> classroomJoin = studentJoin.join("classroomSet");
+                predicates.add(cb.equal(classroomJoin.get("id"), classroomId));
+            }
+
+            cq.where(predicates.toArray(new Predicate[0]));
         }
 
-        if (subjectId != null) {
-            predicates.add(cb.equal(root.get("course").get("id"), subjectId));
-        }
-
-        if (!predicates.isEmpty()) {
-            cq.where(cb.and(predicates.toArray(new Predicate[0])));
-        }
-
-        Query query = session.createQuery(cq);
+        Query query = s.createQuery(cq);
         return query.getResultList();
     }
+
+    @Override
+    public void deleteGradeDetail(Integer id) {
+        Session session = this.factory.getObject().getCurrentSession();
+        GradeDetail gd = session.get(GradeDetail.class, id);
+        if (gd != null) {
+            session.remove(gd);
+        }
+    }
+
+    @Override
+    public GradeDetail saveGradeDetail(GradeDetail gd) {
+        Session session = this.factory.getObject().getCurrentSession();
+
+        if (gd.getExtraGradeSet() != null) {
+            for (ExtraGrade eg : gd.getExtraGradeSet()) {
+                eg.setGradeDetail(gd);
+            }
+        }
+
+        if (gd.getId() == null || gd.getId() == 0) {
+            session.persist(gd);
+        } else {
+            session.merge(gd);
+        }
+
+        return gd;
+    }
+
 }
