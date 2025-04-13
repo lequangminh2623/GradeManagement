@@ -65,7 +65,7 @@ public class UserController {
     }
 
     @PostMapping("/users")
-    public String saveUser(@ModelAttribute("user") @Valid User user, Model model) {
+    public String saveUser(@ModelAttribute("user") User user, Model model) {
         try {
             if ("ROLE_STUDENT".equals(user.getRole())) {
                 Student s = user.getStudent();

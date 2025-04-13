@@ -8,6 +8,7 @@ import jakarta.persistence.Basic;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -16,6 +17,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.NamedQueries;
 import jakarta.persistence.NamedQuery;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OrderBy;
 import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
@@ -53,7 +55,8 @@ public class GradeDetail implements Serializable {
     @Column(name = "updated_date")
     @Temporal(TemporalType.TIMESTAMP)
     private Date updatedDate;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "gradeDetail")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "gradeDetail", fetch = FetchType.EAGER, orphanRemoval = true)
+    @OrderBy("gradeIndex ASC")
     private Set<ExtraGrade> extraGradeSet;
     @JoinColumn(name = "course_id", referencedColumnName = "id")
     @ManyToOne(optional = false)

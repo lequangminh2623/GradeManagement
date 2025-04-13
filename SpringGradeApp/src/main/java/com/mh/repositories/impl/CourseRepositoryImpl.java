@@ -41,20 +41,24 @@ public class CourseRepositoryImpl implements CourseRepository {
 
         List<Predicate> predicates = new ArrayList<>();
 
-        String kw = params.get("kw");
-        if (kw != null && !kw.isEmpty()) {
-            Predicate namePredicate = cb.like(root.get("name"), "%" + kw + "%");
-            predicates.add(namePredicate);
-        }
+        if (params != null) {
+            String kw = params.get("kw");
+            if (kw != null && !kw.isEmpty()) {
+                Predicate namePredicate = cb.like(root.get("name"), "%" + kw + "%");
+                predicates.add(namePredicate);
+            }
 
-        cq.where(predicates.toArray(new Predicate[0]));
+            cq.where(predicates.toArray(new Predicate[0]));
+        }
 
         Query query = session.createQuery(cq);
 
-        int page = Integer.parseInt(params.get("page"));
-        int start = (page - 1) * PageSize.COURSE_PAGE_SIZE.getSize();
-        query.setMaxResults(PageSize.COURSE_PAGE_SIZE.getSize());
-        query.setFirstResult(start);
+        if (params != null && params.containsKey("page")) {
+            int page = Integer.parseInt(params.get("page"));
+            int start = (page - 1) * PageSize.COURSE_PAGE_SIZE.getSize();
+            query.setMaxResults(PageSize.COURSE_PAGE_SIZE.getSize());
+            query.setFirstResult(start);
+        }
 
         return query.getResultList();
     }

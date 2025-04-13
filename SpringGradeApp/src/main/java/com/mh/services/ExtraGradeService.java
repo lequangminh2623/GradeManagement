@@ -12,5 +12,4 @@ import java.util.List;
  * @author Le Quang Minh
  */
 public interface ExtraGradeService {
-    List<ExtraGrade> getExtraGradesByGradeDetailId(int gradeDetailId);
 }

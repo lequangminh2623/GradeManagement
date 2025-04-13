@@ -4,13 +4,25 @@
  */
 package com.mh.services;
 
+import com.mh.pojo.Classroom;
 import com.mh.pojo.GradeDetail;
+import com.mh.pojo.Student;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  *
  * @author Le Quang Minh
  */
 public interface GradeDetailService {
-    List<GradeDetail> getGradeDetailsByStudentIdAndSubjectId(Integer studentId, Integer subjectId);
+    
+    List<GradeDetail> getGradeDetail(Map<String, Integer> params);
+    
+    void deleteGradeDetail(Integer id);
+    
+    GradeDetail saveGradeDetail(GradeDetail gd);
+    
+    void saveGradesForStudent(Student student, Classroom savedClassroom, Map<String, String> allParams);
+
 }

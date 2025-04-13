@@ -14,6 +14,6 @@ import java.util.Map;
  */
 public interface StudentRepository {
     List<Student> getStudents(Map<String, String> params);
-    
+
     Student getStudentByUserId(int userId);
 }
