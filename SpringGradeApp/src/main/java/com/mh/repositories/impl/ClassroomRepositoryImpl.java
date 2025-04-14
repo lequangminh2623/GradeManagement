@@ -158,4 +158,24 @@ public class ClassroomRepositoryImpl implements ClassroomRepository {
         Long result = session.createQuery(cq).getSingleResult();
         return result.intValue();
     }
+
+    @Override
+    public void removeStudentFromClassroom(int classroomId, int studentId) {
+        Session session = this.factory.getObject().getCurrentSession();
+
+        Classroom classroom = session.get(Classroom.class, classroomId);
+        Student student = session.get(Student.class, studentId);
+
+        if (classroom == null || student == null) {
+            throw new RuntimeException("Classroom or student not found");
+        }
+
+        if (classroom.getStudentSet().contains(student)) {
+            classroom.getStudentSet().remove(student);
+            session.merge(classroom);
+        } else {
+            throw new RuntimeException("Student not in classroom");
+        }
+    }
+
 }

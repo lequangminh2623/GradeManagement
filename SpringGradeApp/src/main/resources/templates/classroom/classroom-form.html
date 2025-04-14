@@ -62,6 +62,7 @@
                             th:text="${s.code + ' - ' + s.user.firstName + ' ' + s.user.lastName}">
                     </option>
                 </select>
+                <button id="addStudent" class="btn btn-primary m-1">➕ Thêm sinh viên</button>
             </div>
             <div class="col-12 mt-4">
                 <h5>Danh sách sinh viên</h5>
@@ -92,8 +93,8 @@
 
                     </thead>
 
-                    <tbody>
-                        <tr th:each="s, iterStat : ${classroom.studentSet}">
+                    <tbody id="student-table-body">
+                        <tr th:each="s, iterStat : ${classroom.studentSet}" th:id="'row-student-' + ${s.id}">
                             <td class="text-center align-middle" th:text="${s.code}"></td>
                             <td class="align-middle" th:text="${s.user.lastName + ' ' + s.user.firstName}"></td>
                             <td class="align-middle">
@@ -103,7 +104,6 @@
                                            th:each="eg, iStat : ${gradeMap[s.id]?.extraGradeSet}"
                                            th:name="'extraPoints[' + ${s.id} + '][' + ${iStat.index} + ']'"
                                            min="0" max="10" step="0.1"
-                                           th:placeholder="'BS ' + ${iStat.index + 1}"
                                            th:value="${eg.grade}" style="width: 60px;" />
                                 </div>
                             </td>
@@ -126,9 +126,8 @@
                         </tr>
                     </tbody>
                 </table>
-
             </div>
-
+                       
             <div class="col-12">
                 <button type="submit" class="btn btn-primary">💾 Lưu lớp học</button>
                 <a th:href="@{/classrooms}" class="btn btn-secondary">⬅️ Quay lại</a>
