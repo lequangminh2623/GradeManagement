@@ -24,7 +24,6 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseStatus;
 
 /**
  *
@@ -46,7 +45,7 @@ public class CourseController {
 
         List<Course> courses = this.courseService.getCourses(params);
         model.addAttribute("courses", courses);
-        model.addAttribute("currentPage", Integer.parseInt(params.get("page")));
+        model.addAttribute("currentPage", Integer.valueOf(params.get("page")));
         model.addAttribute("totalPages", (int) Math.ceil((double) this.courseService.countCourse(params) / PageSize.COURSE_PAGE_SIZE.getSize()));
         model.addAttribute("kw", params.get("kw"));
         return "/course/course-list";

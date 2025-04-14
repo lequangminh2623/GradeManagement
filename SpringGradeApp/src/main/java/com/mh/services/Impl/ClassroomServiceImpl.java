@@ -55,4 +55,9 @@ public class ClassroomServiceImpl implements ClassroomService {
     public int countClassroom(Map<String, String> params) {
         return this.classroomRepo.countClassroom(params);
     }
+    
+    @Override
+    public void removeStudentFromClassroom(int classroomId, int studentId) {
+         this.classroomRepo.removeStudentFromClassroom(classroomId, studentId);
+    }
 }
