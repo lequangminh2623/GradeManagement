@@ -24,19 +24,25 @@ tomSelect = new TomSelect('#studentSelect', {
     placeholder: 'Tìm và chọn sinh viên...'
 });
 
-function deleteClassroom(baseUrl, classroomId) {
-    if (confirm("Bạn có chắc chắn muốn xóa lớp học này không?")) {
-        fetch(baseUrl + classroomId, {
-            method: "DELETE"
+function deleteClassroom(url, id) {
+    if (confirm("Bạn chắc chắn muốn xóa?")) {
+        fetch(`${url}${id}`, {
+            method: 'DELETE'
         }).then(res => {
             if (res.status === 204) {
+                alert("Xóa thành công!");
                 location.reload();
             } else {
-                alert("Xóa lớp học thất bại!");
+                return res.text().then(text => {
+                    alert(text);
+                });
             }
         });
     }
 }
+
+
+
 
 function removeStudentFromClassroom(endpoint, classroomId, studentId) {
     if (confirm("Bạn có chắc chắn muốn xóa sinh viên và điểm khỏi lớp học này không?")) {

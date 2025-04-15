@@ -21,6 +21,8 @@ import java.util.Map;
 import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -138,7 +140,7 @@ public class ClassroomController {
         Classroom savedClassroom = this.classroomService.saveClassroom(classroom, studentIds);
 
         Set<Student> allStudents = this.classroomService.getClassroomWithStudents(savedClassroom.getId()).getStudentSet();
-        
+
         if (allStudents != null) {
             for (Student student : allStudents) {
                 gradeDetailService.saveGradesForStudent(student, savedClassroom, allParams);
@@ -149,9 +151,19 @@ public class ClassroomController {
     }
 
     @DeleteMapping("/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteClassroom(@PathVariable("id") Integer id) {
-        classroomService.deleteClassroom(id);
+    public ResponseEntity<String> deleteClassroom(@PathVariable("id") Integer id) {
+        try {
+            classroomService.deleteClassroom(id);
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .contentType(MediaType.parseMediaType("text/plain; charset=UTF-8"))
+                    .body("Không thể xóa lớp.");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .contentType(MediaType.parseMediaType("text/plain; charset=UTF-8"))
+                    .body("Đã xảy ra lỗi: " + e.getMessage());
+        }
     }
 
     @DeleteMapping("/{classId}/students/{studentId}")

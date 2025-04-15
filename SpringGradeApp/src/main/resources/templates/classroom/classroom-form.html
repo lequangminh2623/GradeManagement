@@ -6,9 +6,9 @@
     <th:block th:replace="base :: bootstrap"></th:block>
     <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.css" rel="stylesheet" />
 </head>
-<body>
+<body class="d-flex flex-column min-vh-100">
     <p th:replace="base :: header"></p>
-    <main class="container py-5">
+    <main class="flex-grow-1 container mt-5">
         <h2 class="mb-4" th:text="${classroom.id == null ? 'Thêm lớp học' : 'Cập nhật lớp học'}"></h2>
 
         <form method="post" th:action="@{/classrooms}" th:object="${classroom}" class="row g-3">
