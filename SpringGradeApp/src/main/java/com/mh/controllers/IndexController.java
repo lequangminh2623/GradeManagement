@@ -14,9 +14,12 @@ import com.mh.services.GradeDetailService;
 import com.mh.services.SemesterService;
 import com.mh.services.StudentService;
 import com.mh.services.UserService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 /**
@@ -24,7 +27,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
  * @author Le Quang Minh
  */
 @Controller
+@ControllerAdvice
 public class IndexController {
+
     @Autowired
     AcademicYearService academicYearService;
     @Autowired
@@ -45,7 +50,17 @@ public class IndexController {
     StudentService studentService;
     @Autowired
     UserService userService;
-    
+
+    @ModelAttribute
+    public void requestURI(HttpServletRequest request, Model model) {
+        model.addAttribute("requestURI", request.getRequestURI());
+    }
+
+    @ModelAttribute
+    public void contextPath(HttpServletRequest request, Model model) {
+        model.addAttribute("contextPath", request.getContextPath());
+    }
+
     @RequestMapping("/")
     public String index(Model model) {
 //        model.addAttribute("year", this.academicYearService.getAcademicYears());

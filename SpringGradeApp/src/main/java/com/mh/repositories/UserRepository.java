@@ -23,8 +23,10 @@ public interface UserRepository {
     User getUserById(Integer id);
 
     void deleteUser(Integer id);
-    
+
     User saveUser(User user);
-    
+
     int countUser(Map<String, String> params);
+
+    List<User> getUserByRole(List<String> roles);
 }

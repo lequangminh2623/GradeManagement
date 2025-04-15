@@ -11,24 +11,40 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Map;
+
 /**
  *
  * @author Le Quang Minh
  */
-
 @Service
 public class SemesterServiceImpl implements SemesterService {
-    
+
     @Autowired
     private SemesterRepository semesterRepo;
 
     @Override
-    public List<Semester> getSemestersByAcademicYearName(String year) {
-        return semesterRepo.getSemestersByAcademicYearName(year);
+    public List<Semester> getSemestersByAcademicYearId(int id, Map<String, String> params) {
+        return semesterRepo.getSemestersByAcademicYearId(id, params);
     }
 
     @Override
     public List<Semester> getSemesters(Map<String, String> params) {
         return this.semesterRepo.getSemesters(params);
     }
+
+    @Override
+    public Semester saveSemester(Semester semester) {
+        return this.semesterRepo.saveSemester(semester);
+    }
+
+    @Override
+    public Semester getSemesterById(int id) {
+        return this.semesterRepo.getSemesterById(id);
+    }
+
+    @Override
+    public void deleteSemesterById(int id) {
+        this.semesterRepo.deleteSemesterById(id);
+    }
+
 }

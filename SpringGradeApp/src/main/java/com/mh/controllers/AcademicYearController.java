@@ -5,7 +5,9 @@
 package com.mh.controllers;
 
 import com.mh.pojo.AcademicYear;
+import com.mh.pojo.Semester;
 import com.mh.services.AcademicYearService;
+import com.mh.services.SemesterService;
 import com.mh.utils.ExceptionUtils;
 import com.mh.utils.PageSize;
 import jakarta.validation.Valid;
@@ -35,6 +37,9 @@ public class AcademicYearController {
 
     @Autowired
     private AcademicYearService academicYearService;
+
+    @Autowired
+    private SemesterService semesterService;
 
     @GetMapping("/years")
     public String getAcademicYears(Model model, @RequestParam Map<String, String> params) {
@@ -92,7 +97,7 @@ public class AcademicYearController {
     }
 
     @DeleteMapping("/years/{id}")
-    public ResponseEntity<String> deleteCourse(@PathVariable("id") int id) {
+    public ResponseEntity<String> deleteYear(@PathVariable("id") int id) {
         try {
             this.academicYearService.deleteYearById(id);
             return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
@@ -106,4 +111,80 @@ public class AcademicYearController {
                     .body("Đã xảy ra lỗi: " + e.getMessage());
         }
     }
+
+    // Semester
+    @GetMapping("/years/{yearId}/semesters")
+    public String getSemesters(Model model, @PathVariable(value = "yearId") int yearId, @RequestParam Map<String, String> params) {
+        AcademicYear year = this.academicYearService.getYearById(yearId);
+        if (year != null) {
+            model.addAttribute("year", year);
+            model.addAttribute("semesters", this.semesterService.getSemestersByAcademicYearId(yearId, params));
+            model.addAttribute("kw", params.get("kw"));
+        }
+        return "/year/semester-list";
+    }
+
+    @GetMapping("/years/{yearId}/semesters/add")
+    public String addSemester(Model model, @PathVariable(value = "yearId") int yearId) {
+        AcademicYear year = this.academicYearService.getYearById(yearId);
+        if (year != null) {
+            Semester semester = new Semester();
+            model.addAttribute("semester", semester);
+            model.addAttribute("year", year);
+        }
+        return "/year/semester-form";
+    }
+
+    @PostMapping("/years/{yearId}/semesters")
+    public String saveSemester(@ModelAttribute("semester") @Valid Semester semester,
+            @PathVariable(value = "yearId") int yearId, Model model) {
+        AcademicYear year = this.academicYearService.getYearById(yearId);
+        semester.setAcademicYear(year);
+
+        try {
+            this.semesterService.saveSemester(semester);
+            return "redirect:/years/{yearId}/semesters";
+        } catch (Exception e) {
+            Throwable root = ExceptionUtils.getRootCause(e);
+            if (root instanceof java.sql.SQLIntegrityConstraintViolationException && root.getMessage().contains("Duplicate entry")) {
+                if (root.getMessage().contains("semester.academic_year_id")) {
+                    model.addAttribute("errorMessage", "Học kỳ này đã tồn tại.");
+                }
+            } else {
+                model.addAttribute("errorMessage", "Đã xảy ra lỗi: " + root.getMessage());
+            }
+            model.addAttribute("year", year);
+            return "/year/semester-form";
+        }
+
+    }
+
+    @GetMapping("/years/{yearId}/semesters/{semesterId}")
+    public String updateSemester(Model model, @PathVariable(value = "yearId") int yearId,
+            @PathVariable(value = "semesterId") int semesterId) {
+        AcademicYear year = this.academicYearService.getYearById(yearId);
+        if (year != null) {
+            Semester semester = this.semesterService.getSemesterById(semesterId);
+            model.addAttribute("semester", semester);
+            model.addAttribute("year", year);
+        }
+        return "/year/semester-form";
+    }
+
+    @DeleteMapping("/years/{yearId}/semesters/{semesterId}")
+    public ResponseEntity<String> deleteSemester(Model model, @PathVariable(value = "semesterId") int semesterId) {
+        try {
+            this.semesterService.deleteSemesterById(semesterId);
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        } catch (DataIntegrityViolationException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .contentType(MediaType.parseMediaType("text/plain; charset=UTF-8"))
+                    .body("Không thể xóa học kỳ này.");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .contentType(MediaType.parseMediaType("text/plain; charset=UTF-8"))
+                    .body("Đã xảy ra lỗi: " + e.getMessage());
+        }
+    }
+
 }

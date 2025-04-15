@@ -12,7 +12,8 @@ public enum PageSize {
     COURSE_PAGE_SIZE(10),
     YEAR_PAGE_SIZE(5),
     USER_PAGE_SIZE(10),
-    CLASSROOM_PAGE_SIZE(10);
+    CLASSROOM_PAGE_SIZE(10),
+    FORUM_POST_PAGE_SIZE(10);
     
     private final int size;
 

@@ -121,7 +121,7 @@ public class UserRepositoryImpl implements UserRepository {
         }
         return user;
     }
-    
+
     @Override
     public int countUser(Map<String, String> params) {
         Session session = this.factory.getObject().getCurrentSession();
@@ -139,6 +139,24 @@ public class UserRepositoryImpl implements UserRepository {
 
         Long result = session.createQuery(cq).getSingleResult();
         return result.intValue();
+    }
+
+    @Override
+    public List<User> getUserByRole(List<String> roles) {
+        Session s = this.factory.getObject().getCurrentSession();
+        CriteriaBuilder cb = s.getCriteriaBuilder();
+        CriteriaQuery<User> cq = cb.createQuery(User.class);
+        Root<User> root = cq.from(User.class);
+
+        if (roles != null && !roles.isEmpty()) {
+            Predicate rolePredicate = root.get("role").in(roles);
+            cq.where(rolePredicate);
+        }
+
+        cq.select(root);
+
+        Query query = s.createQuery(cq);
+        return query.getResultList();
     }
 
 }
