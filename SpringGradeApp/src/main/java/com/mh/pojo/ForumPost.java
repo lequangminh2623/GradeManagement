@@ -20,11 +20,13 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
+import jakarta.persistence.Transient;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.Set;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  *
@@ -75,6 +77,8 @@ public class ForumPost implements Serializable {
     private User user;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "forumPost")
     private Set<ForumReply> forumReplySet;
+    @Transient
+    private MultipartFile file;
 
     public ForumPost() {
     }
@@ -185,5 +189,19 @@ public class ForumPost implements Serializable {
     public String toString() {
         return "com.mh.pojo.ForumPost[ id=" + id + " ]";
     }
-    
+
+    /**
+     * @return the file
+     */
+    public MultipartFile getFile() {
+        return file;
+    }
+
+    /**
+     * @param file the file to set
+     */
+    public void setFile(MultipartFile file) {
+        this.file = file;
+    }
+
 }
