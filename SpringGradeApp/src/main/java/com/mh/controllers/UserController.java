@@ -6,11 +6,9 @@ package com.mh.controllers;
 
 import com.mh.pojo.Student;
 import com.mh.pojo.User;
-import com.mh.services.StudentService;
 import com.mh.services.UserService;
 import com.mh.utils.ExceptionUtils;
 import com.mh.utils.PageSize;
-import jakarta.validation.Valid;
 import java.util.List;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,7 +48,7 @@ public class UserController {
         
         List<User> users = this.userService.getUsers(params);
         model.addAttribute("users", users);
-        model.addAttribute("currentPage", Integer.parseInt(params.get("page")));
+        model.addAttribute("currentPage", Integer.valueOf(params.get("page")));
         model.addAttribute("totalPages", (int) Math.ceil((double) this.userService.countUser(params) / PageSize.USER_PAGE_SIZE.getSize()));
         model.addAttribute("kw", params.get("kw"));
         return "/user/user-list";

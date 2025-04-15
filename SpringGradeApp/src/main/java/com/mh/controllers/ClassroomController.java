@@ -6,27 +6,23 @@ package com.mh.controllers;
 
 import com.mh.pojo.Student;
 import com.mh.pojo.Classroom;
-import com.mh.pojo.ExtraGrade;
 import com.mh.pojo.GradeDetail;
-import com.mh.pojo.User;
 import com.mh.services.StudentService;
 import com.mh.services.ClassroomService;
 import com.mh.services.CourseService;
-import com.mh.services.ExtraGradeService;
 import com.mh.services.GradeDetailService;
 import com.mh.services.SemesterService;
 import com.mh.services.UserService;
 import com.mh.utils.PageSize;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -74,7 +70,7 @@ public class ClassroomController {
 
         List<Classroom> classrooms = this.classroomService.getClassrooms(params);
         model.addAttribute("classrooms", classrooms);
-        model.addAttribute("currentPage", Integer.parseInt(params.get("page")));
+        model.addAttribute("currentPage", Integer.valueOf(params.get("page")));
         model.addAttribute("totalPages", (int) Math.ceil((double) this.classroomService.countClassroom(params) / PageSize.CLASSROOM_PAGE_SIZE.getSize()));
         model.addAttribute("kw", params.get("kw"));
         return "/classroom/classroom-list";
@@ -145,17 +141,29 @@ public class ClassroomController {
 
         Set<Student> allStudents = this.classroomService.getClassroomWithStudents(savedClassroom.getId()).getStudentSet();
 
-        if (allStudents != null)
-            for (Student student : allStudents)
+        if (allStudents != null) {
+            for (Student student : allStudents) {
                 gradeDetailService.saveGradesForStudent(student, savedClassroom, allParams);
+            }
+        }
 
         return "redirect:/classrooms";
     }
 
     @DeleteMapping("/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteClassroom(@PathVariable("id") Integer id) {
-        classroomService.deleteClassroom(id);
+    public ResponseEntity<String> deleteClassroom(@PathVariable("id") Integer id) {
+        try {
+            classroomService.deleteClassroom(id);
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .contentType(MediaType.parseMediaType("text/plain; charset=UTF-8"))
+                    .body("Không thể xóa lớp.");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .contentType(MediaType.parseMediaType("text/plain; charset=UTF-8"))
+                    .body("Đã xảy ra lỗi: " + e.getMessage());
+        }
     }
 
     @DeleteMapping("/{classId}/students/{studentId}")
@@ -163,17 +171,7 @@ public class ClassroomController {
     public void removeStudentFromClass(
             @PathVariable("classId") Integer classId,
             @PathVariable("studentId") Integer studentId) {
-
-        Classroom classroom = classroomService.getClassroomById(classId);
-        Set<Student> currentStudents = classroom.getStudentSet();
-
-        currentStudents.removeIf(s -> s.getUser().getId().equals(studentId));
-
-        List<Integer> updatedStudentIds = currentStudents.stream()
-                .map(s -> s.getUser().getId())
-                .collect(Collectors.toList());
-
-        classroomService.saveClassroom(classroom, updatedStudentIds);
+        classroomService.removeStudentFromClassroom(classId, studentId);
     }
 
 }

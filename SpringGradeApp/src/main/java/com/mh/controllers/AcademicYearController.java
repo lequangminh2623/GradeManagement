@@ -27,7 +27,6 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseStatus;
 
 /**
  *
@@ -52,7 +51,7 @@ public class AcademicYearController {
 
         List<AcademicYear> years = this.academicYearService.getAcademicYears(params);
         model.addAttribute("years", years);
-        model.addAttribute("currentPage", Integer.parseInt(params.get("page")));
+        model.addAttribute("currentPage", Integer.valueOf(params.get("page")));
         model.addAttribute("totalPages", (int) Math.ceil((double) this.academicYearService.countYears(params) / PageSize.YEAR_PAGE_SIZE.getSize()));
         model.addAttribute("kw", params.get("kw"));
 

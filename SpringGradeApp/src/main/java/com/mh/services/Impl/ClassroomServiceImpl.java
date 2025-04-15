@@ -23,9 +23,6 @@ public class ClassroomServiceImpl implements ClassroomService {
     @Autowired
     ClassroomRepository classroomRepo;
 
-    @Autowired
-    StudentService studentService;
-
     @Override
     public Classroom saveClassroom(Classroom classroom, List<Integer> studentIds) {
         return this.classroomRepo.saveClassroom(classroom, studentIds);
@@ -38,6 +35,9 @@ public class ClassroomServiceImpl implements ClassroomService {
 
     @Override
     public void deleteClassroom(Integer id) {
+        if (!classroomRepo.getClassroomWithStudents(id).getStudentSet().isEmpty()) {
+            throw new IllegalStateException("Cannot delete classroom with enrolled students.");
+        }
         this.classroomRepo.deleteClassroom(id);
     }
 
@@ -54,5 +54,10 @@ public class ClassroomServiceImpl implements ClassroomService {
     @Override
     public int countClassroom(Map<String, String> params) {
         return this.classroomRepo.countClassroom(params);
+    }
+
+    @Override
+    public void removeStudentFromClassroom(int classroomId, int studentId) {
+        this.classroomRepo.removeStudentFromClassroom(classroomId, studentId);
     }
 }
