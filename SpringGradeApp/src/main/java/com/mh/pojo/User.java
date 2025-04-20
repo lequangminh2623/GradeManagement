@@ -4,6 +4,7 @@
  */
 package com.mh.pojo;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Basic;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -75,9 +76,8 @@ public class User implements Serializable {
     private String password;
     @Basic(optional = false)
     @NotNull
-    @Size(min = 1, max = 255)
     @Column(name = "avatar")
-    private String avatar;
+    private String avatar = "https://res.cloudinary.com/dqw4mc8dg/image/upload/v1744183632/kagdbiirsk2aca0y9scy.png";
     @Column(name = "created_date")
     @Temporal(TemporalType.TIMESTAMP)
     private Date createdDate;
@@ -97,7 +97,6 @@ public class User implements Serializable {
     private Set<ForumPost> forumPostSet;
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private Student student;
-
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "lecturer")
     private Set<Classroom> classroomSet;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")

@@ -27,7 +27,7 @@ CREATE TABLE `academic_year` (
   `year` char(9) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `year` (`year`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -36,6 +36,7 @@ CREATE TABLE `academic_year` (
 
 LOCK TABLES `academic_year` WRITE;
 /*!40000 ALTER TABLE `academic_year` DISABLE KEYS */;
+INSERT INTO `academic_year` VALUES (1,'2022-2023');
 /*!40000 ALTER TABLE `academic_year` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -52,7 +53,7 @@ CREATE TABLE `classroom` (
   `lecturer_id` int NOT NULL,
   `course_id` int NOT NULL,
   `semester_id` int NOT NULL,
-  `grade_status` enum('DRAFT','LOCKED') DEFAULT 'DRAFT',
+  `grade_status` enum('DRAFT','LOCKED') NOT NULL DEFAULT 'DRAFT',
   PRIMARY KEY (`id`),
   UNIQUE KEY `name` (`name`,`semester_id`,`course_id`),
   KEY `lecturer_id` (`lecturer_id`),
@@ -61,7 +62,7 @@ CREATE TABLE `classroom` (
   CONSTRAINT `classroom_ibfk_1` FOREIGN KEY (`lecturer_id`) REFERENCES `user` (`id`) ON DELETE RESTRICT,
   CONSTRAINT `classroom_ibfk_2` FOREIGN KEY (`course_id`) REFERENCES `course` (`id`) ON DELETE RESTRICT,
   CONSTRAINT `classroom_ibfk_3` FOREIGN KEY (`semester_id`) REFERENCES `semester` (`id`) ON DELETE RESTRICT
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -70,6 +71,7 @@ CREATE TABLE `classroom` (
 
 LOCK TABLES `classroom` WRITE;
 /*!40000 ALTER TABLE `classroom` DISABLE KEYS */;
+INSERT INTO `classroom` VALUES (10,'IT2201PTHTW',21,3,1,'DRAFT');
 /*!40000 ALTER TABLE `classroom` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -89,7 +91,7 @@ CREATE TABLE `classroom_student` (
   KEY `student_id` (`student_id`),
   CONSTRAINT `classroom_student_ibfk_1` FOREIGN KEY (`student_id`) REFERENCES `student` (`id`) ON DELETE CASCADE,
   CONSTRAINT `classroom_student_ibfk_2` FOREIGN KEY (`classroom_id`) REFERENCES `classroom` (`id`) ON DELETE RESTRICT
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=65 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -113,7 +115,7 @@ CREATE TABLE `course` (
   `name` varchar(255) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `name` (`name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -122,6 +124,7 @@ CREATE TABLE `course` (
 
 LOCK TABLES `course` WRITE;
 /*!40000 ALTER TABLE `course` DISABLE KEYS */;
+INSERT INTO `course` VALUES (3,'IT2201PTHTW');
 /*!40000 ALTER TABLE `course` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -136,11 +139,12 @@ CREATE TABLE `extra_grade` (
   `id` int NOT NULL AUTO_INCREMENT,
   `grade_detail_id` int NOT NULL,
   `grade` float DEFAULT NULL,
+  `grade_index` int NOT NULL,
   PRIMARY KEY (`id`),
-  KEY `grade_detail_id` (`grade_detail_id`),
+  UNIQUE KEY `uq_grade_detail_index` (`grade_detail_id`,`grade_index`),
   CONSTRAINT `extra_grade_ibfk_1` FOREIGN KEY (`grade_detail_id`) REFERENCES `grade_detail` (`id`) ON DELETE CASCADE,
   CONSTRAINT `extra_grade_chk_1` CHECK (((`grade` >= 0.0) and (`grade` <= 10.0)))
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=193 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -149,6 +153,7 @@ CREATE TABLE `extra_grade` (
 
 LOCK TABLES `extra_grade` WRITE;
 /*!40000 ALTER TABLE `extra_grade` DISABLE KEYS */;
+INSERT INTO `extra_grade` VALUES (139,29,NULL,1),(153,29,NULL,0),(165,26,NULL,1),(175,26,NULL,0),(180,26,NULL,2);
 /*!40000 ALTER TABLE `extra_grade` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -244,7 +249,7 @@ CREATE TABLE `grade_detail` (
   CONSTRAINT `grade_detail_ibfk_3` FOREIGN KEY (`semester_id`) REFERENCES `semester` (`id`) ON DELETE RESTRICT,
   CONSTRAINT `grade_detail_chk_1` CHECK (((`final_grade` >= 0.0) and (`final_grade` <= 10.0))),
   CONSTRAINT `grade_detail_chk_2` CHECK (((`midterm_grade` >= 0.0) and (`midterm_grade` <= 10.0)))
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=32 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -253,6 +258,7 @@ CREATE TABLE `grade_detail` (
 
 LOCK TABLES `grade_detail` WRITE;
 /*!40000 ALTER TABLE `grade_detail` DISABLE KEYS */;
+INSERT INTO `grade_detail` VALUES (24,31,3,1,NULL,NULL,NULL),(25,32,3,1,NULL,NULL,NULL),(26,33,3,1,NULL,NULL,NULL),(28,36,3,1,NULL,NULL,NULL),(29,37,3,1,NULL,NULL,NULL);
 /*!40000 ALTER TABLE `grade_detail` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -270,7 +276,7 @@ CREATE TABLE `semester` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `academic_year_id` (`academic_year_id`,`semester_type`),
   CONSTRAINT `semester_ibfk_1` FOREIGN KEY (`academic_year_id`) REFERENCES `academic_year` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -279,6 +285,7 @@ CREATE TABLE `semester` (
 
 LOCK TABLES `semester` WRITE;
 /*!40000 ALTER TABLE `semester` DISABLE KEYS */;
+INSERT INTO `semester` VALUES (1,1,'FIRST_TERM');
 /*!40000 ALTER TABLE `semester` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -294,7 +301,8 @@ CREATE TABLE `student` (
   `code` char(10) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `code` (`code`),
-  CONSTRAINT `student_ibfk_1` FOREIGN KEY (`id`) REFERENCES `user` (`id`) ON DELETE CASCADE
+  CONSTRAINT `student_ibfk_1` FOREIGN KEY (`id`) REFERENCES `user` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `chk_student_code` CHECK (regexp_like(`code`,_utf8mb4'^[0-9]{10}$'))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -304,6 +312,7 @@ CREATE TABLE `student` (
 
 LOCK TABLES `student` WRITE;
 /*!40000 ALTER TABLE `student` DISABLE KEYS */;
+INSERT INTO `student` VALUES (31,'3123456789'),(32,'4123456789'),(33,'5123456789'),(36,'6123456789'),(37,'7123456789');
 /*!40000 ALTER TABLE `student` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -319,7 +328,7 @@ CREATE TABLE `user` (
   `first_name` varchar(255) NOT NULL,
   `last_name` varchar(225) NOT NULL,
   `email` varchar(255) NOT NULL,
-  `password` varchar(255) DEFAULT NULL,
+  `password` varchar(255) DEFAULT '1',
   `avatar` varchar(255) NOT NULL DEFAULT 'https://res.cloudinary.com/dqw4mc8dg/image/upload/w_1000,c_fill,ar_1:1,g_auto,r_max,bo_5px_solid_red,b_rgb:262c35/v1733391370/aj6sc6isvelwkotlo1vw.png',
   `created_date` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_date` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -327,8 +336,8 @@ CREATE TABLE `user` (
   `role` enum('ROLE_ADMIN','ROLE_LECTURER','ROLE_STUDENT') CHARACTER SET armscii8 COLLATE armscii8_general_ci NOT NULL DEFAULT 'ROLE_STUDENT',
   PRIMARY KEY (`id`),
   UNIQUE KEY `email` (`email`),
-  CONSTRAINT `user_chk_1` CHECK (regexp_like(`email`,_utf8mb4'^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+.[A-Za-z]{2,}$'))
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  CONSTRAINT `chk_email_ou` CHECK (regexp_like(`email`,_utf8mb4'^[A-Za-z0-9._%+-]+@ou\\.edu\\.vn$'))
+) ENGINE=InnoDB AUTO_INCREMENT=38 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -337,7 +346,7 @@ CREATE TABLE `user` (
 
 LOCK TABLES `user` WRITE;
 /*!40000 ALTER TABLE `user` DISABLE KEYS */;
-INSERT INTO `user` VALUES (1,'admin','admin','2251052065minh@ou.edu.vn','$2a$10$d//zsbKStvSqxeZ2zerHnuId/oqTrtCONgccfu449n6/edLG7/fLK','https://res.cloudinary.com/dqw4mc8dg/image/upload/v1744103891/rotm6mudyd8sqbvw6sgt.jpg',NULL,'2025-04-08 09:23:34',1,'ROLE_ADMIN');
+INSERT INTO `user` VALUES (1,'min','ad','2251052065minh@ou.edu.vn','$2a$10$6n7jmydVQRFF5u2daYWnDuHpoK3C6QBjhZ4tZzGDvsrDh2ViyKOWS','https://res.cloudinary.com/dqw4mc8dg/image/upload/v1744183632/kagdbiirsk2aca0y9scy.png','2025-04-15 03:29:57','2025-04-15 03:29:57',1,'ROLE_ADMIN'),(21,'Trọng Tín','Vũ','1tin@ou.edu.vn','$2a$10$j65YdGZAkMLd4uwIVhn.VuGXFk6.xIVLql6PIwCdZ4ui4oQmd8nqi','https://res.cloudinary.com/dqw4mc8dg/image/upload/v1744274409/bbajk4zmitgwrbsf12ks.png','2025-04-10 08:40:07','2025-04-10 08:40:09',1,'ROLE_LECTURER'),(28,'Trung Hiếu','Phùng','hieu@ou.edu.vn','$2a$10$8UmwfBI2HdfKFBf8WZ4Nh.MLZALQ41Mkoucp6RStiwWY9Ju0NtcFu','https://res.cloudinary.com/dqw4mc8dg/image/upload/v1744334980/o3perguzkwi6zbmkidjn.png','2025-04-13 08:30:18','2025-04-13 08:30:18',1,'ROLE_LECTURER'),(31,'c','c','c@ou.edu.vn','$2a$10$UtKeFfMJRGCnjw/8Wq5dkuxNSs/4x7U0YkaR9A5wsN27sMAx5m86i','https://res.cloudinary.com/dqw4mc8dg/image/upload/v1744533195/tryf9uuc3eed6kzmt4ve.png','2025-04-13 08:34:16','2025-04-13 08:34:16',1,'ROLE_STUDENT'),(32,'d','d','d@ou.edu.vn','$2a$10$ju2YaWTiVI7jElVlyEP6ReOhGG6KNxOpCxp2g0leG1D6vWzVjizCm','https://res.cloudinary.com/dqw4mc8dg/image/upload/v1744533631/mede2zf09eqdpdvq6ycm.png','2025-04-13 08:40:31','2025-04-13 08:40:32',1,'ROLE_STUDENT'),(33,'e','e','e@ou.edu.vn','$2a$10$JV9DXWP5/M7HLuSMOTq2teemjQ4KHGozx2uPdXZ0scwH0hMwGR.Uu','https://res.cloudinary.com/dqw4mc8dg/image/upload/v1744533796/cq6ywoy05nleji96ssl8.png','2025-04-13 08:43:15','2025-04-13 08:43:17',1,'ROLE_STUDENT'),(36,'f','f','f@ou.edu.vn','$2a$10$2Yegpt8EOhuT2GG9xW1CquThtVA96o9XYWbXKpKPFsk8XRHpCTeGm','https://res.cloudinary.com/dqw4mc8dg/image/upload/v1744534666/pqwgl8yl68hmounlkmn7.png','2025-04-13 08:57:46','2025-04-13 08:57:47',1,'ROLE_STUDENT'),(37,'g','g','g@ou.edu.vn','$2a$10$pB1.tyQG.BvrRH0E1OPNvebGkzBIkeihK/H8xOtW8JSHaUhUNIUve','https://res.cloudinary.com/dqw4mc8dg/image/upload/v1744538681/nlpxvgayseipn0puvy9i.png','2025-04-13 10:04:39','2025-04-13 10:04:41',1,'ROLE_STUDENT');
 /*!40000 ALTER TABLE `user` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -350,4 +359,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-04-08 17:54:22
+-- Dump completed on 2025-04-15 16:37:34

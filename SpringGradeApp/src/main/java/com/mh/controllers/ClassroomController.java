@@ -14,6 +14,7 @@ import com.mh.services.GradeDetailService;
 import com.mh.services.SemesterService;
 import com.mh.services.UserService;
 import com.mh.utils.PageSize;
+import jakarta.validation.Valid;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -25,6 +26,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -133,9 +135,14 @@ public class ClassroomController {
     }
 
     @PostMapping("")
-    public String saveClassroom(@ModelAttribute Classroom classroom,
+    public String saveClassroom(@ModelAttribute @Valid Classroom classroom, BindingResult bindingResult, Model model,
             @RequestParam(name = "studentIds", required = false) List<Integer> studentIds,
             @RequestParam Map<String, String> allParams) {
+
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("errorMessage", "Có lỗi xảy ra");
+            return "/classroom/classroom-form";
+        }
 
         Classroom savedClassroom = this.classroomService.saveClassroom(classroom, studentIds);
 
