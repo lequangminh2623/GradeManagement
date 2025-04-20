@@ -131,10 +131,14 @@ public class UserRepositoryImpl implements UserRepository {
 
         cq.select(cb.count(root));
 
+        List<Predicate> predicates = new ArrayList<>();
+
         String kw = params.get("kw");
         if (kw != null && !kw.isEmpty()) {
-            Predicate predicate = cb.like(root.get("name"), "%" + kw + "%");
-            cq.where(predicate);
+            Predicate firstNameLike = cb.like(cb.lower(root.get("firstName")), "%" + kw.toLowerCase() + "%");
+            Predicate lastNameLike = cb.like(cb.lower(root.get("lastName")), "%" + kw.toLowerCase() + "%");
+            predicates.add(cb.or(firstNameLike, lastNameLike));
+            cq.where(predicates.toArray(new Predicate[0]));
         }
 
         Long result = session.createQuery(cq).getSingleResult();

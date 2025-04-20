@@ -9,12 +9,14 @@ import com.mh.pojo.User;
 import com.mh.services.UserService;
 import com.mh.utils.ExceptionUtils;
 import com.mh.utils.PageSize;
+import jakarta.validation.Valid;
 import java.util.List;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -45,7 +47,7 @@ public class UserController {
         if (page == null || page.isEmpty()) {
             params.put("page", "1");
         }
-        
+
         List<User> users = this.userService.getUsers(params);
         model.addAttribute("users", users);
         model.addAttribute("currentPage", Integer.valueOf(params.get("page")));
@@ -63,16 +65,22 @@ public class UserController {
     }
 
     @PostMapping("/users")
-    public String saveUser(@ModelAttribute("user") User user, Model model) {
+    public String saveUser(@ModelAttribute("user") @Valid User user, BindingResult bindingResult, Model model) {
+        if ("ROLE_STUDENT".equals(user.getRole())) {
+            Student s = user.getStudent();
+            s.setUser(user);
+        }
+        
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("errorMessage", bindingResult.getAllErrors());
+            return "/user/user-form";
+        }
+
         try {
-            if ("ROLE_STUDENT".equals(user.getRole())) {
-                Student s = user.getStudent();
-                if (s.getId() == null) {
-                    s.setUser(user);
-                }
-            } else {
+            if (!"ROLE_STUDENT".equals(user.getRole())) {
                 user.setStudent(null);
             }
+
             userService.saveUser(user);
             return "redirect:/users";
         } catch (Exception e) {
