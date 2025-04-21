@@ -28,11 +28,11 @@ public class JwtUtils {
         SECRET = dotenv.get("SECRET");
     }
     
-    public static String generateToken(String username) throws Exception {
+    public static String generateToken(String email) throws Exception {
         JWSSigner signer = new MACSigner(SECRET);
 
         JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
-                .subject(username)
+                .subject(email)
                 .expirationTime(new Date(System.currentTimeMillis() + EXPIRATION_MS))
                 .issueTime(new Date())
                 .build();

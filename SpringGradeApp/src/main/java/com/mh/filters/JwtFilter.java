@@ -39,10 +39,10 @@ public class JwtFilter implements Filter{
             else {
                 String token = header.substring(7);
                 try {
-                    String username = JwtUtils.validateTokenAndGetUsername(token);
-                    if (username != null) {
-                        httpRequest.setAttribute("username", username);
-                        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(username, null, null);
+                    String email = JwtUtils.validateTokenAndGetUsername(token);
+                    if (email != null) {
+                        httpRequest.setAttribute("email", email);
+                        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(email, null, null);
                         SecurityContextHolder.getContext().setAuthentication(authentication);
                         
                         chain.doFilter(request, response);

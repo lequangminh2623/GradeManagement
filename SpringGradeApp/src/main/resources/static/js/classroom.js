@@ -41,9 +41,6 @@ function deleteClassroom(url, id) {
     }
 }
 
-
-
-
 function removeStudentFromClassroom(endpoint, classroomId, studentId) {
     if (confirm("Bạn có chắc chắn muốn xóa sinh viên và điểm khỏi lớp học này không?")) {
         fetch(endpoint + `${classroomId}/students/${studentId}`, {

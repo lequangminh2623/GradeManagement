@@ -76,12 +76,12 @@ public class ClassroomRepositoryImpl implements ClassroomRepository {
     public Classroom saveClassroom(Classroom classroom, List<Integer> studentIds) {
         Session session = this.factory.getObject().getCurrentSession();
         Classroom persistentClassroom;
-//
-//        if (classroom.getId() != null && classroom.getId() != 0) {
-//            persistentClassroom = session.get(Classroom.class, classroom.getId());
-//        } else {
-//            persistentClassroom = classroom;
-//        }
+
+        if (classroom.getId() != null && classroom.getId() != 0) {
+            persistentClassroom = session.get(Classroom.class, classroom.getId());
+        } else {
+            persistentClassroom = classroom;
+        }
 
         if (studentIds != null) {
             Set<Student> newStudents = new HashSet<>();
@@ -93,20 +93,20 @@ public class ClassroomRepositoryImpl implements ClassroomRepository {
                 }
             }
 
-            if (classroom.getStudentSet() != null) {
-                classroom.getStudentSet().addAll(newStudents);
+            if (persistentClassroom.getStudentSet() != null) {
+                persistentClassroom.getStudentSet().addAll(newStudents);
             } else {
-                classroom.setStudentSet(newStudents);
+                persistentClassroom.setStudentSet(newStudents);
             }
         }
 
-        if (classroom.getId() == null || classroom.getId() == 0) {
-            session.persist(classroom);
+        if (persistentClassroom.getId() == null || persistentClassroom.getId() == 0) {
+            session.persist(persistentClassroom);
         } else {
-            session.merge(classroom);
+            session.merge(persistentClassroom);
         }
 
-        return classroom;
+        return persistentClassroom;
     }
 
     @Override
