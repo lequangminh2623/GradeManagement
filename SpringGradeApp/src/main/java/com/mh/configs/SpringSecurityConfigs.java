@@ -51,6 +51,9 @@ public class SpringSecurityConfigs {
 
     @Autowired
     private UserDetailsService userDetailsService;
+    
+    @Autowired
+    private ClassroomValidator classroomValidator;
 
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
@@ -104,16 +107,19 @@ public class SpringSecurityConfigs {
         resource.setBasename("messages");
         return resource;
     }
-    
+
     @Bean
     public jakarta.validation.Validator validator() {
-        return new LocalValidatorFactoryBean();
+        LocalValidatorFactoryBean bean
+                = new LocalValidatorFactoryBean();
+        bean.setValidationMessageSource(messageSource());
+        return bean;
     }
 
     @Bean
-    public WebAppValidator classroomValidator() {
+    public WebAppValidator classroomValidators() {
         Set<Validator> springValidators = new HashSet<>();
-        springValidators.add(new ClassroomValidator());
+        springValidators.add(classroomValidator);
         WebAppValidator validator = new WebAppValidator();
         validator.setSpringValidators(springValidators);
         return validator;

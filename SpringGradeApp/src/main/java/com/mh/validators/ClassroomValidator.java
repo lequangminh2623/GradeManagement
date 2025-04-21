@@ -18,7 +18,7 @@ import org.springframework.validation.Validator;
 @Component
 public class ClassroomValidator implements Validator {
 
-   @Autowired
+    @Autowired
     private ClassroomService classroomService;
 
     @Override
@@ -29,17 +29,28 @@ public class ClassroomValidator implements Validator {
     @Override
     public void validate(Object target, Errors errors) {
         Classroom classroom = (Classroom) target;
+        System.out.println("Running classroom validator...");
 
-        if (classroom.getName() == null || 
-            classroom.getSemester() == null || 
-            classroom.getCourse() == null) {
-            return;
+        if (classroom.getName() == null || classroom.getName().trim().isEmpty()) {
+            errors.rejectValue("name", "classroom.name.notNull");
+        }
+
+        if (classroom.getSemester() == null || classroom.getSemester().getId() == null) {
+            errors.rejectValue("semester", "classroom.semester.notNull");
+        }
+
+        if (classroom.getCourse() == null || classroom.getCourse().getId() == null) {
+            errors.rejectValue("course", "classroom.course.notNull");
+        }
+
+        if (classroom.getLecturer() == null || classroom.getLecturer().getId() == null) {
+            errors.rejectValue("lecturer", "classroom.lecturer.notNull");
         }
 
         boolean exists = classroomService.existsDuplicateClassroom(
-            classroom.getName(),
-            classroom.getSemester().getId(),
-            classroom.getCourse().getId()
+                classroom.getName(),
+                classroom.getSemester().getId(),
+                classroom.getCourse().getId()
         );
 
         if (exists) {
@@ -48,5 +59,5 @@ public class ClassroomValidator implements Validator {
             errors.rejectValue("course", "classroom.uniqueErr");
         }
     }
-    
+
 }

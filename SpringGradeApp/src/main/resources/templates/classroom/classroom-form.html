@@ -20,18 +20,20 @@
                     <label class="form-label">Tên lớp:</label>
                     <input type="text" class="form-control" th:field="*{name}" required
                            th:classappend="${#fields.hasErrors('name')} ? 'is-invalid'"/>
-                <div class="invalid-feedback" th:errors="*{name}"></div>
+                    <div class="invalid-feedback" th:errors="*{name}"></div>
                 </div>
 
                 <div class="col-md-6">
                     <label class="form-label">Giảng viên:</label>
-                    <select th:field="*{lecturer.id}" id="lecturerSelect" class="form-select">
+                    <select th:field="*{lecturer.id}" id="lecturerSelect" class="form-select"
+                            th:classappend="${#fields.hasErrors('lecturer')} ? 'is-invalid'">
                         <option value="">-- Chọn giảng viên --</option>
                         <option th:each="l : ${lecturers}" 
                                 th:value="${l.id}" 
                                 th:text="${l.id + ' - ' + l.lastName + ' ' + l.firstName}">
                         </option>
                     </select>
+                    <div class="invalid-feedback" th:errors="*{lecturer}"></div>
                 </div>
 
                 <div class="col-md-6">
