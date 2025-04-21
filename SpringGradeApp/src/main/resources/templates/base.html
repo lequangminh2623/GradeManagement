@@ -48,6 +48,9 @@
                             <a class="nav-link" th:href="@{/forums}" th:classappend="${requestURI.startsWith(contextPath + '/forums')} ? ' active'" sec:authorize="isAuthenticated()">Diễn đàn</a>
                         </li>
                         <li class="nav-item">
+                            <a class="nav-link" th:href="@{/replies}" th:classappend="${requestURI.startsWith(contextPath + '/replies')} ? ' active'" sec:authorize="isAuthenticated()">Phản hồi</a>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link" th:href="@{/logout}" sec:authorize="isAuthenticated()">Đăng xuất</a>
                         </li>
                     </ul>

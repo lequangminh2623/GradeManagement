@@ -32,7 +32,7 @@ public class WebAppContextConfigs implements WebMvcConfigurer {
     public void configureDefaultServletHandling(DefaultServletHandlerConfigurer configurer) {
         configurer.enable();
     }
-    
+
     @Override
     public void addFormatters(FormatterRegistry registry) {
         registry.addFormatter(new AcademicYearFormatter());

@@ -51,18 +51,18 @@ public class SpringSecurityConfigs {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws
             Exception {
-       http.csrf(c -> c.disable()).authorizeHttpRequests(requests
-               -> requests.requestMatchers("/", "/home").authenticated()
-                       .requestMatchers("/api/**").permitAll()
-                       .requestMatchers("/users", "/users/**", "/classrooms", "/classrooms/**", "/courses", "/courses/**", "/years", "/years/**").hasRole("ADMIN")
-                       .anyRequest().authenticated())
-               .formLogin(form -> form.loginPage("/login")
-               .loginProcessingUrl("/login")
-               .defaultSuccessUrl("/", true)
-               .failureUrl("/login?error=true").permitAll())
-               .logout(logout -> logout.logoutSuccessUrl("/login").permitAll());//.addFilterBefore(new JwtFilter(), UsernamePasswordAuthenticationFilter.class);
+      http.csrf(c -> c.disable()).authorizeHttpRequests(requests
+              -> requests.requestMatchers("/", "/home").authenticated()
+                      .requestMatchers("/api/**").permitAll()
+                      .requestMatchers("/users", "/users/**", "/classrooms", "/classrooms/**", "/courses", "/courses/**", "/years", "/years/**").hasRole("ADMIN")
+                      .anyRequest().authenticated())
+              .formLogin(form -> form.loginPage("/login")
+              .loginProcessingUrl("/login")
+              .defaultSuccessUrl("/", true)
+              .failureUrl("/login?error=true").permitAll())
+              .logout(logout -> logout.logoutSuccessUrl("/login").permitAll());//.addFilterBefore(new JwtFilter(), UsernamePasswordAuthenticationFilter.class);
 
-        // http.csrf(c -> c.disable()).authorizeHttpRequests(requests -> requests.anyRequest().permitAll());
+        //  http.csrf(c -> c.disable()).authorizeHttpRequests(requests -> requests.anyRequest().permitAll());
         return http.build();
     }
 
