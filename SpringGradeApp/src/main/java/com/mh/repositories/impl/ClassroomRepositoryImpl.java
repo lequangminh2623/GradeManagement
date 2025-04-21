@@ -178,4 +178,21 @@ public class ClassroomRepositoryImpl implements ClassroomRepository {
         }
     }
 
+    @Override
+    public boolean existsDuplicateClassroom(String name, Integer semesterId, Integer courseId) {
+        Session session = this.factory.getObject().getCurrentSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<Long> cq = cb.createQuery(Long.class);
+
+        Root<Classroom> root = cq.from(Classroom.class);
+
+        cq.select(cb.count(root));
+
+        cq.where(cb.and(cb.equal(root.get("name"), name), cb.equal(root.get("semester").get("id"), semesterId), cb.equal(root.get("course").get("id"), courseId)));
+
+        Long count = session.createQuery(cq).getSingleResult();
+
+        return count > 0;
+    }
+
 }

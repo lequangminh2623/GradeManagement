@@ -60,4 +60,9 @@ public class ClassroomServiceImpl implements ClassroomService {
     public void removeStudentFromClassroom(int classroomId, int studentId) {
         this.classroomRepo.removeStudentFromClassroom(classroomId, studentId);
     }
+
+    @Override
+    public boolean existsDuplicateClassroom(String name, Integer semesterId, Integer courseId) {
+        return this.classroomRepo.existsDuplicateClassroom(name, semesterId, courseId);
+    }
 }

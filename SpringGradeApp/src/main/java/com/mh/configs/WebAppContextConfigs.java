@@ -24,7 +24,8 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @ComponentScan(basePackages = {
     "com.mh.controllers",
     "com.mh.repositories",
-    "com.mh.services"
+    "com.mh.services",
+    "com.mh.validators"
 })
 public class WebAppContextConfigs implements WebMvcConfigurer {
 
@@ -32,7 +33,7 @@ public class WebAppContextConfigs implements WebMvcConfigurer {
     public void configureDefaultServletHandling(DefaultServletHandlerConfigurer configurer) {
         configurer.enable();
     }
-    
+
     @Override
     public void addFormatters(FormatterRegistry registry) {
         registry.addFormatter(new AcademicYearFormatter());
@@ -42,4 +43,5 @@ public class WebAppContextConfigs implements WebMvcConfigurer {
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry.addResourceHandler("/js/**").addResourceLocations("classpath:/static/js/");
     }
+
 }
