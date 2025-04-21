@@ -87,6 +87,9 @@
                                                 th:attr="onclick=|removeExtraColumn(${iStat.index})|">❌</button>
                                     </span>
                                 </div>
+                                <div id="extra-header-buttons" 
+                                     class="d-flex gap-2 justify-content-center"
+                                     th:unless="${#lists.size(classroom.studentSet) > 0}"></div>
                             </th>
                         </tr>
 
@@ -126,7 +129,7 @@
                     </tbody>
                 </table>
             </div>
-                       
+
             <div class="col-12">
                 <button type="submit" class="btn btn-primary">💾 Lưu lớp học</button>
                 <a th:href="@{/classrooms}" class="btn btn-secondary">⬅️ Quay lại</a>
