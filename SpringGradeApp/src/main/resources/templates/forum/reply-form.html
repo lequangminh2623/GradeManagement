@@ -39,7 +39,7 @@
 
                 <div class="col-md-6">
                     <label class="form-label">Người phản hồi:</label>
-                    <select th:field="*{user.id}" id="userSelect" class="form-select">
+                    <select th:field="*{user.id}" id="userSelect" class="form-select" required>
                         <option value="">-- Chọn phản hồi --</option>
                         <option th:each="u : ${users}" 
                                 th:value="${u.id}" 
@@ -50,7 +50,7 @@
 
                 <div class="col-md-6">
                     <label class="form-label">Bài đăng:</label>
-                    <select th:field="*{forumPost.id}" id="postSelect" class="form-select">
+                    <select th:field="*{forumPost.id}" id="postSelect" class="form-select" required="">
                         <option value="">-- Chọn bài đăng --</option>
                         <option th:each="p : ${forumPosts}" 
                                 th:value="${p.id}" 

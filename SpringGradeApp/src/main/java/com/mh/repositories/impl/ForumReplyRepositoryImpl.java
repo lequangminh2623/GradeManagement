@@ -110,9 +110,9 @@ public class ForumReplyRepositoryImpl implements ForumReplyRepository {
                 predicates.add(namePredicate);
             }
 
-        }
+            cq.where(cb.and(predicates.toArray(new Predicate[0])));
 
-        cq.where(cb.and(predicates.toArray(new Predicate[0])));
+        }
 
         Long result = session.createQuery(cq).getSingleResult();
 
@@ -188,14 +188,18 @@ public class ForumReplyRepositoryImpl implements ForumReplyRepository {
 
         if (forumReply.getId() == null || forumReply.getId() == 0) {
             session.persist(forumReply);
-            session.flush();
+            session.refresh(forumReply);
 
-            forumReply.setParent(forumReply);
-            session.merge(forumReply);
+            if (forumReply.getParent() == null) {
+                forumReply.setParent(forumReply);
+                session.merge(forumReply);
+            }
         } else {
             session.merge(forumReply);
         }
+
         return forumReply;
+
     }
 
     @Override

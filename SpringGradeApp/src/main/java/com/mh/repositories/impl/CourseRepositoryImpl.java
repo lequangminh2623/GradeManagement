@@ -38,6 +38,7 @@ public class CourseRepositoryImpl implements CourseRepository {
         CriteriaBuilder cb = session.getCriteriaBuilder();
         CriteriaQuery<Course> cq = cb.createQuery(Course.class);
         Root<Course> root = cq.from(Course.class);
+        cq.select(root);
 
         List<Predicate> predicates = new ArrayList<>();
 
