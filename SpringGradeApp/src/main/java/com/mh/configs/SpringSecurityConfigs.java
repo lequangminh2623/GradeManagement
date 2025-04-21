@@ -6,11 +6,17 @@ package com.mh.configs;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
+import com.mh.validators.ClassroomValidator;
+import com.mh.validators.WebAppValidator;
 import io.github.cdimascio.dotenv.Dotenv;
+import java.util.HashSet;
+import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.support.ResourceBundleMessageSource;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -18,6 +24,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
+import org.springframework.validation.Validator;
+import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 import org.springframework.web.multipart.support.StandardServletMultipartResolver;
 import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 
@@ -31,7 +39,8 @@ import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 @ComponentScan(basePackages = {
     "com.mh.controllers",
     "com.mh.repositories",
-    "com.mh.services"
+    "com.mh.services",
+    "com.mh.validators"
 })
 public class SpringSecurityConfigs {
 
@@ -88,4 +97,25 @@ public class SpringSecurityConfigs {
         return new StandardServletMultipartResolver();
     }
 
+    @Bean
+    public MessageSource messageSource() {
+        ResourceBundleMessageSource resource
+                = new ResourceBundleMessageSource();
+        resource.setBasename("messages");
+        return resource;
+    }
+    
+    @Bean
+    public jakarta.validation.Validator validator() {
+        return new LocalValidatorFactoryBean();
+    }
+
+    @Bean
+    public WebAppValidator classroomValidator() {
+        Set<Validator> springValidators = new HashSet<>();
+        springValidators.add(new ClassroomValidator());
+        WebAppValidator validator = new WebAppValidator();
+        validator.setSpringValidators(springValidators);
+        return validator;
+    }
 }

@@ -27,4 +27,6 @@ public interface ClassroomRepository {
     int countClassroom(Map<String, String> params);
     
     void removeStudentFromClassroom(int classroomId, int studentId);
+    
+    boolean existsDuplicateClassroom(String name, Integer semesterId, Integer courseId);
 }
