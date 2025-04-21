@@ -38,6 +38,7 @@ public class AcademicYearRepositoryImpl implements AcademicYearRepository {
         CriteriaBuilder cb = session.getCriteriaBuilder();
         CriteriaQuery<AcademicYear> cq = cb.createQuery(AcademicYear.class);
         Root<AcademicYear> root = cq.from(AcademicYear.class);
+        cq.select(root);
 
         List<Predicate> predicates = new ArrayList<>();
 
@@ -47,9 +48,8 @@ public class AcademicYearRepositoryImpl implements AcademicYearRepository {
                 Predicate namePredicate = cb.like(root.get("year"), "%" + kw + "%");
                 predicates.add(namePredicate);
             }
+            cq.where(predicates.toArray(new Predicate[0]));
         }
-
-        cq.where(predicates.toArray(new Predicate[0]));
 
         Query query = session.createQuery(cq);
 
