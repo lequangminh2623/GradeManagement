@@ -31,38 +31,38 @@ import org.springframework.stereotype.Service;
  */
 @Service("userDetailsService")
 public class UserServiceImpl implements UserService {
-    
+
     @Autowired
     private UserRepository userRepo;
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
     @Autowired
     private Cloudinary cloudinary;
-    
+
     @Override
     public User getUserByEmail(String email) {
         return this.userRepo.getUserByEmail(email);
     }
-    
+
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         User u = this.getUserByEmail(email);
         if (u == null) {
             throw new UsernameNotFoundException("Invalid email!");
         }
-        
+
         Set<GrantedAuthority> authorities = new HashSet<>();
         authorities.add(new SimpleGrantedAuthority(u.getRole()));
-        
+
         return new org.springframework.security.core.userdetails.User(
                 u.getEmail(), u.getPassword(), authorities);
     }
-    
+
     @Override
     public boolean authenticate(String email, String password) {
         return this.userRepo.authenticate(email, password);
     }
-    
+
     @Override
     public User saveUser(User user) {
         if (user.getPassword() == null) {
@@ -86,30 +86,35 @@ public class UserServiceImpl implements UserService {
         user.setUpdatedDate(new Date());
         return userRepo.saveUser(user);
     }
-    
+
     @Override
     public User getUserById(Integer id) {
         return userRepo.getUserById(id);
     }
-    
+
     @Override
     public void deleteUser(Integer id) {
         userRepo.deleteUser(id);
     }
-    
+
     @Override
     public List<User> getUsers(Map<String, String> params) {
         return userRepo.getUsers(params);
     }
-    
+
     @Override
     public int countUser(Map<String, String> params) {
         return this.userRepo.countUser(params);
     }
-    
+
     @Override
     public List<User> getUserByRole(List<String> roles) {
         return this.userRepo.getUserByRole(roles);
     }
-    
+
+    @Override
+    public boolean existsByEmail(String email, Integer excludeId) {
+        return this.userRepo.existsByEmail(email, excludeId);
+    }
+
 }

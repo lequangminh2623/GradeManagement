@@ -11,6 +11,7 @@ import com.mh.pojo.Student;
 import com.mh.repositories.GradeDetailRepository;
 import com.mh.services.ExtraGradeService;
 import com.mh.services.GradeDetailService;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -18,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -48,7 +50,7 @@ public class GradeDetailServiceImpl implements GradeDetailService {
     public GradeDetail saveGradeDetail(GradeDetail gd) {
         return this.gradeDetailRepo.saveGradeDetail(gd);
     }
-    
+
     @Override
     public void saveGradesForStudent(Student student, Classroom savedClassroom, Map<String, String> allParams) {
         Integer studentId = student.getId();
@@ -80,7 +82,8 @@ public class GradeDetailServiceImpl implements GradeDetailService {
         Set<ExtraGrade> extraSet = new LinkedHashSet<>();
 
         Map<Integer, ExtraGrade> existingExtraGradeMap
-                = (gd.getId() != null ? gd.getExtraGradeSet() : new HashSet<ExtraGrade>())
+                = Optional.ofNullable(gd.getExtraGradeSet())
+                        .orElse(Collections.emptySet())
                         .stream()
                         .collect(Collectors.toMap(ExtraGrade::getGradeIndex, eg -> eg));
 
@@ -135,4 +138,10 @@ public class GradeDetailServiceImpl implements GradeDetailService {
 
         this.saveGradeDetail(gd);
     }
+
+    @Override
+    public boolean existsByStudentAndCourseAndSemester(Integer studentId, Integer courseId, Integer semesterId, Integer excludeId) {
+        return this.gradeDetailRepo.existsByStudentAndCourseAndSemester(studentId, courseId, semesterId, excludeId);
+    }
+
 }

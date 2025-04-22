@@ -31,4 +31,9 @@ public class StudentServiceImpl implements StudentService {
     public Student getStudentByUserId(int userId) {
         return this.studentRepo.getStudentByUserId(userId);
     }
+
+    @Override
+    public boolean existsByStudentCode(String code, Integer userId) {
+        return this.studentRepo.existsByStudentCode(code, userId);
+    }
 }

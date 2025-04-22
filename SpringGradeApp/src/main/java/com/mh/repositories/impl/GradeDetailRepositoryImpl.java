@@ -7,7 +7,6 @@ import jakarta.persistence.Query;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Join;
-import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import java.util.ArrayList;
@@ -96,6 +95,28 @@ public class GradeDetailRepositoryImpl implements GradeDetailRepository {
         }
 
         return gd;
+    }
+
+    @Override
+    public boolean existsByStudentAndCourseAndSemester(Integer studentId, Integer courseId, Integer semesterId, Integer excludeId) {
+        Session session = factory.getObject().getCurrentSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<Long> cq = cb.createQuery(Long.class);
+        Root<GradeDetail> root = cq.from(GradeDetail.class);
+
+        Predicate p = cb.and(
+                cb.equal(root.get("student").get("id"), studentId),
+                cb.equal(root.get("course").get("id"), courseId),
+                cb.equal(root.get("semester").get("id"), semesterId)
+        );
+
+        if (excludeId != null) {
+            p = cb.and(p, cb.notEqual(root.get("id"), excludeId));
+        }
+
+        cq.select(cb.count(root)).where(p);
+        Long count = session.createQuery(cq).getSingleResult();
+        return count > 0;
     }
 
 }

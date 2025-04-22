@@ -5,6 +5,8 @@
 package com.mh.configs;
 
 import com.mh.formatters.AcademicYearFormatter;
+import com.mh.formatters.StudentFormatter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.format.FormatterRegistry;
@@ -25,9 +27,12 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
     "com.mh.controllers",
     "com.mh.repositories",
     "com.mh.services",
-    "com.mh.validators"
+    "com.mh.formatters"
 })
 public class WebAppContextConfigs implements WebMvcConfigurer {
+    
+    @Autowired
+    StudentFormatter studentFormatter;
 
     @Override
     public void configureDefaultServletHandling(DefaultServletHandlerConfigurer configurer) {
@@ -37,6 +42,7 @@ public class WebAppContextConfigs implements WebMvcConfigurer {
     @Override
     public void addFormatters(FormatterRegistry registry) {
         registry.addFormatter(new AcademicYearFormatter());
+        registry.addFormatter(studentFormatter);
     }
 
     @Override

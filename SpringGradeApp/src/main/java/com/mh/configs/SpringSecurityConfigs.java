@@ -7,6 +7,7 @@ package com.mh.configs;
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 import com.mh.validators.ClassroomValidator;
+import com.mh.validators.UserValidator;
 import com.mh.validators.WebAppValidator;
 import io.github.cdimascio.dotenv.Dotenv;
 import java.util.HashSet;
@@ -54,6 +55,9 @@ public class SpringSecurityConfigs {
     
     @Autowired
     private ClassroomValidator classroomValidator;
+    
+    @Autowired
+    private UserValidator userValidator;
 
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
@@ -117,9 +121,10 @@ public class SpringSecurityConfigs {
     }
 
     @Bean
-    public WebAppValidator classroomValidators() {
+    public WebAppValidator webAppValidator() {
         Set<Validator> springValidators = new HashSet<>();
         springValidators.add(classroomValidator);
+        springValidators.add(userValidator);
         WebAppValidator validator = new WebAppValidator();
         validator.setSpringValidators(springValidators);
         return validator;
