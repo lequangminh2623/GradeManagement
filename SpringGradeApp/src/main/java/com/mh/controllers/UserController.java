@@ -7,18 +7,21 @@ package com.mh.controllers;
 import com.mh.pojo.Student;
 import com.mh.pojo.User;
 import com.mh.services.UserService;
-import com.mh.utils.ExceptionUtils;
 import com.mh.utils.PageSize;
+import com.mh.validators.WebAppValidator;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -34,6 +37,15 @@ public class UserController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    @Qualifier("webAppValidator")
+    private WebAppValidator webAppValidator;
+
+    @InitBinder
+    public void initBinder(WebDataBinder binder) {
+        binder.setValidator(webAppValidator);
+    }
 
     @GetMapping("/login")
     public String loginView() {
@@ -70,36 +82,21 @@ public class UserController {
             Student s = user.getStudent();
             s.setUser(user);
         }
-        
+
         if (bindingResult.hasErrors()) {
-            model.addAttribute("errorMessage", bindingResult.getAllErrors());
-            return "/user/user-form";
-        }
-
-        try {
-            if (!"ROLE_STUDENT".equals(user.getRole())) {
-                user.setStudent(null);
-            }
-
-            userService.saveUser(user);
-            return "redirect:/users";
-        } catch (Exception e) {
-            Throwable root = ExceptionUtils.getRootCause(e);
-            if (root instanceof java.sql.SQLIntegrityConstraintViolationException && root.getMessage().contains("Duplicate entry")) {
-                if (root.getMessage().contains("user.email")) {
-                    model.addAttribute("errorMessage", "Email này đã tồn tại.");
-                } else if (root.getMessage().contains("student.code")) {
-                    model.addAttribute("errorMessage", "Mã số sinh viên đã tồn tại.");
-                } else {
-                    model.addAttribute("errorMessage", "Dữ liệu đã bị trùng.");
-                }
-            } else {
-                model.addAttribute("errorMessage", "Đã xảy ra lỗi: " + root.getMessage());
-            }
-
+            model.addAttribute("errorMessage", "Có lỗi xảy ra");
             model.addAttribute("user", user);
             return "/user/user-form";
         }
+
+        if (!"ROLE_STUDENT".equals(user.getRole())) {
+            user.setStudent(null);
+        }
+
+        userService.saveUser(user);
+
+        model.addAttribute("user", user);
+        return "redirect:/users";
     }
 
     @GetMapping("/users/{id}")

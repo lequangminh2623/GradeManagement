@@ -9,7 +9,6 @@ import com.mh.pojo.GradeDetail;
 import com.mh.pojo.Student;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  *
@@ -24,5 +23,6 @@ public interface GradeDetailService {
     GradeDetail saveGradeDetail(GradeDetail gd);
     
     void saveGradesForStudent(Student student, Classroom savedClassroom, Map<String, String> allParams);
-
+    
+    boolean existsByStudentAndCourseAndSemester(Integer studentId, Integer courseId, Integer semesterId, Integer excludeId);
 }

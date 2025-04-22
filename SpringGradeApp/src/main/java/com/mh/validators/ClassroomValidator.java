@@ -6,6 +6,8 @@ package com.mh.validators;
 
 import com.mh.pojo.Classroom;
 import com.mh.services.ClassroomService;
+import java.util.ArrayList;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
@@ -46,18 +48,39 @@ public class ClassroomValidator implements Validator {
         if (classroom.getLecturer() == null || classroom.getLecturer().getId() == null) {
             errors.rejectValue("lecturer", "classroom.lecturer.notNull");
         }
+        if (!errors.hasErrors()) {
+            boolean exists = classroomService.existsDuplicateClassroom(
+                    classroom.getName(),
+                    classroom.getSemester().getId(),
+                    classroom.getCourse().getId(),
+                    classroom.getId()
+            );
 
-        boolean exists = classroomService.existsDuplicateClassroom(
-                classroom.getName(),
-                classroom.getSemester().getId(),
-                classroom.getCourse().getId()
-        );
+            if (exists) {
+                errors.rejectValue("name", "classroom.unique");
+            }
+            if (classroom.getStudentSet() != null) {
+                List<String> conflicts = new ArrayList<>();
 
-        if (exists) {
-            errors.rejectValue("name", "classroom.uniqueErr");
-            errors.rejectValue("semester", "classroom.uniqueErr");
-            errors.rejectValue("course", "classroom.uniqueErr");
+                for (var student : classroom.getStudentSet()) {
+                    boolean alreadyInClass = classroomService.existsStudentInOtherClassroom(
+                            student.getId(),
+                            classroom.getSemester().getId(),
+                            classroom.getCourse().getId(),
+                            classroom.getId()
+                    );
+
+                    if (alreadyInClass) {
+                        String fullName = student.getUser().getLastName() + " " + student.getUser().getFirstName();
+                        conflicts.add(fullName);
+                    }
+                }
+
+                if (!conflicts.isEmpty()) {
+                    String msg = "Các sinh viên đã tham gia lớp khác: " + String.join(", ", conflicts);
+                    errors.rejectValue("studentSet", null, msg);
+                }
+            }
         }
     }
-
 }

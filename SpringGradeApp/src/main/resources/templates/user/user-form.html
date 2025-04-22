@@ -21,17 +21,23 @@
 
             <div class="col-md-6">
                 <label for="lastName" class="form-label">Họ:</label>
-                <input type="text" class="form-control" id="lastName" th:field="*{lastName}" placeholder="Nguyễn" required />
+                <input type="text" class="form-control" id="lastName" th:field="*{lastName}" placeholder="Nguyễn" required 
+                       th:classappend="${#fields.hasErrors('lastName')} ? 'is-invalid'"/>
+                <div class="invalid-feedback" th:errors="*{lastName}"></div>
             </div>
 
             <div class="col-md-6">
                 <label for="firstName" class="form-label">Tên:</label>
-                <input type="text" class="form-control" id="firstName" th:field="*{firstName}" placeholder="Văn A" required />
+                <input type="text" class="form-control" id="firstName" th:field="*{firstName}" placeholder="Văn A" required
+                       th:classappend="${#fields.hasErrors('firstName')} ? 'is-invalid'"/>
+                <div class="invalid-feedback" th:errors="*{firstName}"></div>
             </div>
 
             <div class="col-md-6">
                 <label for="email" class="form-label">Email:</label>
-                <input type="email" class="form-control" id="email" th:field="*{email}" placeholder="example@ou.edu.vn" pattern="^[A-Za-z0-9._%+\-]+@ou.edu.vn$" required />
+                <input type="email" class="form-control" id="email" th:field="*{email}" placeholder="example@ou.edu.vn" pattern="^[A-Za-z0-9._%+\-]+@ou.edu.vn$" required
+                       th:classappend="${#fields.hasErrors('email')} ? 'is-invalid'"/>
+                <div class="invalid-feedback" th:errors="*{email}"></div>
             </div>
 
             <div class="col-md-6">
@@ -57,8 +63,9 @@
                 <label for="studentCode" class="form-label">Mã số sinh viên:</label>
                 <input type="text" class="form-control" id="studentCode"
                        th:field="*{student.code}" placeholder="0123456789"
-                       maxlength="10" minlength="10" inputmode="numeric" required />
-                <div class="invalid-feedback" th:if="${#fields.hasErrors('student.code')}" th:errors="*{student.code}"></div>
+                       maxlength="10" minlength="10" inputmode="numeric" required
+                       th:classappend="${#fields.hasErrors('student.code')} ? 'is-invalid'"/>
+                <div class="invalid-feedback" th:errors="*{student.code}"></div>
             </div>
 
             <div class="col-12 d-flex align-items-center">

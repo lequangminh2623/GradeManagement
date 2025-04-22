@@ -27,7 +27,7 @@ CREATE TABLE `academic_year` (
   `year` char(9) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `year` (`year`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -62,7 +62,7 @@ CREATE TABLE `classroom` (
   CONSTRAINT `classroom_ibfk_1` FOREIGN KEY (`lecturer_id`) REFERENCES `user` (`id`) ON DELETE RESTRICT,
   CONSTRAINT `classroom_ibfk_2` FOREIGN KEY (`course_id`) REFERENCES `course` (`id`) ON DELETE RESTRICT,
   CONSTRAINT `classroom_ibfk_3` FOREIGN KEY (`semester_id`) REFERENCES `semester` (`id`) ON DELETE RESTRICT
-) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=36 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -91,7 +91,7 @@ CREATE TABLE `classroom_student` (
   KEY `student_id` (`student_id`),
   CONSTRAINT `classroom_student_ibfk_1` FOREIGN KEY (`student_id`) REFERENCES `student` (`id`) ON DELETE CASCADE,
   CONSTRAINT `classroom_student_ibfk_2` FOREIGN KEY (`classroom_id`) REFERENCES `classroom` (`id`) ON DELETE RESTRICT
-) ENGINE=InnoDB AUTO_INCREMENT=65 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=142 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -100,6 +100,7 @@ CREATE TABLE `classroom_student` (
 
 LOCK TABLES `classroom_student` WRITE;
 /*!40000 ALTER TABLE `classroom_student` DISABLE KEYS */;
+INSERT INTO `classroom_student` VALUES (139,10,32),(140,10,33),(141,10,36);
 /*!40000 ALTER TABLE `classroom_student` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -144,7 +145,7 @@ CREATE TABLE `extra_grade` (
   UNIQUE KEY `uq_grade_detail_index` (`grade_detail_id`,`grade_index`),
   CONSTRAINT `extra_grade_ibfk_1` FOREIGN KEY (`grade_detail_id`) REFERENCES `grade_detail` (`id`) ON DELETE CASCADE,
   CONSTRAINT `extra_grade_chk_1` CHECK (((`grade` >= 0.0) and (`grade` <= 10.0)))
-) ENGINE=InnoDB AUTO_INCREMENT=193 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=208 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -153,7 +154,6 @@ CREATE TABLE `extra_grade` (
 
 LOCK TABLES `extra_grade` WRITE;
 /*!40000 ALTER TABLE `extra_grade` DISABLE KEYS */;
-INSERT INTO `extra_grade` VALUES (139,29,NULL,1),(153,29,NULL,0),(165,26,NULL,1),(175,26,NULL,0),(180,26,NULL,2);
 /*!40000 ALTER TABLE `extra_grade` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -178,7 +178,7 @@ CREATE TABLE `forum_post` (
   KEY `classroom_id` (`classroom_id`),
   CONSTRAINT `forum_post_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE,
   CONSTRAINT `forum_post_ibfk_2` FOREIGN KEY (`classroom_id`) REFERENCES `classroom` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -187,6 +187,7 @@ CREATE TABLE `forum_post` (
 
 LOCK TABLES `forum_post` WRITE;
 /*!40000 ALTER TABLE `forum_post` DISABLE KEYS */;
+INSERT INTO `forum_post` VALUES (1,'dd1','ádfasdf','https://res.cloudinary.com/dqw4mc8dg/image/upload/v1745158513/GradeManagement/tjybqazyy1yn8men6mrj.png',21,10,'2025-04-20 14:15:35','2025-04-20 14:15:35');
 /*!40000 ALTER TABLE `forum_post` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -249,7 +250,7 @@ CREATE TABLE `grade_detail` (
   CONSTRAINT `grade_detail_ibfk_3` FOREIGN KEY (`semester_id`) REFERENCES `semester` (`id`) ON DELETE RESTRICT,
   CONSTRAINT `grade_detail_chk_1` CHECK (((`final_grade` >= 0.0) and (`final_grade` <= 10.0))),
   CONSTRAINT `grade_detail_chk_2` CHECK (((`midterm_grade` >= 0.0) and (`midterm_grade` <= 10.0)))
-) ENGINE=InnoDB AUTO_INCREMENT=32 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=97 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -258,7 +259,7 @@ CREATE TABLE `grade_detail` (
 
 LOCK TABLES `grade_detail` WRITE;
 /*!40000 ALTER TABLE `grade_detail` DISABLE KEYS */;
-INSERT INTO `grade_detail` VALUES (24,31,3,1,NULL,NULL,NULL),(25,32,3,1,NULL,NULL,NULL),(26,33,3,1,NULL,NULL,NULL),(28,36,3,1,NULL,NULL,NULL),(29,37,3,1,NULL,NULL,NULL);
+INSERT INTO `grade_detail` VALUES (92,36,3,1,NULL,NULL,NULL),(95,32,3,1,NULL,NULL,NULL),(96,33,3,1,NULL,NULL,NULL);
 /*!40000 ALTER TABLE `grade_detail` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -312,7 +313,7 @@ CREATE TABLE `student` (
 
 LOCK TABLES `student` WRITE;
 /*!40000 ALTER TABLE `student` DISABLE KEYS */;
-INSERT INTO `student` VALUES (31,'3123456789'),(32,'4123456789'),(33,'5123456789'),(36,'6123456789'),(37,'7123456789');
+INSERT INTO `student` VALUES (46,'1223456789'),(48,'2123456789'),(32,'3123456789'),(33,'5123456789'),(36,'6123456789'),(37,'7123456789'),(43,'8123456789');
 /*!40000 ALTER TABLE `student` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -337,7 +338,7 @@ CREATE TABLE `user` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `email` (`email`),
   CONSTRAINT `chk_email_ou` CHECK (regexp_like(`email`,_utf8mb4'^[A-Za-z0-9._%+-]+@ou\\.edu\\.vn$'))
-) ENGINE=InnoDB AUTO_INCREMENT=38 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=49 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -346,7 +347,7 @@ CREATE TABLE `user` (
 
 LOCK TABLES `user` WRITE;
 /*!40000 ALTER TABLE `user` DISABLE KEYS */;
-INSERT INTO `user` VALUES (1,'min','ad','2251052065minh@ou.edu.vn','$2a$10$6n7jmydVQRFF5u2daYWnDuHpoK3C6QBjhZ4tZzGDvsrDh2ViyKOWS','https://res.cloudinary.com/dqw4mc8dg/image/upload/v1744183632/kagdbiirsk2aca0y9scy.png','2025-04-15 03:29:57','2025-04-15 03:29:57',1,'ROLE_ADMIN'),(21,'Trọng Tín','Vũ','1tin@ou.edu.vn','$2a$10$j65YdGZAkMLd4uwIVhn.VuGXFk6.xIVLql6PIwCdZ4ui4oQmd8nqi','https://res.cloudinary.com/dqw4mc8dg/image/upload/v1744274409/bbajk4zmitgwrbsf12ks.png','2025-04-10 08:40:07','2025-04-10 08:40:09',1,'ROLE_LECTURER'),(28,'Trung Hiếu','Phùng','hieu@ou.edu.vn','$2a$10$8UmwfBI2HdfKFBf8WZ4Nh.MLZALQ41Mkoucp6RStiwWY9Ju0NtcFu','https://res.cloudinary.com/dqw4mc8dg/image/upload/v1744334980/o3perguzkwi6zbmkidjn.png','2025-04-13 08:30:18','2025-04-13 08:30:18',1,'ROLE_LECTURER'),(31,'c','c','c@ou.edu.vn','$2a$10$UtKeFfMJRGCnjw/8Wq5dkuxNSs/4x7U0YkaR9A5wsN27sMAx5m86i','https://res.cloudinary.com/dqw4mc8dg/image/upload/v1744533195/tryf9uuc3eed6kzmt4ve.png','2025-04-13 08:34:16','2025-04-13 08:34:16',1,'ROLE_STUDENT'),(32,'d','d','d@ou.edu.vn','$2a$10$ju2YaWTiVI7jElVlyEP6ReOhGG6KNxOpCxp2g0leG1D6vWzVjizCm','https://res.cloudinary.com/dqw4mc8dg/image/upload/v1744533631/mede2zf09eqdpdvq6ycm.png','2025-04-13 08:40:31','2025-04-13 08:40:32',1,'ROLE_STUDENT'),(33,'e','e','e@ou.edu.vn','$2a$10$JV9DXWP5/M7HLuSMOTq2teemjQ4KHGozx2uPdXZ0scwH0hMwGR.Uu','https://res.cloudinary.com/dqw4mc8dg/image/upload/v1744533796/cq6ywoy05nleji96ssl8.png','2025-04-13 08:43:15','2025-04-13 08:43:17',1,'ROLE_STUDENT'),(36,'f','f','f@ou.edu.vn','$2a$10$2Yegpt8EOhuT2GG9xW1CquThtVA96o9XYWbXKpKPFsk8XRHpCTeGm','https://res.cloudinary.com/dqw4mc8dg/image/upload/v1744534666/pqwgl8yl68hmounlkmn7.png','2025-04-13 08:57:46','2025-04-13 08:57:47',1,'ROLE_STUDENT'),(37,'g','g','g@ou.edu.vn','$2a$10$pB1.tyQG.BvrRH0E1OPNvebGkzBIkeihK/H8xOtW8JSHaUhUNIUve','https://res.cloudinary.com/dqw4mc8dg/image/upload/v1744538681/nlpxvgayseipn0puvy9i.png','2025-04-13 10:04:39','2025-04-13 10:04:41',1,'ROLE_STUDENT');
+INSERT INTO `user` VALUES (1,'min','ad','2251052065minh@ou.edu.vn','$2a$10$eK1WV.2TtA3vZ1JjovkTiemsxZW9ZrL6tQMKQHgwL/SpxYOpBUeA.','https://res.cloudinary.com/dqw4mc8dg/image/upload/v1744183632/kagdbiirsk2aca0y9scy.png','2025-04-15 14:22:34','2025-04-15 14:22:34',1,'ROLE_ADMIN'),(21,'Trọng Tín','Vũ','1tin@ou.edu.vn','$2a$10$gzAcBT1wuHAUFOT0p16g0.eP7C.fTCKX3zLJpc4ZbAj70Jdzf.ObW','https://res.cloudinary.com/dqw4mc8dg/image/upload/v1744274409/bbajk4zmitgwrbsf12ks.png','2025-04-20 15:08:12','2025-04-20 15:08:12',1,'ROLE_LECTURER'),(28,'Trung Hiếu','Phùng','hieu@ou.edu.vn','$2a$10$8UmwfBI2HdfKFBf8WZ4Nh.MLZALQ41Mkoucp6RStiwWY9Ju0NtcFu','https://res.cloudinary.com/dqw4mc8dg/image/upload/v1744334980/o3perguzkwi6zbmkidjn.png','2025-04-13 08:30:18','2025-04-13 08:30:18',1,'ROLE_LECTURER'),(32,'d','d','d@ou.edu.vn','$2a$10$Dm1VeAfgd0U8ZvmxVVeaDu9ttwO1xMkldMMzUSXyAlsp2YJL0Xizi','https://res.cloudinary.com/dqw4mc8dg/image/upload/v1744533631/mede2zf09eqdpdvq6ycm.png','2025-04-20 15:08:37','2025-04-20 15:08:37',1,'ROLE_STUDENT'),(33,'e','e','e@ou.edu.vn','$2a$10$JV9DXWP5/M7HLuSMOTq2teemjQ4KHGozx2uPdXZ0scwH0hMwGR.Uu','https://res.cloudinary.com/dqw4mc8dg/image/upload/v1744533796/cq6ywoy05nleji96ssl8.png','2025-04-13 08:43:15','2025-04-13 08:43:17',1,'ROLE_STUDENT'),(36,'f','f','f@ou.edu.vn','$2a$10$2Yegpt8EOhuT2GG9xW1CquThtVA96o9XYWbXKpKPFsk8XRHpCTeGm','https://res.cloudinary.com/dqw4mc8dg/image/upload/v1744534666/pqwgl8yl68hmounlkmn7.png','2025-04-13 08:57:46','2025-04-13 08:57:47',1,'ROLE_STUDENT'),(37,'g','g','g@ou.edu.vn','$2a$10$pB1.tyQG.BvrRH0E1OPNvebGkzBIkeihK/H8xOtW8JSHaUhUNIUve','https://res.cloudinary.com/dqw4mc8dg/image/upload/v1744538681/nlpxvgayseipn0puvy9i.png','2025-04-13 10:04:39','2025-04-13 10:04:41',1,'ROLE_STUDENT'),(43,'k','k','k@ou.edu.vn','$2a$10$/dBPNRU8Es/238f8czACJu1Ossc6tuJJ63rtMDdrzDw2c13nk9N5y','https://res.cloudinary.com/dqw4mc8dg/image/upload/v1744730860/wvd7wstq81iqvdiqcg3s.png','2025-04-15 15:27:39','2025-04-15 15:27:41',0,'ROLE_STUDENT'),(46,'m','m','m@ou.edu.vn','$2a$10$UN6qGthquRZPYACEU.Sdm.A7DDQsejr2kopAu4LBZEnXti0N6s6za','https://res.cloudinary.com/dqw4mc8dg/image/upload/v1744183632/kagdbiirsk2aca0y9scy.png','2025-04-15 15:40:44','2025-04-15 15:40:44',0,'ROLE_STUDENT'),(48,'c','c','c@ou.edu.vn','$2a$10$HLC.eouX6wSNAIxYR0YsWOrTGe/4/GX9slfvg3yNX6WIt36L7gFCi','https://res.cloudinary.com/dqw4mc8dg/image/upload/v1744183632/kagdbiirsk2aca0y9scy.png','2025-04-22 17:18:25','2025-04-22 17:18:25',0,'ROLE_STUDENT');
 /*!40000 ALTER TABLE `user` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -359,4 +360,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-04-15 16:37:34
+-- Dump completed on 2025-04-23  0:23:00

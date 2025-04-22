@@ -163,4 +163,22 @@ public class UserRepositoryImpl implements UserRepository {
         return query.getResultList();
     }
 
+    @Override
+    public boolean existsByEmail(String email, Integer excludeId) {
+        Session session = factory.getObject().getCurrentSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<Long> cq = cb.createQuery(Long.class);
+        Root<User> root = cq.from(User.class);
+
+        Predicate pEmail = cb.equal(root.get("email"), email);
+        Predicate pExclude = (excludeId == null)
+                ? cb.conjunction()
+                : cb.notEqual(root.get("id"), excludeId);
+
+        cq.select(cb.count(root))
+                .where(cb.and(pEmail, pExclude));
+
+        Long count = session.createQuery(cq).getSingleResult();
+        return count != null && count > 0;
+    }
 }

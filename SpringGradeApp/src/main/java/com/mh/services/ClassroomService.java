@@ -16,7 +16,7 @@ public interface ClassroomService {
 
     List<Classroom> getClassrooms(Map<String, String> params);
 
-    Classroom saveClassroom(Classroom classroom, List<Integer> studentIds);
+    Classroom saveClassroom(Classroom classroom);
 
     Classroom getClassroomById(Integer id);
 
@@ -28,5 +28,7 @@ public interface ClassroomService {
     
     void removeStudentFromClassroom(int classroomId, int studentId);
     
-    boolean existsDuplicateClassroom(String name, Integer semesterId, Integer courseId);
+    boolean existsDuplicateClassroom(String name, Integer semesterId, Integer courseId, Integer excludeId);
+    
+    boolean existsStudentInOtherClassroom(int studentId, int semesterId, int courseId, Integer excludeClassroomId);
 }

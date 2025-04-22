@@ -4,9 +4,7 @@
  */
 package com.mh.services.Impl;
 
-import com.mh.repositories.ExtraGradeRepository;
 import com.mh.services.ExtraGradeService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
@@ -17,6 +15,4 @@ import org.springframework.stereotype.Service;
 @Service
 public class ExtraGradeServiceImpl implements ExtraGradeService {
 
-    @Autowired
-    private ExtraGradeRepository extraGradeRepo;
 }

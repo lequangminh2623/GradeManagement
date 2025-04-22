@@ -1,6 +1,7 @@
 package com.mh.validators;
 
 import com.mh.pojo.Classroom;
+import com.mh.pojo.User;
 import jakarta.validation.ConstraintViolation;
 import java.util.HashSet;
 import java.util.Set;
@@ -18,19 +19,33 @@ public class WebAppValidator implements Validator {
 
     @Override
     public boolean supports(Class<?> clazz) {
-        return Classroom.class.isAssignableFrom(clazz);
+        for (org.springframework.validation.Validator v : springValidators) {
+            if (v.supports(clazz)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
     public void validate(Object target, Errors errors) {
-        Set<ConstraintViolation<Object>> constraintViolations
-                = beanValidator.validate(target);
-        for (ConstraintViolation<Object> obj : constraintViolations) {
-            errors.rejectValue(obj.getPropertyPath().toString(),
-                    obj.getMessageTemplate(), obj.getMessage());
+        Set<ConstraintViolation<Object>> constraintViolations = beanValidator.validate(target);
+        for (ConstraintViolation<Object> violation : constraintViolations) {
+            errors.rejectValue(violation.getPropertyPath().toString(), violation.getMessageTemplate(), violation.getMessage());
         }
-        for (Validator obj : springValidators) {
-            obj.validate(target, errors);
+
+        if (target instanceof Classroom) {
+            for (Validator validator : springValidators) {
+                if (validator instanceof ClassroomValidator) {
+                    validator.validate(target, errors);
+                }
+            }
+        } else if (target instanceof User) {
+            for (Validator validator : springValidators) {
+                if (validator instanceof UserValidator) {
+                    validator.validate(target, errors);
+                }
+            }
         }
     }
 

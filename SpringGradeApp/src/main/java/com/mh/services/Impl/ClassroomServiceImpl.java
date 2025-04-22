@@ -7,7 +7,6 @@ package com.mh.services.Impl;
 import com.mh.pojo.Classroom;
 import com.mh.repositories.ClassroomRepository;
 import com.mh.services.ClassroomService;
-import com.mh.services.StudentService;
 import java.util.List;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,8 +23,8 @@ public class ClassroomServiceImpl implements ClassroomService {
     ClassroomRepository classroomRepo;
 
     @Override
-    public Classroom saveClassroom(Classroom classroom, List<Integer> studentIds) {
-        return this.classroomRepo.saveClassroom(classroom, studentIds);
+    public Classroom saveClassroom(Classroom classroom) {
+        return this.classroomRepo.saveClassroom(classroom);
     }
 
     @Override
@@ -62,7 +61,15 @@ public class ClassroomServiceImpl implements ClassroomService {
     }
 
     @Override
-    public boolean existsDuplicateClassroom(String name, Integer semesterId, Integer courseId) {
-        return this.classroomRepo.existsDuplicateClassroom(name, semesterId, courseId);
+    public boolean existsDuplicateClassroom(String name, Integer semesterId, Integer courseId, Integer excludeId) {
+        return this.classroomRepo.existsDuplicateClassroom(name, semesterId, courseId, excludeId);
     }
+
+    @Override
+    public boolean existsStudentInOtherClassroom(int studentId, int semesterId, int courseId, Integer excludeClassroomId) {
+        return this.classroomRepo.existsStudentInOtherClassroom(
+                studentId, semesterId, courseId, excludeClassroomId
+        );
+    }
+
 }

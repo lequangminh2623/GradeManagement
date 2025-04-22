@@ -29,4 +29,6 @@ public interface UserRepository {
     int countUser(Map<String, String> params);
 
     List<User> getUserByRole(List<String> roles);
+    
+    boolean existsByEmail(String email, Integer excludeId);
 }

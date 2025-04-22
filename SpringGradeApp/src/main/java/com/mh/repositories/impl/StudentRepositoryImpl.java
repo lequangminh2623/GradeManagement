@@ -86,4 +86,24 @@ public class StudentRepositoryImpl implements StudentRepository {
         return results.isEmpty() ? null : results.get(0);
     }
 
+    public boolean existsByStudentCode(String code, Integer userId) {
+        Session session = factory.getObject().getCurrentSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<Long> cq = cb.createQuery(Long.class);
+        Root<Student> root = cq.from(Student.class);
+
+        cq.select(cb.count(root));
+
+        List<Predicate> predicates = new ArrayList<>();
+        predicates.add(cb.equal(root.get("code"), code));
+
+        if (userId != null) {
+            predicates.add(cb.notEqual(root.get("user").get("id"), userId));
+        }
+
+        cq.where(cb.and(predicates.toArray(new Predicate[0])));
+
+        Long count = session.createQuery(cq).getSingleResult();
+        return count > 0;
+    }
 }

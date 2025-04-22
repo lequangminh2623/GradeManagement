@@ -15,4 +15,6 @@ public interface GradeDetailRepository {
     void deleteGradeDetail(Integer id);
     
     GradeDetail saveGradeDetail(GradeDetail gd);
+    
+    boolean existsByStudentAndCourseAndSemester(Integer studentId, Integer courseId, Integer semesterId, Integer excludeId);
 }

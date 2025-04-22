@@ -17,4 +17,6 @@ public interface StudentService {
     List<Student> getStudents(Map<String, String> params);
     
     Student getStudentByUserId(int userId);
+    
+    boolean existsByStudentCode(String code, Integer userId);
 }

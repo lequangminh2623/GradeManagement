@@ -73,37 +73,24 @@ public class ClassroomRepositoryImpl implements ClassroomRepository {
     }
 
     @Override
-    public Classroom saveClassroom(Classroom classroom, List<Integer> studentIds) {
+    public Classroom saveClassroom(Classroom classroom) {
         Session session = this.factory.getObject().getCurrentSession();
         Classroom persistentClassroom;
 
         if (classroom.getId() != null && classroom.getId() != 0) {
             persistentClassroom = session.get(Classroom.class, classroom.getId());
-        } else {
-            persistentClassroom = classroom;
-        }
 
-        if (studentIds != null) {
-            Set<Student> newStudents = new HashSet<>();
+            persistentClassroom.setName(classroom.getName());
+            persistentClassroom.setCourse(classroom.getCourse());
+            persistentClassroom.setSemester(classroom.getSemester());
+            persistentClassroom.setLecturer(classroom.getLecturer());
 
-            for (Integer studentId : studentIds) {
-                Student s = session.get(Student.class, studentId);
-                if (s != null) {
-                    newStudents.add(s);
-                }
-            }
+            persistentClassroom.setStudentSet(classroom.getStudentSet());
 
-            if (persistentClassroom.getStudentSet() != null) {
-                persistentClassroom.getStudentSet().addAll(newStudents);
-            } else {
-                persistentClassroom.setStudentSet(newStudents);
-            }
-        }
-
-        if (persistentClassroom.getId() == null || persistentClassroom.getId() == 0) {
-            session.persist(persistentClassroom);
-        } else {
             session.merge(persistentClassroom);
+        } else {
+            session.persist(classroom);
+            persistentClassroom = classroom;
         }
 
         return persistentClassroom;
@@ -179,20 +166,54 @@ public class ClassroomRepositoryImpl implements ClassroomRepository {
     }
 
     @Override
-    public boolean existsDuplicateClassroom(String name, Integer semesterId, Integer courseId) {
+    public boolean existsDuplicateClassroom(String name, Integer semesterId, Integer courseId, Integer excludeId) {
         Session session = this.factory.getObject().getCurrentSession();
         CriteriaBuilder cb = session.getCriteriaBuilder();
         CriteriaQuery<Long> cq = cb.createQuery(Long.class);
-
         Root<Classroom> root = cq.from(Classroom.class);
 
         cq.select(cb.count(root));
 
-        cq.where(cb.and(cb.equal(root.get("name"), name), cb.equal(root.get("semester").get("id"), semesterId), cb.equal(root.get("course").get("id"), courseId)));
+        Predicate predicate = cb.and(
+                cb.equal(root.get("name"), name),
+                cb.equal(root.get("semester").get("id"), semesterId),
+                cb.equal(root.get("course").get("id"), courseId)
+        );
+
+        if (excludeId != null) {
+            predicate = cb.and(predicate, cb.notEqual(root.get("id"), excludeId));
+        }
+
+        cq.where(predicate);
 
         Long count = session.createQuery(cq).getSingleResult();
 
         return count > 0;
+    }
+
+    @Override
+    public boolean existsStudentInOtherClassroom(int studentId, int semesterId, int courseId, Integer excludeClassroomId) {
+        Session session = this.factory.getObject().getCurrentSession();
+
+        String hql = """
+            SELECT COUNT(*)
+            FROM Classroom c
+            JOIN c.studentSet s
+            WHERE s.id = :studentId
+              AND c.semester.id = :semesterId
+              AND c.course.id = :courseId
+              AND (:excludeId IS NULL OR c.id <> :excludeId)
+        """;
+
+        Long count = session.createQuery(hql, Long.class)
+                .setParameter("studentId", studentId)
+                .setParameter("semesterId", semesterId)
+                .setParameter("courseId", courseId)
+                .setParameter("excludeId", excludeClassroomId)
+                .uniqueResult();
+
+        return count > 0;
+
     }
 
 }

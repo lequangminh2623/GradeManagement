@@ -15,6 +15,8 @@ import com.mh.services.SemesterService;
 import com.mh.services.UserService;
 import com.mh.utils.PageSize;
 import com.mh.validators.WebAppValidator;
+import jakarta.persistence.PersistenceException;
+import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Valid;
 import java.util.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,12 +53,12 @@ public class ClassroomController {
     private SemesterService semesterService;
 
     @Autowired
-    @Qualifier("classroomValidators")
-    private WebAppValidator classroomValidators;
+    @Qualifier("webAppValidator")
+    private WebAppValidator webAppValidator;
 
     @InitBinder
     public void initBinder(WebDataBinder binder) {
-        binder.setValidator(classroomValidators);
+        binder.setValidator(webAppValidator);
     }
 
     @ModelAttribute
@@ -120,23 +122,50 @@ public class ClassroomController {
     }
 
     @PostMapping("")
-    public String saveClassroom(@ModelAttribute @Valid Classroom classroom,
-                                BindingResult bindingResult,
-                                Model model,
-                                @RequestParam(name = "studentIds", required = false) List<Integer> studentIds,
-                                @RequestParam Map<String, String> allParams) {
+    public String saveClassroomAndStudents(@ModelAttribute @Valid Classroom classroom,
+            BindingResult bindingResult,
+            Model model) {
+
+        Map<Integer, GradeDetail> gradeMap = new HashMap<>();
+        for (Student s : classroom.getStudentSet()) {
+            Map<String, Integer> ref = new HashMap<>();
+            ref.put("classroomId", classroom.getId());
+            ref.put("studentId", s.getId());
+            List<GradeDetail> gradeDetails = gradeDetailService.getGradeDetail(ref);
+            GradeDetail gd = !gradeDetails.isEmpty() ? gradeDetails.get(0) : new GradeDetail();
+            if (gd.getExtraGradeSet() == null) {
+                gd.setExtraGradeSet(new HashSet<>());
+            }
+            gradeMap.put(s.getId(), gd);
+        }
 
         if (bindingResult.hasErrors()) {
             model.addAttribute("errorMessage", "Có lỗi xảy ra");
+            model.addAttribute("classroom", classroom);
+            model.addAttribute("gradeMap", gradeMap);
             return "/classroom/classroom-form";
         }
 
-        Classroom savedClassroom = this.classroomService.saveClassroom(classroom, studentIds);
-        Set<Student> allStudents = this.classroomService.getClassroomWithStudents(savedClassroom.getId()).getStudentSet();
+        Classroom savedClassroom = this.classroomService.saveClassroom(classroom);
+        savedClassroom = this.classroomService.getClassroomWithStudents(savedClassroom.getId());
+
+        model.addAttribute("classroom", savedClassroom);
+        model.addAttribute("gradeMap", gradeMap);
+
+        return "/classroom/classroom-form";
+    }
+
+    @PostMapping("/{id}/grades")
+    public String saveGrades(@PathVariable("id") Integer classroomId,
+            @RequestParam Map<String, String> allParams) {
+
+        Classroom classroom = classroomService.getClassroomWithStudents(classroomId);
+
+        Set<Student> allStudents = classroom.getStudentSet();
 
         if (allStudents != null) {
             for (Student student : allStudents) {
-                gradeDetailService.saveGradesForStudent(student, savedClassroom, allParams);
+                gradeDetailService.saveGradesForStudent(student, classroom, allParams);
             }
         }
 
@@ -149,9 +178,13 @@ public class ClassroomController {
             classroomService.deleteClassroom(id);
             return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
         } catch (IllegalStateException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .contentType(MediaType.parseMediaType("text/plain; charset=UTF-8"))
-                    .body("Không thể xóa lớp.");
+                    .body("Không thể xóa lớp do lớp còn sinh viên.");
+        } catch (PersistenceException | ConstraintViolationException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .contentType(MediaType.parseMediaType("text/plain; charset=UTF-8"))
+                    .body("Không thể xóa lớp do ràng buộc dữ liệu.");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .contentType(MediaType.parseMediaType("text/plain; charset=UTF-8"))
@@ -162,7 +195,12 @@ public class ClassroomController {
     @DeleteMapping("/{classId}/students/{studentId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void removeStudentFromClass(@PathVariable("classId") Integer classId,
-                                       @PathVariable("studentId") Integer studentId) {
+            @PathVariable("studentId") Integer studentId) {
+        Map<String, Integer> ref = new HashMap<>();
+        ref.put("classroomId", classId);
+        ref.put("studentId", studentId);
+        Integer gradeDetailId = this.gradeDetailService.getGradeDetail(ref).get(0).getId();
         classroomService.removeStudentFromClassroom(classId, studentId);
+        this.gradeDetailService.deleteGradeDetail(gradeDetailId);
     }
 }
