@@ -42,7 +42,6 @@ public class AcademicYear implements Serializable {
     private Integer id;
     @Basic(optional = false)
     @NotNull
-    @Size(min = 1, max = 9, message = "abc")
     @Pattern(regexp = "^[0-9]{4}-[0-9]{4}$", message = "Năm học phải có định dạng yyyy-yyyy")
     @Column(name = "year")
     private String year;

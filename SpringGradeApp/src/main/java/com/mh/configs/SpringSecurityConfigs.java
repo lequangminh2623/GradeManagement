@@ -6,7 +6,9 @@ package com.mh.configs;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
+import com.mh.validators.AcademicYearValidator;
 import com.mh.validators.ClassroomValidator;
+import com.mh.validators.CourseValidator;
 import com.mh.validators.UserValidator;
 import com.mh.validators.WebAppValidator;
 import io.github.cdimascio.dotenv.Dotenv;
@@ -52,12 +54,18 @@ public class SpringSecurityConfigs {
 
     @Autowired
     private UserDetailsService userDetailsService;
-    
+
     @Autowired
     private ClassroomValidator classroomValidator;
-    
+
     @Autowired
     private UserValidator userValidator;
+
+    @Autowired
+    private CourseValidator courseValidator;
+
+    @Autowired
+    private AcademicYearValidator academicYearValidator;
 
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
@@ -67,18 +75,18 @@ public class SpringSecurityConfigs {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws
             Exception {
-      http.csrf(c -> c.disable()).authorizeHttpRequests(requests
-              -> requests.requestMatchers("/", "/home").authenticated()
-                      .requestMatchers("/api/**").permitAll()
-                      .requestMatchers("/users", "/users/**", "/classrooms", "/classrooms/**", "/courses", "/courses/**", "/years", "/years/**").hasRole("ADMIN")
-                      .anyRequest().authenticated())
-              .formLogin(form -> form.loginPage("/login")
-              .loginProcessingUrl("/login")
-              .defaultSuccessUrl("/", true)
-              .failureUrl("/login?error=true").permitAll())
-              .logout(logout -> logout.logoutSuccessUrl("/login").permitAll());//.addFilterBefore(new JwtFilter(), UsernamePasswordAuthenticationFilter.class);
+        http.csrf(c -> c.disable()).authorizeHttpRequests(requests
+                -> requests.requestMatchers("/", "/home").authenticated()
+                        .requestMatchers("/api/**").permitAll()
+                        .requestMatchers("/users", "/users/**", "/classrooms", "/classrooms/**", "/courses", "/courses/**", "/years", "/years/**").hasRole("ADMIN")
+                        .anyRequest().authenticated())
+                .formLogin(form -> form.loginPage("/login")
+                .loginProcessingUrl("/login")
+                .defaultSuccessUrl("/", true)
+                .failureUrl("/login?error=true").permitAll())
+                .logout(logout -> logout.logoutSuccessUrl("/login").permitAll());//.addFilterBefore(new JwtFilter(), UsernamePasswordAuthenticationFilter.class);
 
-        //  http.csrf(c -> c.disable()).authorizeHttpRequests(requests -> requests.anyRequest().permitAll());
+//        http.csrf(c -> c.disable()).authorizeHttpRequests(requests -> requests.anyRequest().permitAll());
         return http.build();
     }
 
@@ -125,6 +133,8 @@ public class SpringSecurityConfigs {
         Set<Validator> springValidators = new HashSet<>();
         springValidators.add(classroomValidator);
         springValidators.add(userValidator);
+        springValidators.add(courseValidator);
+        springValidators.add(academicYearValidator);
         WebAppValidator validator = new WebAppValidator();
         validator.setSpringValidators(springValidators);
         return validator;

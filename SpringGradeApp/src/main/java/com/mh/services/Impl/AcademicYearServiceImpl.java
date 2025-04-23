@@ -46,7 +46,10 @@ public class AcademicYearServiceImpl implements AcademicYearService {
     public void deleteYearById(int id) {
         this.academicYearRepo.deleteYearById(id);
     }
-    
-    
+
+    @Override
+    public boolean existAcademicYearByYear(String year, Integer excludeId) {
+        return this.academicYearRepo.existAcademicYearByYear(year, excludeId);
+    }
 
 }
