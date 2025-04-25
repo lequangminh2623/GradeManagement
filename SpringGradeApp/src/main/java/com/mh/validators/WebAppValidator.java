@@ -1,6 +1,7 @@
 package com.mh.validators;
 
 import com.mh.pojo.Classroom;
+import com.mh.pojo.GradeDetail;
 import com.mh.pojo.User;
 import jakarta.validation.ConstraintViolation;
 import java.util.HashSet;
@@ -15,6 +16,7 @@ public class WebAppValidator implements Validator {
 
     @Autowired
     private jakarta.validation.Validator beanValidator;
+    
     private Set<Validator> springValidators = new HashSet<>();
 
     @Override
@@ -43,6 +45,12 @@ public class WebAppValidator implements Validator {
         } else if (target instanceof User) {
             for (Validator validator : springValidators) {
                 if (validator instanceof UserValidator) {
+                    validator.validate(target, errors);
+                }
+            }
+        } else if (target instanceof GradeDetail) {
+            for (Validator validator : springValidators) {
+                if (validator instanceof GradeValidator) {
                     validator.validate(target, errors);
                 }
             }

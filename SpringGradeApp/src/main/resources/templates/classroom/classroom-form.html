@@ -32,7 +32,6 @@
                     <label class="form-label">Giảng viên:</label>
                     <select th:field="*{lecturer.id}" id="lecturerSelect" class="form-select"
                             th:classappend="${#fields.hasErrors('lecturer')} ? 'is-invalid'">
-                        <option value="">-- Chọn giảng viên --</option>
                         <option th:each="l : ${lecturers}" 
                                 th:value="${l.id}" 
                                 th:text="${l.id + ' - ' + l.lastName + ' ' + l.firstName}">
@@ -45,7 +44,6 @@
                     <label class="form-label">Môn học:</label>
                     <select th:field="*{course.id}" id="courseSelect" class="form-select"
                             th:classappend="${#fields.hasErrors('course')} ? 'is-invalid'">
-                        <option value="">-- Chọn môn học --</option>
                         <option th:each="c : ${courses}" 
                                 th:value="${c.id}" 
                                 th:text="${c.name}">
@@ -58,7 +56,6 @@
                     <label class="form-label">Học kỳ:</label>
                     <select th:field="*{semester.id}" id="semesterSelect" class="form-select"
                             th:classappend="${#fields.hasErrors('semester')} ? 'is-invalid'">
-                        <option value="">-- Chọn học kỳ --</option>
                         <option th:each="s : ${semesters}" 
                                 th:value="${s.id}" 
                                 th:text="${s.academicYear.year + ' - ' + s.semesterType}">
@@ -67,7 +64,7 @@
                     <div class="invalid-feedback" th:errors="*{semester}"></div>
                 </div>
 
-                <div>
+                <div class="col-md-10">
                     <label class="form-label">Thêm sinh viên:</label>
                     <select id="studentSelect" multiple class="form-select" th:field="*{studentSet}"
                             th:classappend="${#fields.hasErrors('studentSet')} ? 'is-invalid'">
@@ -79,6 +76,14 @@
                     <div class="invalid-feedback" th:errors="*{studentSet}"></div>
                 </div>
 
+                <div class="col-md-2">
+                    <label class="form-label d-block">Khóa bảng điểm:</label>
+                    <span class="form-check form-switch">
+                        <input style="transform: scale(1.5); transform-origin: left center;" class="form-check-input"
+                               type="checkbox" id="gradeStatusSwitch" th:checked="${classroom.gradeStatus == 'LOCKED'}" />
+                        <input type="hidden" th:field=*{gradeStatus} id="gradeStatusHidden"/>
+                    </span>
+                </div>
             </div>
             <div class="col-12">
                 <button type="submit" class="btn btn-primary m-1">💾 Lưu lớp học</button>

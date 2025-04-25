@@ -4,6 +4,7 @@
  */
 package com.mh.validators;
 
+import com.mh.pojo.ExtraGrade;
 import com.mh.pojo.GradeDetail;
 import com.mh.services.GradeDetailService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,7 +42,23 @@ public class GradeValidator implements Validator {
         if (detail.getSemester() == null || detail.getSemester().getId() == null) {
             errors.rejectValue("semester", "grade.semester.notNull");
         }
+        
+       if (detail.getExtraGradeSet() != null) {
+            for (ExtraGrade extra : detail.getExtraGradeSet()) {
+                if (extra.getGradeIndex() != null && detail.getId() != null) {
+                    boolean exists = gradeDetailService.existsByGradeDetailIdAndGradeIndex(
+                        detail.getId(),
+                        extra.getGradeIndex(),
+                        extra.getId()
+                    );
 
+                    if (exists) {
+                        errors.rejectValue("extraGradeSet", "gradeDetail.extraGrade.unique");
+                    }
+                }
+            }
+        }
+       
         if (!errors.hasErrors()) {
             boolean exists = gradeDetailService.existsByStudentAndCourseAndSemester(
                     detail.getStudent().getId(),
@@ -51,7 +68,7 @@ public class GradeValidator implements Validator {
             );
 
             if (exists) {
-                errors.reject("grade", "grade.unique");
+                errors.reject("gradeDetail", "grade.unique");
             }
         }
     }
