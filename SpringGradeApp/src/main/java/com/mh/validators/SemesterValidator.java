@@ -45,7 +45,7 @@ public class SemesterValidator implements Validator {
             }
         }
 
-        if (!errors.hasFieldErrors("semesterType")) {
+        if (!errors.hasFieldErrors()) {
             boolean existSemesterByTypeAndAcademicYearId = semesterService.existSemesterByTypeAndAcademicYearId(semester.getSemesterType(),
                     semester.getId(), semester.getAcademicYear().getId());
 

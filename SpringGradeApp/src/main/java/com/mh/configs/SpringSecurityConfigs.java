@@ -9,6 +9,8 @@ import com.cloudinary.utils.ObjectUtils;
 import com.mh.validators.AcademicYearValidator;
 import com.mh.validators.ClassroomValidator;
 import com.mh.validators.CourseValidator;
+import com.mh.validators.ForumPostValidator;
+import com.mh.validators.ForumReplyValidator;
 import com.mh.validators.SemesterValidator;
 import com.mh.validators.UserValidator;
 import com.mh.validators.WebAppValidator;
@@ -70,6 +72,12 @@ public class SpringSecurityConfigs {
 
     @Autowired
     private SemesterValidator semesterValidator;
+
+    @Autowired
+    private ForumPostValidator forumPostValidator;
+
+    @Autowired
+    private ForumReplyValidator forumReplyValidator;
 
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
@@ -140,6 +148,8 @@ public class SpringSecurityConfigs {
         springValidators.add(courseValidator);
         springValidators.add(academicYearValidator);
         springValidators.add(semesterValidator);
+        springValidators.add(forumPostValidator);
+        springValidators.add(forumReplyValidator);
         WebAppValidator validator = new WebAppValidator();
         validator.setSpringValidators(springValidators);
         return validator;

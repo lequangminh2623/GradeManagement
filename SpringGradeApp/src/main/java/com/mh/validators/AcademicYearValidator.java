@@ -34,7 +34,7 @@ public class AcademicYearValidator implements Validator {
             errors.rejectValue("year", "academicYear.year.notNull");
         }
 
-        if (!errors.hasFieldErrors("year")) {
+        if (!errors.hasFieldErrors()) {
             boolean existYearByYear = academicYearService.existAcademicYearByYear(year.getYear(), year.getId());
 
             if (existYearByYear) {

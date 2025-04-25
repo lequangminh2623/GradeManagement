@@ -72,4 +72,9 @@ public class ClassroomServiceImpl implements ClassroomService {
         );
     }
 
+    @Override
+    public boolean existUserInClassroom(int userId, int classRoomId) {
+        return this.classroomRepo.existUserInClassroom(userId, classRoomId);
+    }
+
 }

@@ -11,6 +11,8 @@ import com.mh.utils.PageSize;
 import jakarta.persistence.Query;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import java.util.ArrayList;
@@ -214,6 +216,26 @@ public class ClassroomRepositoryImpl implements ClassroomRepository {
 
         return count > 0;
 
+    }
+
+    @Override
+    public boolean existUserInClassroom(int userId, int classRoomId) {
+        Session session = this.factory.getObject().getCurrentSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<Long> cq = cb.createQuery(Long.class);
+        Root<Classroom> root = cq.from(Classroom.class);
+
+        Join<Object, Object> studentJoin = root.join("studentSet", JoinType.LEFT);
+
+        Predicate classroomMatch = cb.equal(root.get("id"), classRoomId);
+        Predicate isStudent = cb.equal(studentJoin.get("id"), userId);
+        Predicate isLecturer = cb.equal(root.get("lecturer").get("id"), userId);
+
+        cq.select(cb.count(root)).where(cb.and(classroomMatch, cb.or(isStudent, isLecturer)));
+
+        Long count = session.createQuery(cq).getSingleResult();
+
+        return count != null && count > 0;
     }
 
 }

@@ -3,6 +3,8 @@ package com.mh.validators;
 import com.mh.pojo.AcademicYear;
 import com.mh.pojo.Classroom;
 import com.mh.pojo.Course;
+import com.mh.pojo.ForumPost;
+import com.mh.pojo.ForumReply;
 import com.mh.pojo.Semester;
 import com.mh.pojo.User;
 import jakarta.validation.ConstraintViolation;
@@ -64,6 +66,18 @@ public class WebAppValidator implements Validator {
         } else if (target instanceof Semester) {
             for (Validator validator : springValidators) {
                 if (validator instanceof SemesterValidator) {
+                    validator.validate(target, errors);
+                }
+            }
+        } else if (target instanceof ForumPost) {
+            for (Validator validator : springValidators) {
+                if (validator instanceof ForumPostValidator) {
+                    validator.validate(target, errors);
+                }
+            }
+        } else if (target instanceof ForumReply) {
+            for (Validator validator : springValidators) {
+                if (validator instanceof ForumReplyValidator) {
                     validator.validate(target, errors);
                 }
             }

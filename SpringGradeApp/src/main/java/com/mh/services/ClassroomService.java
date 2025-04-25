@@ -21,14 +21,16 @@ public interface ClassroomService {
     Classroom getClassroomById(Integer id);
 
     void deleteClassroom(Integer id);
-    
+
     Classroom getClassroomWithStudents(Integer id);
-    
+
     int countClassroom(Map<String, String> params);
-    
+
     void removeStudentFromClassroom(int classroomId, int studentId);
-    
+
     boolean existsDuplicateClassroom(String name, Integer semesterId, Integer courseId, Integer excludeId);
-    
+
     boolean existsStudentInOtherClassroom(int studentId, int semesterId, int courseId, Integer excludeClassroomId);
+
+    boolean existUserInClassroom(int userId, int classRoomId);
 }

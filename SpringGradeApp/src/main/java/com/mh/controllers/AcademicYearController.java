@@ -138,12 +138,12 @@ public class AcademicYearController {
     }
     
     @PostMapping("/years/{yearId}/semesters")
-    public String saveSemester(@ModelAttribute("semester") @Valid Semester semester, BindingResult bindingReslt,
+    public String saveSemester(@ModelAttribute("semester") @Valid Semester semester, BindingResult bindingResult,
             @PathVariable(value = "yearId") int yearId, Model model) {
         
         AcademicYear year = this.academicYearService.getYearById(yearId);
         
-        if (bindingReslt.hasErrors()) {
+        if (bindingResult.hasErrors()) {
             model.addAttribute("errorMessage", "Có lỗi xảy ra");
             model.addAttribute("year", year);
             return "/year/semester-form";

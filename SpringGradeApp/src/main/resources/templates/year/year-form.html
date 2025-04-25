@@ -20,7 +20,7 @@
 
             <div>
                 <label for="year" class="form-label">Tên năm học:</label>
-                <input type="text" class="form-control" id="year" th:field="*{year}" placeholder="2024-2025" required  
+                <input type="text" class="form-control" id="year" th:field="*{year}" placeholder="2024-2025"  
                        th:classappend="${#fields.hasErrors('year')} ? 'is-invalid'"/>
                 <div class="invalid-feedback" th:errors="*{year}"></div>
             </div>

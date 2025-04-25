@@ -34,7 +34,7 @@ public class CourseValidator implements Validator {
             errors.rejectValue("name", "course.name.notNull");
         }
 
-        if (!errors.hasFieldErrors("name")) {
+        if (!errors.hasFieldErrors()) {
             boolean existCourseByName = courseService.existCourseByName(course.getName(), course.getId());
 
             if (existCourseByName) {
