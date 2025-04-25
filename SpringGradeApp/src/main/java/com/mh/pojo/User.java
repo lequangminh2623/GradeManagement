@@ -94,12 +94,15 @@ public class User implements Serializable {
     @Column(name = "role")
     private String role;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
+    @JsonIgnore
     private Set<ForumPost> forumPostSet;
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private Student student;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "lecturer")
+    @JsonIgnore
     private Set<Classroom> classroomSet;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
+    @JsonIgnore
     private Set<ForumReply> forumReplySet;
     @Transient
     private MultipartFile file;

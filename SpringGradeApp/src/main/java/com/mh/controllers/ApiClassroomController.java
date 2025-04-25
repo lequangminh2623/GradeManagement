@@ -1,25 +1,65 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.mh.controllers;
 
-import com.mh.services.ClassroomService;
+import com.mh.pojo.dto.GradeDTO;
+import com.mh.pojo.dto.TranscriptDTO;
+import com.mh.services.GradeDetailService;
+import java.util.ArrayList;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
-/**
- *
- * @author Le Quang Minh
- */
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/secure/classrooms")
 @CrossOrigin
 public class ApiClassroomController {
-    @Autowired
-    private ClassroomService classroomService;
 
+    @Autowired
+    private GradeDetailService gradeDetailService;
+
+    @PostMapping("/{classroomId}/grades")
+    public ResponseEntity<?> saveGradesForClassroom(
+            @PathVariable("classroomId") Integer classroomId,
+            @RequestBody List<GradeDTO> gradeRequests) {
+
+        int maxExtraCount = gradeRequests.stream()
+                .mapToInt(req -> req.getExtraGrades() == null ? 0 : req.getExtraGrades().size())
+                .max()
+                .orElse(0);
+
+        for (GradeDTO req : gradeRequests) {
+            List<Double> extra = req.getExtraGrades();
+            if (extra == null) {
+                extra = new ArrayList<>();
+            }
+            int currentCount = extra.size();
+            if (currentCount < maxExtraCount) {
+                for (int i = currentCount; i < maxExtraCount; i++) {
+                    extra.add(null);
+                }
+            } else if (currentCount > maxExtraCount) {
+                extra = extra.subList(0, maxExtraCount);
+            }
+            req.setExtraGrades(extra);
+        }
+
+        for (GradeDTO req : gradeRequests) {
+            gradeDetailService.saveGradesForStudent(
+                    req.getStudentId(),
+                    classroomId,
+                    req.getMidtermGrade(),
+                    req.getFinalGrade(),
+                    req.getExtraGrades()
+            );
+        }
+
+        return ResponseEntity.ok("Grades for classroom " + classroomId + " saved successfully");
+    }
+
+    @GetMapping("/{classroomId}/grades")
+    public ResponseEntity<TranscriptDTO> getGradeSheetForClassroom(@PathVariable("classroomId") Integer classroomId) {
+        TranscriptDTO gradeSheet = gradeDetailService.getGradeSheetForClassroom(classroomId);
+        return ResponseEntity.ok(gradeSheet);
+    }
 
 }

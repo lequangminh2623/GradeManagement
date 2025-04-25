@@ -165,7 +165,35 @@ public class ClassroomController {
 
         if (allStudents != null) {
             for (Student student : allStudents) {
-                gradeDetailService.saveGradesForStudent(student, classroom, allParams);
+                Integer studentId = student.getId();
+                try {
+                    String midStr = allParams.get("midtermGrade[" + studentId + "]");
+                    String finalStr = allParams.get("finalGrade[" + studentId + "]");
+
+                    Double midtermGrade = (midStr != null && !midStr.trim().isEmpty()) ? Double.valueOf(midStr.trim()) : null;
+                    Double finalGrade = (finalStr != null && !finalStr.trim().isEmpty()) ? Double.valueOf(finalStr.trim()) : null;
+                    List<Double> extraGrades = new ArrayList<>();
+
+                    int innerIndex = 0;
+                    while (true) {
+                        String paramName = "extraPoints[" + studentId + "][" + innerIndex + "]";
+                        String gradeStr = allParams.get(paramName);
+                        if (gradeStr == null) {
+                            break;
+                        }
+                        if (!gradeStr.trim().isEmpty()) {
+                            extraGrades.add(Double.valueOf(gradeStr.trim()));
+                        }
+                        else {
+                            extraGrades.add(null);
+                        }
+                        innerIndex++;
+                    }
+
+                    gradeDetailService.saveGradesForStudent(studentId, classroomId, midtermGrade, finalGrade, extraGrades);
+                } catch (NumberFormatException ex) {
+                    System.err.println("Error parsing grades for studentId " + studentId + ": " + ex.getMessage());
+                }
             }
         }
 

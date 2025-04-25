@@ -119,4 +119,27 @@ public class GradeDetailRepositoryImpl implements GradeDetailRepository {
         return count > 0;
     }
 
+    public boolean existsByGradeDetailIdAndGradeIndex(Integer gradeDetailId, Integer gradeIndex, Integer currentExtraGradeId) {
+        Session session = factory.getObject().getCurrentSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<Long> query = cb.createQuery(Long.class);
+        Root<ExtraGrade> root = query.from(ExtraGrade.class);
+
+        Predicate byGradeDetail = cb.equal(root.get("gradeDetail").get("id"), gradeDetailId);
+        Predicate byIndex = cb.equal(root.get("gradeIndex"), gradeIndex);
+
+        // Bỏ qua chính nó nếu đang update
+        if (currentExtraGradeId != null) {
+            Predicate notSameId = cb.notEqual(root.get("id"), currentExtraGradeId);
+            query.where(cb.and(byGradeDetail, byIndex, notSameId));
+        } else {
+            query.where(cb.and(byGradeDetail, byIndex));
+        }
+
+        query.select(cb.count(root));
+
+        Long count = session.createQuery(query).getSingleResult();
+        return count > 0;
+    }
+
 }

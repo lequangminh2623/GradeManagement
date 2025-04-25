@@ -23,6 +23,10 @@ new TomSelect('#studentSelect', {
     placeholder: 'Tìm và chọn sinh viên...'
 });
 
+document.getElementById('gradeStatusSwitch').addEventListener('change', function () {
+    document.getElementById('gradeStatusHidden').value = this.checked ? 'LOCKED' : 'DRAFT';
+});
+
 function deleteClassroom(url, id) {
     if (confirm("Bạn chắc chắn muốn xóa?")) {
         fetch(`${url}${id}`, {
@@ -99,6 +103,26 @@ function addExtraColumn() {
     headerRow.appendChild(removeButton);
 }
 
+function reindexExtraColumns() {
+    document.querySelectorAll(".extra-grade-cells").forEach(cell => {
+        const inputs = cell.querySelectorAll("input");
+        inputs.forEach((input, newIndex) => {
+            const nameParts = input.name.match(/extraPoints\[(\d+)\]\[(\d+)\]/);
+            if (nameParts) {
+                input.name = `extraPoints[${nameParts[1]}][${newIndex}]`;
+            }
+        });
+    });
+
+    const headerButtons = document.querySelector("#extra-header-buttons");
+    if (headerButtons) {
+        [...headerButtons.children].forEach((button, newIndex) => {
+            button.textContent = "❌";
+            button.setAttribute("onclick", `removeExtraColumn(${newIndex})`);
+        });
+    }
+}
+
 function removeExtraColumn(index) {
     if (confirm(`Bạn có chắc muốn xoá cột điểm bổ sung ${index + 1}?`)) {
         document.querySelectorAll(".extra-grade-cells").forEach(cell => {
@@ -112,5 +136,7 @@ function removeExtraColumn(index) {
         if (headerButtons && headerButtons.children.length > index) {
             headerButtons.children[index].remove();
         }
+        
+        reindexExtraColumns();
     }
 }

@@ -17,4 +17,6 @@ public interface GradeDetailRepository {
     GradeDetail saveGradeDetail(GradeDetail gd);
     
     boolean existsByStudentAndCourseAndSemester(Integer studentId, Integer courseId, Integer semesterId, Integer excludeId);
+
+    boolean existsByGradeDetailIdAndGradeIndex(Integer gradeDetailId, Integer gradeIndex, Integer currentExtraGradeId);
 }
