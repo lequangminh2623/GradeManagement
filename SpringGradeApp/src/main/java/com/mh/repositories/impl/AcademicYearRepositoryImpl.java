@@ -130,9 +130,9 @@ public class AcademicYearRepositoryImpl implements AcademicYearRepository {
         Query query = session.createQuery(cq);
 
         List<AcademicYear> result = query.getResultList();
-        AcademicYear course = result.isEmpty() ? null : result.get(0);
+        AcademicYear academicYear = result.isEmpty() ? null : result.get(0);
 
-        return course != null ? true : false;
+        return academicYear != null ? true : false;
     }
 
 }

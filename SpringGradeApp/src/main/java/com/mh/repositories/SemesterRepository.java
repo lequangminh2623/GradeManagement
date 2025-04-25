@@ -19,4 +19,6 @@ public interface SemesterRepository {
     Semester getSemesterById(int id);
 
     void deleteSemesterById(int id);
+
+    boolean existSemesterByTypeAndAcademicYearId(String type, Integer semesterId, Integer yearId);
 }

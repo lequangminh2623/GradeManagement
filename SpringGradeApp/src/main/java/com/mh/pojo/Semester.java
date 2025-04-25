@@ -42,7 +42,6 @@ public class Semester implements Serializable {
     private Integer id;
     @Basic(optional = false)
     @NotNull
-    @Size(min = 1, max = 11)
     @Column(name = "semester_type")
     private String semesterType;
     @OneToMany(mappedBy = "semester")

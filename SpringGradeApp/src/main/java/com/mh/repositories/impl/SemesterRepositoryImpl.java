@@ -24,10 +24,10 @@ import org.springframework.transaction.annotation.Transactional;
 @Repository
 @Transactional
 public class SemesterRepositoryImpl implements SemesterRepository {
-    
+
     @Autowired
     private LocalSessionFactoryBean factory;
-    
+
     @Override
     public List<Semester> getSemestersByAcademicYearId(int yearId, Map<String, String> params) {
         Session s = this.factory.getObject().getCurrentSession();
@@ -35,11 +35,11 @@ public class SemesterRepositoryImpl implements SemesterRepository {
         CriteriaQuery<Semester> cq = cb.createQuery(Semester.class);
         Root<Semester> root = cq.from(Semester.class);
         cq.select(root);
-        
+
         List<Predicate> predicates = new ArrayList<>();
-        
+
         predicates.add(cb.equal(root.get("academicYear").get("id"), yearId));
-        
+
         if (params != null) {
             String kw = params.get("kw");
             if (kw != null && !kw.isEmpty()) {
@@ -47,13 +47,13 @@ public class SemesterRepositoryImpl implements SemesterRepository {
                 predicates.add(namePredicate);
             }
         }
-        
+
         cq.where(predicates.toArray(new Predicate[0]));
-        
+
         Query query = s.createQuery(cq);
         return query.getResultList();
     }
-    
+
     @Override
     public List<Semester> getSemesters(Map<String, String> params) {
         Session s = this.factory.getObject().getCurrentSession();
@@ -61,49 +61,76 @@ public class SemesterRepositoryImpl implements SemesterRepository {
         CriteriaQuery<Semester> cq = cb.createQuery(Semester.class);
         Root<Semester> root = cq.from(Semester.class);
         cq.select(root);
-        
+
         if (params != null) {
             String kw = params.get("kw");
             if (kw != null && !kw.isEmpty()) {
                 Expression<String> combined = cb.concat(root.get("academicYear").get("name"), " - ");
                 combined = cb.concat(combined, root.get("name"));
-                
+
                 Predicate likeCombined = cb.like(cb.lower(combined), "%" + kw.toLowerCase() + "%");
                 cq.where(likeCombined);
             }
         }
-        
+
         Query query = s.createQuery(cq);
         return query.getResultList();
     }
-    
+
     @Override
     public Semester saveSemester(Semester semester) {
         Session session = this.factory.getObject().getCurrentSession();
-        
+
         if (semester.getId() == null || semester.getId() == 0) {
             session.persist(semester);
         } else {
             session.merge(semester);
         }
-        
+
         return semester;
     }
-    
+
     @Override
     public Semester getSemesterById(int id) {
         Session session = this.factory.getObject().getCurrentSession();
         return session.get(Semester.class, id);
     }
-    
+
     @Override
     public void deleteSemesterById(int id) {
         Session session = this.factory.getObject().getCurrentSession();
         Semester semester = session.get(Semester.class, id);
-        
+
         if (semester != null) {
             session.remove(semester);
         }
     }
-    
+
+    @Override
+    public boolean existSemesterByTypeAndAcademicYearId(String type, Integer semesterId, Integer yearId) {
+        Session session = factory.getObject().getCurrentSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<Semester> cq = cb.createQuery(Semester.class);
+        Root<Semester> root = cq.from(Semester.class);
+        cq.select(root);
+
+        List<Predicate> predicates = new ArrayList<>();
+        predicates.add(cb.equal(root.get("semesterType"), type));
+        predicates.add(cb.equal(root.get("academicYear").get("id"), yearId));
+
+        if (semesterId != null) {
+            predicates.add(cb.notEqual(root.get("id"), semesterId));
+        }
+
+        cq.where(cb.and(predicates.toArray(new Predicate[0])));
+
+        Query query = session.createQuery(cq);
+
+        List<Semester> result = query.getResultList();
+        Semester semester = result.isEmpty() ? null : result.get(0);
+
+        return semester != null ? true : false;
+
+    }
+
 }

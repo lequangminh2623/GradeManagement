@@ -47,4 +47,9 @@ public class SemesterServiceImpl implements SemesterService {
         this.semesterRepo.deleteSemesterById(id);
     }
 
+    @Override
+    public boolean existSemesterByTypeAndAcademicYearId(String type, Integer semesterId, Integer yearId) {
+        return this.semesterRepo.existSemesterByTypeAndAcademicYearId(type, semesterId, yearId);
+    }
+
 }

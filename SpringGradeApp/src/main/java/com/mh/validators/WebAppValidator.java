@@ -3,6 +3,7 @@ package com.mh.validators;
 import com.mh.pojo.AcademicYear;
 import com.mh.pojo.Classroom;
 import com.mh.pojo.Course;
+import com.mh.pojo.Semester;
 import com.mh.pojo.User;
 import jakarta.validation.ConstraintViolation;
 import java.util.HashSet;
@@ -57,6 +58,12 @@ public class WebAppValidator implements Validator {
         } else if (target instanceof AcademicYear) {
             for (Validator validator : springValidators) {
                 if (validator instanceof AcademicYearValidator) {
+                    validator.validate(target, errors);
+                }
+            }
+        } else if (target instanceof Semester) {
+            for (Validator validator : springValidators) {
+                if (validator instanceof SemesterValidator) {
                     validator.validate(target, errors);
                 }
             }
