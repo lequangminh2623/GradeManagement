@@ -1,10 +1,13 @@
 package com.mh.controllers;
 
+import com.mh.pojo.Classroom;
 import com.mh.pojo.dto.GradeDTO;
 import com.mh.pojo.dto.TranscriptDTO;
+import com.mh.services.ClassroomService;
 import com.mh.services.GradeDetailService;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,6 +19,9 @@ public class ApiClassroomController {
 
     @Autowired
     private GradeDetailService gradeDetailService;
+    
+    @Autowired
+    private ClassroomService classroomService;
 
     @PostMapping("/{classroomId}/grades")
     public ResponseEntity<?> saveGradesForClassroom(
@@ -53,13 +59,22 @@ public class ApiClassroomController {
             );
         }
 
-        return ResponseEntity.ok("Grades for classroom " + classroomId + " saved successfully");
+        return ResponseEntity.ok("Điểm của lớp  " + classroomId + " lưu thành công!");
     }
 
     @GetMapping("/{classroomId}/grades")
-    public ResponseEntity<TranscriptDTO> getGradeSheetForClassroom(@PathVariable("classroomId") Integer classroomId) {
+    public ResponseEntity<TranscriptDTO> getTranscriptForClassroom(@PathVariable("classroomId") Integer classroomId) {
         TranscriptDTO gradeSheet = gradeDetailService.getGradeSheetForClassroom(classroomId);
         return ResponseEntity.ok(gradeSheet);
+    }
+    
+    @PatchMapping("/{classroomId}/lock")
+    public ResponseEntity<?> lockTranscript(@PathVariable("classroomId") Integer classroomId) {
+        Classroom classroom = classroomService.getClassroomById(classroomId);
+        classroom.setGradeStatus("LOCKED");
+        classroomService.saveClassroom(classroom);
+        
+        return ResponseEntity.ok("Điểm của lớp " + classroomId + " khóa thành công!");
     }
 
 }
