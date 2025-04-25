@@ -18,6 +18,17 @@ public class GradeDTO {
     private Double midtermGrade;
     private Double finalGrade;
     private List<Double> extraGrades;
+    
+    public GradeDTO() {
+        
+    }
+
+    public GradeDTO(Integer studentId, Double midtermGrade, Double finalGrade, List<Double> extraGrades) {
+        this.studentId = studentId;
+        this.midtermGrade = midtermGrade;
+        this.finalGrade = finalGrade;
+        this.extraGrades = extraGrades;
+    }
 
     public Integer getStudentId() {
         return studentId;

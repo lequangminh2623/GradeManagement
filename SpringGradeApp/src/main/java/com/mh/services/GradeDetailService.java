@@ -27,5 +27,5 @@ public interface GradeDetailService {
 
     boolean existsByGradeDetailIdAndGradeIndex(Integer gradeDetailId, Integer gradeIndex, Integer currentExtraGradeId);
     
-    TranscriptDTO getGradeSheetForClassroom(Integer classroomId);
+    TranscriptDTO getTranscriptForClassroom(Integer classroomId);
 }
