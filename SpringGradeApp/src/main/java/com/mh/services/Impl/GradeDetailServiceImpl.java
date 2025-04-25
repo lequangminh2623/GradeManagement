@@ -129,7 +129,7 @@ public class GradeDetailServiceImpl implements GradeDetailService {
     }
     
     @Override
-    public TranscriptDTO getGradeSheetForClassroom(Integer classroomId) {
+    public TranscriptDTO getTranscriptForClassroom(Integer classroomId) {
         Classroom classroom = classroomService.getClassroomWithStudents(classroomId);
         if (classroom == null) {
             throw new EntityNotFoundException("Không tìm thấy lớp học với id: " + classroomId);
