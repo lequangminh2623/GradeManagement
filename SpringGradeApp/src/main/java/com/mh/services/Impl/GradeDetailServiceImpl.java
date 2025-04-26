@@ -15,7 +15,11 @@ import com.mh.services.ClassroomService;
 import com.mh.services.GradeDetailService;
 import com.mh.services.StudentService;
 import jakarta.persistence.EntityNotFoundException;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
@@ -26,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  *
@@ -96,7 +101,7 @@ public class GradeDetailServiceImpl implements GradeDetailService {
 
             Set<ExtraGrade> newExtraSet = new LinkedHashSet<>();
             for (int i = 0; i < extraGrades.size(); i++) {
-                Double gradeValue = extraGrades.get(i);
+                Double gradeValue = checkValidGrade(extraGrades.get(i));
                 ExtraGrade eg;
                 if (existingMap.containsKey(i)) {
                     eg = existingMap.get(i);
@@ -127,7 +132,7 @@ public class GradeDetailServiceImpl implements GradeDetailService {
     public boolean existsByGradeDetailIdAndGradeIndex(Integer gradeDetailId, Integer gradeIndex, Integer currentExtraGradeId) {
         return this.gradeDetailRepo.existsByGradeDetailIdAndGradeIndex(gradeDetailId, gradeIndex, currentExtraGradeId);
     }
-    
+
     @Override
     public TranscriptDTO getTranscriptForClassroom(Integer classroomId) {
         Classroom classroom = classroomService.getClassroomWithStudents(classroomId);
@@ -137,12 +142,12 @@ public class GradeDetailServiceImpl implements GradeDetailService {
 
         TranscriptDTO transcriptDTO = new TranscriptDTO();
         transcriptDTO.setClassroomName(classroom.getName());
-        transcriptDTO.setAcademicTerm(classroom.getSemester().getAcademicYear().getYear() 
+        transcriptDTO.setAcademicTerm(classroom.getSemester().getAcademicYear().getYear()
                 + " - " + classroom.getSemester().getSemesterType());
         transcriptDTO.setCourseName(classroom.getCourse().getName());
         transcriptDTO.setLecturerName(classroom.getLecturer().getLastName() + " " + classroom.getLecturer().getFirstName());
         transcriptDTO.setGradeStatus(classroom.getGradeStatus());
-        
+
         List<GradeDTO> gradeDTOList = new ArrayList<>();
 
         if (classroom.getStudentSet() != null) {
@@ -179,4 +184,117 @@ public class GradeDetailServiceImpl implements GradeDetailService {
         transcriptDTO.setStudents(gradeDTOList);
         return transcriptDTO;
     }
+
+    @Override
+    public void updateGradesForClassroom(Integer classroomId, List<GradeDTO> gradeRequests) {
+        int maxExtraCount = gradeRequests.stream()
+                .mapToInt(req -> req.getExtraGrades() == null ? 0 : req.getExtraGrades().size())
+                .max()
+                .orElse(0);
+
+        Set<Student> allStudents = classroomService.getClassroomWithStudents(classroomId)
+                .getStudentSet();
+
+        for (GradeDTO dto : gradeRequests) {
+            List<Double> extra = dto.getExtraGrades() == null
+                    ? new ArrayList<>()
+                    : new ArrayList<>(dto.getExtraGrades());
+            while (extra.size() < maxExtraCount) {
+                extra.add(null);
+            }
+            if (extra.size() > maxExtraCount) {
+                extra = extra.subList(0, maxExtraCount);
+            }
+            dto.setExtraGrades(extra);
+
+            saveGradesForStudent(dto.getStudentId(), classroomId,
+                    checkValidGrade(dto.getMidtermGrade()), checkValidGrade(dto.getFinalGrade()), extra);
+        }
+
+        for (Student student : allStudents) {
+            boolean exists = gradeRequests.stream()
+                    .anyMatch(dto -> dto.getStudentId().equals(student.getId()));
+            if (!exists) {
+                List<Double> emptyExtra = new ArrayList<>(Collections.nCopies(maxExtraCount, null));
+                saveGradesForStudent(student.getId(), classroomId, null, null, emptyExtra);
+            }
+        }
+    }
+    
+    private Double checkValidGrade(Double grade) {
+        if(grade < 0 || grade > 10)
+            throw new IllegalArgumentException("Điểm phải nằm trong khoảng từ 0 đến 10.");
+        return grade;
+    }
+
+    private Double parseDoubleSafe(String value) {
+        if (value == null || value.trim().isEmpty()) {
+            return null;
+        }
+        try {
+            Double parsedValue = Double.valueOf(value.trim());
+            if (parsedValue < 0 || parsedValue > 10) {
+                throw new IllegalArgumentException("Điểm phải nằm trong khoảng từ 0 đến 10.");
+            }
+            return parsedValue;
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Giá trị nhập không phải số hợp lệ.");
+        }
+    }
+
+    @Override
+    public void uploadGradesFromCsv(Integer classroomId, MultipartFile file) throws IOException {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream()))) {
+            String header = reader.readLine();
+            if (header == null) {
+                throw new IllegalArgumentException("CSV header is missing");
+            }
+
+            int extraStart = 3;
+            List<GradeDTO> gradeRequests = new ArrayList<>();
+            String line;
+            int maxExtraCount = 0;
+
+            while ((line = reader.readLine()) != null) {
+                String[] tokens = line.split(",");
+                Integer studentId = Integer.valueOf(tokens[0].trim());
+                Double mid = parseDoubleSafe(tokens[1]);
+                Double fin = parseDoubleSafe(tokens[2]);
+
+                List<Double> extras = new ArrayList<>();
+                for (int i = extraStart; i < tokens.length; i++) {
+                    extras.add(parseDoubleSafe(tokens[i]));
+                }
+                maxExtraCount = Math.max(maxExtraCount, extras.size());
+                gradeRequests.add(new GradeDTO(studentId, mid, fin, extras));
+            }
+
+            updateGradesForClassroom(classroomId, gradeRequests);
+        }
+    }
+
+    public List<GradeDTO> getGradesByClassroom(Integer classroomId) {
+        Set<Student> students = classroomService.getClassroomWithStudents(classroomId).getStudentSet();
+        List<GradeDTO> result = new ArrayList<>();
+
+        for (Student s : students) {
+            Map<String, Integer> param = new HashMap<>();
+            param.put("classroomId", classroomId);
+            param.put("studentId", s.getId());
+            GradeDetail gd = getGradeDetail(param).get(0);
+            List<Double> extraGrades = gd != null && gd.getExtraGradeSet() != null
+                    ? gd.getExtraGradeSet().stream()
+                            .sorted(Comparator.comparingInt(ExtraGrade::getGradeIndex))
+                            .map(ExtraGrade::getGrade)
+                            .collect(Collectors.toList())
+                    : new ArrayList<>();
+            result.add(new GradeDTO(s.getId(), s.getCode(),
+                    String.format("%s %s", s.getUser().getLastName(), s.getUser().getFirstName()),
+                    gd != null ? gd.getMidtermGrade() : null,
+                    gd != null ? gd.getFinalGrade() : null,
+                    extraGrades));
+        }
+        return result;
+    }
+
 }

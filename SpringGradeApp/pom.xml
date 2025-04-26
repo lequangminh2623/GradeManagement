@@ -90,6 +90,13 @@
             <artifactId>hibernate-validator</artifactId>
             <version>8.0.2.Final</version>
         </dependency>
+        <dependency>
+            <groupId>com.itextpdf</groupId>
+            <artifactId>itext7-core</artifactId>
+            <version>8.0.5</version>
+            <type>pom</type>
+        </dependency>
+
     </dependencies>
     
     <build>

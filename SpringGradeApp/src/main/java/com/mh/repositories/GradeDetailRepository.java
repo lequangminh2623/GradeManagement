@@ -1,6 +1,7 @@
 package com.mh.repositories;
 
 import com.mh.pojo.GradeDetail;
+import com.mh.pojo.dto.GradeDTO;
 import java.util.List;
 import java.util.Map;
 
