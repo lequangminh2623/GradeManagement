@@ -12,6 +12,7 @@ import com.mh.validators.CourseValidator;
 import com.mh.validators.ForumPostValidator;
 import com.mh.validators.ForumReplyValidator;
 import com.mh.validators.SemesterValidator;
+import com.mh.validators.GradeValidator;
 import com.mh.validators.UserValidator;
 import com.mh.validators.WebAppValidator;
 import io.github.cdimascio.dotenv.Dotenv;
@@ -63,6 +64,9 @@ public class SpringSecurityConfigs {
 
     @Autowired
     private UserValidator userValidator;
+    
+    @Autowired
+    private GradeValidator gradeValidator;
 
     @Autowired
     private CourseValidator courseValidator;
@@ -150,6 +154,7 @@ public class SpringSecurityConfigs {
         springValidators.add(semesterValidator);
         springValidators.add(forumPostValidator);
         springValidators.add(forumReplyValidator);
+        springValidators.add(gradeValidator);
         WebAppValidator validator = new WebAppValidator();
         validator.setSpringValidators(springValidators);
         return validator;

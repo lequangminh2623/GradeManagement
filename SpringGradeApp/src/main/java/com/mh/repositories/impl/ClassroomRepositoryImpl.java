@@ -16,10 +16,8 @@ import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
@@ -86,6 +84,7 @@ public class ClassroomRepositoryImpl implements ClassroomRepository {
             persistentClassroom.setCourse(classroom.getCourse());
             persistentClassroom.setSemester(classroom.getSemester());
             persistentClassroom.setLecturer(classroom.getLecturer());
+            persistentClassroom.setGradeStatus(classroom.getGradeStatus());
 
             persistentClassroom.setStudentSet(classroom.getStudentSet());
 
