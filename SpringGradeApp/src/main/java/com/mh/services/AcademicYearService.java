@@ -23,4 +23,7 @@ public interface AcademicYearService {
     AcademicYear getYearById(int id);
 
     void deleteYearById(int id);
+
+    boolean existAcademicYearByYear(String year, Integer excludeId);
+
 }

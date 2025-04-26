@@ -28,7 +28,8 @@
 
             <div>
                 <label for="semesterType" class="form-label">Chọn học kỳ:</label>
-                <select class="form-select" id="semesterType" th:field="*{semesterType}" required>
+                <select class="form-select" id="semesterType" th:field="*{semesterType}" 
+                        th:classappend="${#fields.hasErrors('semesterType')} ? 'is-invalid'">
                     <option value="FIRST_TERM">FIRST_TERM</option>
                     <option value="SECOND_TERM">SECOND_TERM</option>
                     <option value="THIRD_TERM">THIRD_TERM</option>
@@ -37,6 +38,7 @@
             </div>
 
             <input type="hidden" th:field="*{id}" />
+            <input type="hidden" th:field="*{academicYear.id}"/>
 
             <div>
                 <button type="submit" class="btn btn-success">

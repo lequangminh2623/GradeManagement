@@ -6,7 +6,12 @@ package com.mh.configs;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
+import com.mh.validators.AcademicYearValidator;
 import com.mh.validators.ClassroomValidator;
+import com.mh.validators.CourseValidator;
+import com.mh.validators.ForumPostValidator;
+import com.mh.validators.ForumReplyValidator;
+import com.mh.validators.SemesterValidator;
 import com.mh.validators.GradeValidator;
 import com.mh.validators.UserValidator;
 import com.mh.validators.WebAppValidator;
@@ -63,6 +68,21 @@ public class SpringSecurityConfigs {
     @Autowired
     private GradeValidator gradeValidator;
 
+    @Autowired
+    private CourseValidator courseValidator;
+
+    @Autowired
+    private AcademicYearValidator academicYearValidator;
+
+    @Autowired
+    private SemesterValidator semesterValidator;
+
+    @Autowired
+    private ForumPostValidator forumPostValidator;
+
+    @Autowired
+    private ForumReplyValidator forumReplyValidator;
+
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -80,9 +100,9 @@ public class SpringSecurityConfigs {
                 .loginProcessingUrl("/login")
                 .defaultSuccessUrl("/", true)
                 .failureUrl("/login?error=true").permitAll())
-              .logout(logout -> logout.logoutSuccessUrl("/login").permitAll());//.addFilterBefore(new JwtFilter(), UsernamePasswordAuthenticationFilter.class);
+                .logout(logout -> logout.logoutSuccessUrl("/login").permitAll());//.addFilterBefore(new JwtFilter(), UsernamePasswordAuthenticationFilter.class);
 
-        //  http.csrf(c -> c.disable()).authorizeHttpRequests(requests -> requests.anyRequest().permitAll());
+//        http.csrf(c -> c.disable()).authorizeHttpRequests(requests -> requests.anyRequest().permitAll());
         return http.build();
     }
 
@@ -129,6 +149,11 @@ public class SpringSecurityConfigs {
         Set<Validator> springValidators = new HashSet<>();
         springValidators.add(classroomValidator);
         springValidators.add(userValidator);
+        springValidators.add(courseValidator);
+        springValidators.add(academicYearValidator);
+        springValidators.add(semesterValidator);
+        springValidators.add(forumPostValidator);
+        springValidators.add(forumReplyValidator);
         springValidators.add(gradeValidator);
         WebAppValidator validator = new WebAppValidator();
         validator.setSpringValidators(springValidators);

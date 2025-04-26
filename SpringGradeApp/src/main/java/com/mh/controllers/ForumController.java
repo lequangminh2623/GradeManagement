@@ -13,6 +13,7 @@ import com.mh.services.ForumReplyService;
 import com.mh.services.UserService;
 import com.mh.utils.ExceptionUtils;
 import com.mh.utils.PageSize;
+import com.mh.validators.WebAppValidator;
 import jakarta.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
@@ -20,12 +21,16 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -50,6 +55,15 @@ public class ForumController {
 
     @Autowired
     private ForumReplyService forumReplyService;
+
+    @Autowired
+    @Qualifier("webAppValidator")
+    private WebAppValidator webAppValidator;
+
+    @InitBinder
+    public void initBinder(WebDataBinder binder) {
+        binder.setValidator(webAppValidator);
+    }
 
     @ModelAttribute
     public void commonResponse(Model model) {
@@ -93,7 +107,12 @@ public class ForumController {
     }
 
     @PostMapping("/forums")
-    public String saveForumPost(@ModelAttribute("forumPost") ForumPost forumPost) {
+    public String saveForumPost(@ModelAttribute("forumPost") @Valid ForumPost forumPost, BindingResult bindingResult, Model model) {
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("errorMessage", "Có lỗi xảy ra");
+            return "/forum/forum-post-form";
+        }
+
         this.forumPostService.saveForumPost(forumPost);
         return "redirect:/forums";
     }

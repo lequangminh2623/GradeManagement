@@ -1,6 +1,11 @@
 package com.mh.validators;
 
+import com.mh.pojo.AcademicYear;
 import com.mh.pojo.Classroom;
+import com.mh.pojo.Course;
+import com.mh.pojo.ForumPost;
+import com.mh.pojo.ForumReply;
+import com.mh.pojo.Semester;
 import com.mh.pojo.GradeDetail;
 import com.mh.pojo.User;
 import jakarta.validation.ConstraintViolation;
@@ -48,6 +53,33 @@ public class WebAppValidator implements Validator {
                     validator.validate(target, errors);
                 }
             }
+        } else if (target instanceof Course) {
+            for (Validator validator : springValidators) {
+                if (validator instanceof CourseValidator) {
+                    validator.validate(target, errors);
+                }
+            }
+        } else if (target instanceof AcademicYear) {
+            for (Validator validator : springValidators) {
+                if (validator instanceof AcademicYearValidator) {
+                    validator.validate(target, errors);
+                }
+            }
+        } else if (target instanceof Semester) {
+            for (Validator validator : springValidators) {
+                if (validator instanceof SemesterValidator) {
+                    validator.validate(target, errors);
+                }
+            }
+        } else if (target instanceof ForumPost) {
+            for (Validator validator : springValidators) {
+                if (validator instanceof ForumPostValidator) {
+                    validator.validate(target, errors);
+                }
+            }
+        } else if (target instanceof ForumReply) {
+            for (Validator validator : springValidators) {
+                if (validator instanceof ForumReplyValidator) {
         } else if (target instanceof GradeDetail) {
             for (Validator validator : springValidators) {
                 if (validator instanceof GradeValidator) {

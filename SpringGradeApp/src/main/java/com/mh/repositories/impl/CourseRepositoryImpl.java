@@ -112,4 +112,28 @@ public class CourseRepositoryImpl implements CourseRepository {
         return result.intValue();
     }
 
+    @Override
+    public boolean existCourseByName(String name, Integer excludeId) {
+        Session session = factory.getObject().getCurrentSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<Course> cq = cb.createQuery(Course.class);
+        Root<Course> root = cq.from(Course.class);
+        cq.select(root);
+
+        List<Predicate> predicates = new ArrayList<>();
+        predicates.add(cb.equal(root.get("name"), name));
+
+        if (excludeId != null) {
+            predicates.add(cb.notEqual(root.get("id"), excludeId));
+        }
+
+        cq.where(cb.and(predicates.toArray(new Predicate[0])));
+
+        Query query = session.createQuery(cq);
+
+        List<Course> result = query.getResultList();
+        Course course = result.isEmpty() ? null : result.get(0);
+
+        return course != null ? true : false;
+    }
 }

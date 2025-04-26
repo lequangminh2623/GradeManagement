@@ -20,7 +20,9 @@
 
             <div>
                 <label for="name" class="form-label">Tên môn học:</label>
-                <input type="text" class="form-control" id="name" th:field="*{name}" placeholder="PTHTWeb" required />
+                <input type="text" class="form-control" id="name" th:field="*{name}" placeholder="PTHTWeb" 
+                       th:classappend="${#fields.hasErrors('name')} ? 'is-invalid'"/>
+                <div class="invalid-feedback" th:errors="*{name}"></div>
             </div>
 
             <input type="hidden" th:field="*{id}" />

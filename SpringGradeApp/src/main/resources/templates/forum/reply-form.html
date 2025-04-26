@@ -22,7 +22,9 @@
             <div class="row g-3">
                 <div class="col-md-12">
                     <label class="form-label">Nội dung:</label>
-                    <textarea class="form-control" aria-label="With textarea" th:field="*{content}" required></textarea>
+                    <textarea class="form-control" aria-label="With textarea" th:field="*{content}"
+                              th:classappend="${#fields.hasErrors('content')} ? 'is-invalid'" ></textarea>
+                    <div class="invalid-feedback" th:errors="*{content}"></div>
                 </div>
 
                 <div class="col-md-6">
@@ -39,35 +41,41 @@
 
                 <div class="col-md-6">
                     <label class="form-label">Người phản hồi:</label>
-                    <select th:field="*{user.id}" id="userSelect" class="form-select" required>
+                    <select th:field="*{user.id}" id="userSelect" class="form-select"
+                            th:classappend="${#fields.hasErrors('user')} ? 'is-invalid'" >
                         <option value="">-- Chọn phản hồi --</option>
                         <option th:each="u : ${users}" 
                                 th:value="${u.id}" 
                                 th:text="${u.id + ' - ' + u.lastName + ' ' + u.firstName}">
                         </option>
                     </select>
+                    <div class="invalid-feedback" th:errors="*{user}"></div>
                 </div>
 
                 <div class="col-md-6">
                     <label class="form-label">Bài đăng:</label>
-                    <select th:field="*{forumPost.id}" id="postSelect" class="form-select" required="">
+                    <select th:field="*{forumPost.id}" id="postSelect" class="form-select" 
+                            th:classappend="${#fields.hasErrors('forumPost')} ? 'is-invalid'" >
                         <option value="">-- Chọn bài đăng --</option>
                         <option th:each="p : ${forumPosts}" 
                                 th:value="${p.id}" 
                                 th:text="${p.id}">
                         </option>
                     </select>
+                    <div class="invalid-feedback" th:errors="*{forumPost}"></div>
                 </div>
 
                 <div class="col-md-6">
                     <label class="form-label">Phản hồi:</label>
-                    <select th:field="*{parent.id}" id="replySelect" class="form-select">
+                    <select th:field="*{parent.id}" id="replySelect" class="form-select"
+                            th:classappend="${#fields.hasErrors('parent')} ? 'is-invalid'" >
                         <option value="">-- Chọn phản hồi --</option>
                         <option th:each="r : ${replies}" 
                                 th:value="${r.id}" 
                                 th:text="${r.id}">
                         </option>
                     </select>
+                    <div class="invalid-feedback" th:errors="*{parent}"></div>
                 </div>
 
 

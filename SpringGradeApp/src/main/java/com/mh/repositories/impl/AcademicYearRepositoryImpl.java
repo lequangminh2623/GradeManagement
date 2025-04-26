@@ -110,4 +110,29 @@ public class AcademicYearRepositoryImpl implements AcademicYearRepository {
         }
     }
 
+    @Override
+    public boolean existAcademicYearByYear(String year, Integer excludeId) {
+        Session session = factory.getObject().getCurrentSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<AcademicYear> cq = cb.createQuery(AcademicYear.class);
+        Root<AcademicYear> root = cq.from(AcademicYear.class);
+        cq.select(root);
+
+        List<Predicate> predicates = new ArrayList<>();
+        predicates.add(cb.equal(root.get("year"), year));
+
+        if (excludeId != null) {
+            predicates.add(cb.notEqual(root.get("id"), excludeId));
+        }
+
+        cq.where(cb.and(predicates.toArray(new Predicate[0])));
+
+        Query query = session.createQuery(cq);
+
+        List<AcademicYear> result = query.getResultList();
+        AcademicYear academicYear = result.isEmpty() ? null : result.get(0);
+
+        return academicYear != null ? true : false;
+    }
+
 }

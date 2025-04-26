@@ -48,4 +48,9 @@ public class CourseServiceImpl implements CourseService {
         return this.coursesRepotitory.countCourse(params);
     }
 
+    @Override
+    public boolean existCourseByName(String name, Integer excludeId) {
+        return this.coursesRepotitory.existCourseByName(name, excludeId);
+    }
+
 }

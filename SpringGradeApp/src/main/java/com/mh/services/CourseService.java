@@ -24,4 +24,6 @@ public interface CourseService {
 
     int countCourse(Map<String, String> params);
 
+    boolean existCourseByName(String name, Integer excludeId);
+
 }

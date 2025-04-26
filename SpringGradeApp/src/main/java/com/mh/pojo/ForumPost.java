@@ -8,6 +8,7 @@ import jakarta.persistence.Basic;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -51,13 +52,11 @@ public class ForumPost implements Serializable {
     private Integer id;
     @Basic(optional = false)
     @NotNull
-    @Size(min = 1, max = 255)
     @Column(name = "title")
     private String title;
     @Basic(optional = false)
     @NotNull
     @Lob
-    @Size(min = 1, max = 65535)
     @Column(name = "content")
     private String content;
     @Size(max = 255)
@@ -75,7 +74,7 @@ public class ForumPost implements Serializable {
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     @ManyToOne(optional = false)
     private User user;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "forumPost")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "forumPost", fetch = FetchType.EAGER)
     private Set<ForumReply> forumReplySet;
     @Transient
     private MultipartFile file;

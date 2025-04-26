@@ -8,18 +8,23 @@ import com.mh.pojo.Course;
 import com.mh.services.CourseService;
 import com.mh.utils.ExceptionUtils;
 import com.mh.utils.PageSize;
+import com.mh.validators.WebAppValidator;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -34,6 +39,15 @@ public class CourseController {
 
     @Autowired
     private CourseService courseService;
+
+    @Autowired
+    @Qualifier("webAppValidator")
+    private WebAppValidator webAppValidator;
+
+    @InitBinder
+    public void initBinder(WebDataBinder binder) {
+        binder.setValidator(webAppValidator);
+    }
 
     @GetMapping("/courses")
     public String listCourses(Model model, @RequestParam Map<String, String> params) {
@@ -59,23 +73,15 @@ public class CourseController {
     }
 
     @PostMapping("/courses")
-    public String saveCourse(@ModelAttribute("course") @Valid Course course, Model model) {
-        try {
-            this.courseService.saveCourse(course);
-            return "redirect:/courses";
-        } catch (Exception e) {
-            Throwable root = ExceptionUtils.getRootCause(e);
-            if (root instanceof java.sql.SQLIntegrityConstraintViolationException && root.getMessage().contains("Duplicate entry")) {
-                if (root.getMessage().contains("course.name")) {
-                    model.addAttribute("errorMessage", "Tên này đã tồn tại.");
-                }
-            } else {
-                model.addAttribute("errorMessage", "Đã xảy ra lỗi: " + root.getMessage());
-            }
-
-            model.addAttribute("course", course);
+    public String saveCourse(@ModelAttribute("course") @Valid Course course, BindingResult bindingResult, Model model) {
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("errorMessage", "Có lỗi xảy ra");
             return "/course/course-form";
         }
+
+        this.courseService.saveCourse(course);
+        return "redirect:/courses";
+
     }
 
     @GetMapping("/courses/{id}")
@@ -100,5 +106,5 @@ public class CourseController {
                     .body("Đã xảy ra lỗi: " + e.getMessage());
         }
     }
-   
+
 }
