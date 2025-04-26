@@ -8,6 +8,7 @@ import com.mh.pojo.ForumReply;
 import com.mh.pojo.Semester;
 import com.mh.pojo.GradeDetail;
 import com.mh.pojo.User;
+import com.mh.pojo.dto.UserDTO;
 import jakarta.validation.ConstraintViolation;
 import java.util.HashSet;
 import java.util.Set;
@@ -18,12 +19,12 @@ import org.springframework.validation.Validator;
 
 @Component
 public class WebAppValidator implements Validator {
-
+    
     @Autowired
     private jakarta.validation.Validator beanValidator;
     
     private Set<Validator> springValidators = new HashSet<>();
-
+    
     @Override
     public boolean supports(Class<?> clazz) {
         for (org.springframework.validation.Validator v : springValidators) {
@@ -33,14 +34,14 @@ public class WebAppValidator implements Validator {
         }
         return false;
     }
-
+    
     @Override
     public void validate(Object target, Errors errors) {
         Set<ConstraintViolation<Object>> constraintViolations = beanValidator.validate(target);
         for (ConstraintViolation<Object> violation : constraintViolations) {
             errors.rejectValue(violation.getPropertyPath().toString(), violation.getMessageTemplate(), violation.getMessage());
         }
-
+        
         if (target instanceof Classroom) {
             for (Validator validator : springValidators) {
                 if (validator instanceof ClassroomValidator) {
@@ -80,15 +81,24 @@ public class WebAppValidator implements Validator {
         } else if (target instanceof ForumReply) {
             for (Validator validator : springValidators) {
                 if (validator instanceof ForumReplyValidator) {
+                    validator.validate(target, errors);
+                }
+            }
         } else if (target instanceof GradeDetail) {
             for (Validator validator : springValidators) {
                 if (validator instanceof GradeValidator) {
                     validator.validate(target, errors);
                 }
             }
+        } else if (target instanceof UserDTO) {
+            for (Validator validator : springValidators) {
+                if (validator instanceof UserDTOValidator) {
+                    validator.validate(target, errors);
+                }
+            }
         }
     }
-
+    
     public void setSpringValidators(
             Set<Validator> springValidators) {
         this.springValidators = springValidators;

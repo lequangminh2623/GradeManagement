@@ -13,6 +13,7 @@ import com.mh.validators.ForumPostValidator;
 import com.mh.validators.ForumReplyValidator;
 import com.mh.validators.SemesterValidator;
 import com.mh.validators.GradeValidator;
+import com.mh.validators.UserDTOValidator;
 import com.mh.validators.UserValidator;
 import com.mh.validators.WebAppValidator;
 import io.github.cdimascio.dotenv.Dotenv;
@@ -64,7 +65,7 @@ public class SpringSecurityConfigs {
 
     @Autowired
     private UserValidator userValidator;
-    
+
     @Autowired
     private GradeValidator gradeValidator;
 
@@ -82,6 +83,9 @@ public class SpringSecurityConfigs {
 
     @Autowired
     private ForumReplyValidator forumReplyValidator;
+
+    @Autowired
+    private UserDTOValidator userDTOValidator;
 
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
@@ -133,6 +137,7 @@ public class SpringSecurityConfigs {
         ResourceBundleMessageSource resource
                 = new ResourceBundleMessageSource();
         resource.setBasename("messages");
+        resource.setDefaultEncoding("UTF-8");
         return resource;
     }
 
@@ -155,6 +160,7 @@ public class SpringSecurityConfigs {
         springValidators.add(forumPostValidator);
         springValidators.add(forumReplyValidator);
         springValidators.add(gradeValidator);
+        springValidators.add(userDTOValidator);
         WebAppValidator validator = new WebAppValidator();
         validator.setSpringValidators(springValidators);
         return validator;
