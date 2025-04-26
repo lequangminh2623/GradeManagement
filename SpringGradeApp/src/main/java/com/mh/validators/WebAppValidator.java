@@ -8,6 +8,7 @@ import com.mh.pojo.ForumReply;
 import com.mh.pojo.Semester;
 import com.mh.pojo.GradeDetail;
 import com.mh.pojo.User;
+import com.mh.pojo.dto.UserDTO;
 import jakarta.validation.ConstraintViolation;
 import java.util.HashSet;
 import java.util.Set;
@@ -21,7 +22,7 @@ public class WebAppValidator implements Validator {
 
     @Autowired
     private jakarta.validation.Validator beanValidator;
-    
+
     private Set<Validator> springValidators = new HashSet<>();
 
     @Override
@@ -80,9 +81,18 @@ public class WebAppValidator implements Validator {
         } else if (target instanceof ForumReply) {
             for (Validator validator : springValidators) {
                 if (validator instanceof ForumReplyValidator) {
+
+                }
+            }
         } else if (target instanceof GradeDetail) {
             for (Validator validator : springValidators) {
                 if (validator instanceof GradeValidator) {
+                    validator.validate(target, errors);
+                }
+            }
+        } else if (target instanceof UserDTO) {
+            for (Validator validator : springValidators) {
+                if (validator instanceof UserDTOValidator) {
                     validator.validate(target, errors);
                 }
             }

@@ -5,6 +5,7 @@
 package com.mh.pojo;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.Basic;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -56,26 +57,23 @@ public class User implements Serializable {
     @Column(name = "id")
     private Integer id;
     @Basic(optional = false)
-    @NotNull
     @Size(min = 1, max = 255)
     @Column(name = "first_name")
     private String firstName;
     @Basic(optional = false)
-    @NotNull
     @Size(min = 1, max = 255)
     @Column(name = "last_name")
     private String lastName;
-    @Pattern(regexp = "^[A-Za-z0-9._%+-]+@ou\\.edu\\.vn$", message = "Email phải có đuôi @ou.edu.vn")//if the field contains email address consider using this annotation to enforce field validation
+    @Pattern(regexp = "^[A-Za-z0-9._%+-]+@ou\\.edu\\.vn$", message = "{user.email.invalid}")
     @Basic(optional = false)
-    @NotNull
     @Size(min = 1, max = 255)
     @Column(name = "email")
     private String email;
     @Size(max = 255)
     @Column(name = "password")
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
     @Basic(optional = false)
-    @NotNull
     @Column(name = "avatar")
     private String avatar = "https://res.cloudinary.com/dqw4mc8dg/image/upload/v1744183632/kagdbiirsk2aca0y9scy.png";
     @Column(name = "created_date")
@@ -89,10 +87,9 @@ public class User implements Serializable {
     @Column(name = "active")
     private boolean active;
     @Basic(optional = false)
-    @NotNull
     @Size(min = 1, max = 13)
     @Column(name = "role")
-    private String role;
+    private String role = "ROLE_STUDENT";
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
     @JsonIgnore
     private Set<ForumPost> forumPostSet;
@@ -105,6 +102,7 @@ public class User implements Serializable {
     @JsonIgnore
     private Set<ForumReply> forumReplySet;
     @Transient
+    @JsonIgnore
     private MultipartFile file;
 
     public User() {
