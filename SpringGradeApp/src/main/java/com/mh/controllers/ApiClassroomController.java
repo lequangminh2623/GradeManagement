@@ -77,9 +77,7 @@ public class ApiClassroomController {
     public ResponseEntity<?> lockTranscript(@PathVariable("classroomId") Integer classroomId) {
         checkLecturerPermission(classroomId);
 
-        Classroom classroom = classroomService.getClassroomById(classroomId);
-        classroom.setGradeStatus("LOCKED");
-        classroomService.saveClassroom(classroom);
+        classroomService.lockClassroomGrades(classroomId);
 
         return ResponseEntity.status(HttpStatus.OK)
                     .contentType(MediaType.parseMediaType("text/plain; charset=UTF-8"))

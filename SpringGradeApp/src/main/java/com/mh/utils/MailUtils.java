@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.mh.utils;
 
 import io.github.cdimascio.dotenv.Dotenv;
@@ -14,20 +10,22 @@ import jakarta.mail.Transport;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
 import java.util.Properties;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Component;
 
-/**
- *
- * @author Le Quang Minh
- */
+@Component
 public class MailUtils {
-    public void sendEmail(String to, String subject, String body) {
-        Dotenv dotenv = Dotenv.load();
-        String senderEmail = dotenv.get("EMAIL_SEND");
-        String senderPassword = dotenv.get("EMAIL_PASSWORD");
+    private final String senderEmail;
+    private final String senderPassword;
+    private final Session session;
 
-        if (senderEmail == null || senderPassword == null) {
-            System.out.println("Chưa đặt biến môi trường EMAIL_SEND hoặc EMAIL_PASSWORD trong .env!");
-            return;
+    public MailUtils() {
+        Dotenv dotenv = Dotenv.load();
+        this.senderEmail = dotenv.get("EMAIL_SEND");
+        this.senderPassword = dotenv.get("EMAIL_PASSWORD");
+
+        if (this.senderEmail == null || this.senderPassword == null) {
+            throw new IllegalStateException("Chưa đặt biến môi trường EMAIL_SEND hoặc EMAIL_PASSWORD trong .env!");
         }
 
         Properties props = new Properties();
@@ -37,23 +35,31 @@ public class MailUtils {
         props.put("mail.smtp.starttls.enable", "true");
         props.put("mail.smtp.ssl.trust", "smtp.gmail.com");
 
-        Session session;
-        session = Session.getInstance(props, new Authenticator() {
+        this.session = Session.getInstance(props, new Authenticator() {
             @Override
             protected PasswordAuthentication getPasswordAuthentication() {
                 return new PasswordAuthentication(senderEmail, senderPassword);
             }
         });
+    }
 
+    public void sendEmail(String to, String subject, String body) {
         try {
-            Message message = new MimeMessage(session);
+            Message message = new MimeMessage(this.session);
             message.setFrom(new InternetAddress(senderEmail));
             message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(to));
             message.setSubject(subject);
             message.setText(body);
 
             Transport.send(message);
-            System.out.println("Email sent successfully!");
-        } catch (MessagingException e) {}
+            System.out.println("Email sent successfully to " + to);
+        } catch (MessagingException e) {
+            System.err.println("Lỗi khi gửi email đến " + to + ": " + e.getMessage());
+        }
+    }
+
+    @Async
+    public void sendEmailAsync(String to, String subject, String body) {
+        sendEmail(to, subject, body);
     }
 }

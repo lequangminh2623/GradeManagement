@@ -183,8 +183,7 @@ public class ClassroomController {
                         }
                         if (!gradeStr.trim().isEmpty()) {
                             extraGrades.add(Double.valueOf(gradeStr.trim()));
-                        }
-                        else {
+                        } else {
                             extraGrades.add(null);
                         }
                         innerIndex++;
@@ -227,8 +226,11 @@ public class ClassroomController {
         Map<String, Integer> ref = new HashMap<>();
         ref.put("classroomId", classId);
         ref.put("studentId", studentId);
-        Integer gradeDetailId = this.gradeDetailService.getGradeDetail(ref).get(0).getId();
-        classroomService.removeStudentFromClassroom(classId, studentId);
-        this.gradeDetailService.deleteGradeDetail(gradeDetailId);
+        List<GradeDetail> gradeDetails = this.gradeDetailService.getGradeDetail(ref);
+        if (gradeDetails != null) {
+            Integer gradeDetailId = gradeDetails.get(0).getId();
+            classroomService.removeStudentFromClassroom(classId, studentId);
+            this.gradeDetailService.deleteGradeDetail(gradeDetailId);
+        }
     }
 }
