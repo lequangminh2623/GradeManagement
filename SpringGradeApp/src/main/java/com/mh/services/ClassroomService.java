@@ -33,4 +33,6 @@ public interface ClassroomService {
     boolean existsStudentInOtherClassroom(int studentId, int semesterId, int courseId, Integer excludeClassroomId);
 
     boolean existUserInClassroom(int userId, int classRoomId);
+    
+    void lockClassroomGrades(Integer classroomId);
 }
