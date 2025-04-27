@@ -4,6 +4,7 @@
  */
 package com.mh.pojo;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Basic;
 import jakarta.persistence.Column;
@@ -58,9 +59,11 @@ public class ForumReply implements Serializable {
     private String image;
     @Column(name = "created_date")
     @Temporal(TemporalType.TIMESTAMP)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy HH:mm:ss", timezone = "UTC")
     private Date createdDate;
     @Column(name = "updated_date")
     @Temporal(TemporalType.TIMESTAMP)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy HH:mm:ss", timezone = "UTC")
     private Date updatedDate;
     @JoinColumn(name = "forum_post_id", referencedColumnName = "id")
     @ManyToOne(optional = false)
@@ -73,8 +76,8 @@ public class ForumReply implements Serializable {
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     @ManyToOne(optional = false)
     private User user;
-
     @Transient
+    @JsonIgnore
     private MultipartFile file;
 
     public ForumReply() {

@@ -220,10 +220,11 @@ public class GradeDetailServiceImpl implements GradeDetailService {
             }
         }
     }
-    
+
     private Double checkValidGrade(Double grade) {
-        if(grade < 0 || grade > 10)
+        if (grade < 0 || grade > 10) {
             throw new IllegalArgumentException("Điểm phải nằm trong khoảng từ 0 đến 10.");
+        }
         return grade;
     }
 
@@ -295,6 +296,11 @@ public class GradeDetailServiceImpl implements GradeDetailService {
                     extraGrades));
         }
         return result;
+    }
+
+    @Override
+    public List<GradeDetail> getGradesByStudent(Integer userId) {
+        return this.gradeDetailRepo.getGradeDetailByStudent(userId);
     }
 
 }

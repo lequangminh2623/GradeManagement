@@ -6,9 +6,11 @@ package com.mh.configs;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
+import com.mh.pojo.dto.ForumPostDTO;
 import com.mh.validators.AcademicYearValidator;
 import com.mh.validators.ClassroomValidator;
 import com.mh.validators.CourseValidator;
+import com.mh.validators.ForumPostDTOValidator;
 import com.mh.validators.ForumPostValidator;
 import com.mh.validators.ForumReplyValidator;
 import com.mh.validators.SemesterValidator;
@@ -87,6 +89,9 @@ public class SpringSecurityConfigs {
     @Autowired
     private UserDTOValidator userDTOValidator;
 
+    @Autowired
+    private ForumPostDTOValidator forumPostDTOValidator;
+
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -161,6 +166,7 @@ public class SpringSecurityConfigs {
         springValidators.add(forumReplyValidator);
         springValidators.add(gradeValidator);
         springValidators.add(userDTOValidator);
+        springValidators.add(forumPostDTOValidator);
         WebAppValidator validator = new WebAppValidator();
         validator.setSpringValidators(springValidators);
         return validator;

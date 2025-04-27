@@ -74,7 +74,7 @@ public class UserServiceImpl implements UserService {
         if (user.getRole() == null) {
             user.setRole("ROLE_STUDENT");
         }
-        if (!user.getFile().isEmpty()) {
+        if (user.getFile() != null && !user.getFile().isEmpty()) {
             try {
                 Map res = cloudinary.uploader().upload(user.getFile().getBytes(),
                         ObjectUtils.asMap("resource_type", "auto", "folder", "GradeManagement"));

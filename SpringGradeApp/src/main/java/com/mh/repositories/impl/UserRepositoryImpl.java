@@ -43,12 +43,16 @@ public class UserRepositoryImpl implements UserRepository {
         Query q = s.createNamedQuery("User.findByEmail", User.class);
         q.setParameter("email", email);
 
-        return (User) q.getSingleResult();
+        List<User> users = q.getResultList();
+        return users.isEmpty() ? null : users.get(0);
     }
 
     @Override
     public boolean authenticate(String email, String password) {
         User u = this.getUserByEmail(email);
+        if (u == null) {
+            return false;
+        }
         return this.passwordEncoder.matches(password, u.getPassword());
     }
 

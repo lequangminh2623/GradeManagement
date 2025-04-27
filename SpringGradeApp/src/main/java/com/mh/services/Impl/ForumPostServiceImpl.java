@@ -53,7 +53,7 @@ public class ForumPostServiceImpl implements ForumPostService {
             forumPost.setCreatedDate(new Date());
         }
 
-        if (!forumPost.getFile().isEmpty()) {
+        if (forumPost.getFile() != null && !forumPost.getFile().isEmpty()) {
             try {
                 Map res = cloudinary.uploader().upload(forumPost.getFile().getBytes(),
                         ObjectUtils.asMap("resource_type", "auto", "folder", "GradeManagement"));

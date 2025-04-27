@@ -4,6 +4,8 @@
  */
 package com.mh.pojo;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Basic;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -64,19 +66,24 @@ public class ForumPost implements Serializable {
     private String image;
     @Column(name = "created_date")
     @Temporal(TemporalType.TIMESTAMP)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy HH:mm:ss", timezone = "UTC")
     private Date createdDate;
     @Column(name = "updated_date")
     @Temporal(TemporalType.TIMESTAMP)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy HH:mm:ss", timezone = "UTC")
     private Date updatedDate;
     @JoinColumn(name = "classroom_id", referencedColumnName = "id")
     @ManyToOne(optional = false)
+    @JsonIgnore
     private Classroom classroom;
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     @ManyToOne(optional = false)
     private User user;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "forumPost", fetch = FetchType.EAGER)
+    @JsonIgnore
     private Set<ForumReply> forumReplySet;
     @Transient
+    @JsonIgnore
     private MultipartFile file;
 
     public ForumPost() {

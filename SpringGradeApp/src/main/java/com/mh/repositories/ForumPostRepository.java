@@ -1,5 +1,6 @@
 package com.mh.repositories;
 
+import com.mh.pojo.Classroom;
 import com.mh.pojo.ForumPost;
 import java.util.List;
 import java.util.Map;

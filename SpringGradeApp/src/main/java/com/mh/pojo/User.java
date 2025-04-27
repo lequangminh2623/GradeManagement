@@ -4,6 +4,7 @@
  */
 package com.mh.pojo;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.Basic;
@@ -78,9 +79,11 @@ public class User implements Serializable {
     private String avatar = "https://res.cloudinary.com/dqw4mc8dg/image/upload/v1744183632/kagdbiirsk2aca0y9scy.png";
     @Column(name = "created_date")
     @Temporal(TemporalType.TIMESTAMP)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy HH:mm:ss", timezone = "UTC")
     private Date createdDate;
     @Column(name = "updated_date")
     @Temporal(TemporalType.TIMESTAMP)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy HH:mm:ss", timezone = "UTC")
     private Date updatedDate;
     @Basic(optional = false)
     @NotNull

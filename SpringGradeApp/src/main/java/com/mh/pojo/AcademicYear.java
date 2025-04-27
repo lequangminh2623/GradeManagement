@@ -46,6 +46,7 @@ public class AcademicYear implements Serializable {
     @Column(name = "year")
     private String year;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "academicYear")
+    @JsonIgnore
     private Set<Semester> semesterSet;
 
     public AcademicYear() {

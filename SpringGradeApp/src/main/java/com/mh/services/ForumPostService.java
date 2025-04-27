@@ -23,5 +23,5 @@ public interface ForumPostService {
     ForumPost saveForumPost(ForumPost forumPost);
 
     void deleteForumPostById(int id);
-
+    
 }

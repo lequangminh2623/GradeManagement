@@ -6,6 +6,7 @@ package com.mh.repositories.impl;
 
 import com.mh.pojo.Classroom;
 import com.mh.pojo.Student;
+import com.mh.pojo.User;
 import com.mh.repositories.ClassroomRepository;
 import com.mh.utils.PageSize;
 import jakarta.persistence.Query;
@@ -235,6 +236,45 @@ public class ClassroomRepositoryImpl implements ClassroomRepository {
         Long count = session.createQuery(cq).getSingleResult();
 
         return count != null && count > 0;
+    }
+
+    @Override
+    public List<Classroom> getClassroomsByUser(User user, Map<String, String> params) {
+        Session s = this.factory.getObject().getCurrentSession();
+        CriteriaBuilder cb = s.getCriteriaBuilder();
+        CriteriaQuery<Classroom> cq = cb.createQuery(Classroom.class);
+        Root<Classroom> root = cq.from(Classroom.class);
+        cq.select(root);
+
+        List<Predicate> predicates = new ArrayList<>();
+        if (user.getRole().equals("ROLE_LECTURER")) {
+            predicates.add(cb.equal(root.get("lecturer").get("id"), user.getId()));
+        } else if (user.getRole().equals("ROLE_STUDENT")) {
+            Join<Object, Object> studentJoin = root.join("studentSet", JoinType.INNER);
+            Predicate isStudent = cb.equal(studentJoin.get("id"), user.getId());
+            predicates.add(isStudent);
+        }
+
+        if (params != null) {
+            String kw = params.get("kw");
+            if (kw != null && !kw.isEmpty()) {
+                Predicate namePredicate = cb.like(root.get("name"), "%" + kw + "%");
+                predicates.add(namePredicate);
+            }
+        }
+
+        cq.where(predicates.toArray(new Predicate[0]));
+
+        Query query = s.createQuery(cq);
+
+        if (params != null && params.containsKey("page")) {
+            int page = Integer.parseInt(params.get("page"));
+            int start = (page - 1) * PageSize.CLASSROOM_PAGE_SIZE.getSize();
+            query.setMaxResults(PageSize.CLASSROOM_PAGE_SIZE.getSize());
+            query.setFirstResult(start);
+        }
+
+        return query.getResultList();
     }
 
 }

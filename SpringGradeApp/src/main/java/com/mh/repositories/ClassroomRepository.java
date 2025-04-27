@@ -5,6 +5,7 @@
 package com.mh.repositories;
 
 import com.mh.pojo.Classroom;
+import com.mh.pojo.User;
 import java.util.List;
 import java.util.Map;
 
@@ -33,4 +34,6 @@ public interface ClassroomRepository {
     boolean existsStudentInOtherClassroom(int studentId, int semesterId, int courseId, Integer excludeClassroomId);
 
     boolean existUserInClassroom(int userId, int classRoomId);
+
+    List<Classroom> getClassroomsByUser(User user, Map<String, String> params);
 }

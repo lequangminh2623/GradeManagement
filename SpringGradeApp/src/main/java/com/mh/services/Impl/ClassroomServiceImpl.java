@@ -5,6 +5,7 @@
 package com.mh.services.Impl;
 
 import com.mh.pojo.Classroom;
+import com.mh.pojo.User;
 import com.mh.repositories.ClassroomRepository;
 import com.mh.services.ClassroomService;
 import java.util.List;
@@ -75,6 +76,11 @@ public class ClassroomServiceImpl implements ClassroomService {
     @Override
     public boolean existUserInClassroom(int userId, int classRoomId) {
         return this.classroomRepo.existUserInClassroom(userId, classRoomId);
+    }
+
+    @Override
+    public List<Classroom> getClassroomsByUser(User user, Map<String, String> params) {
+        return this.classroomRepo.getClassroomsByUser(user, params);
     }
 
 }
