@@ -79,8 +79,7 @@ public class ForumPost implements Serializable {
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     @ManyToOne(optional = false)
     private User user;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "forumPost", fetch = FetchType.EAGER)
-    @JsonIgnore
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "forumPost", fetch = FetchType.EAGER, orphanRemoval = true)
     private Set<ForumReply> forumReplySet;
     @Transient
     @JsonIgnore

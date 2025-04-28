@@ -66,7 +66,7 @@ public class ForumReplyRepositoryImpl implements ForumReplyRepository {
     }
 
     @Override
-    public List<ForumReply> getForumRepliesByForumPostIdAndForumReplyId(int forumPostId, int parentId) {
+    public List<ForumReply> getForumRepliesByForumPostIdAndForumReplyId(int forumPostId, int parentId, Map<String, String> params) {
         Session session = this.factory.getObject().getCurrentSession();
         CriteriaBuilder cb = session.getCriteriaBuilder();
         CriteriaQuery<ForumReply> cq = cb.createQuery(ForumReply.class);
@@ -83,9 +83,12 @@ public class ForumReplyRepositoryImpl implements ForumReplyRepository {
 
         Query query = session.createQuery(cq);
 
-        int start = 0;
-        query.setMaxResults(PageSize.FORUM_REPLY_PAGE_SIZE.getSize());
-        query.setFirstResult(start);
+        if (params != null && params.containsKey("page")) {
+            int page = Integer.parseInt(params.get("page"));
+            int start = (page - 1) * PageSize.FORUM_REPLY_PAGE_SIZE.getSize();
+            query.setMaxResults(PageSize.FORUM_REPLY_PAGE_SIZE.getSize());
+            query.setFirstResult(start);
+        }
 
         return query.getResultList();
 
@@ -208,7 +211,11 @@ public class ForumReplyRepositoryImpl implements ForumReplyRepository {
         ForumReply reply = session.get(ForumReply.class, id);
 
         if (reply != null) {
-            session.remove(reply);
+            ForumPost post = reply.getForumPost();
+            if (post != null) {
+                post.getForumReplySet().remove(reply);
+                session.remove(reply);
+            }
         }
     }
 

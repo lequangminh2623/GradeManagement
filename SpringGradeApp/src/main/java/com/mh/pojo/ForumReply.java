@@ -67,11 +67,14 @@ public class ForumReply implements Serializable {
     private Date updatedDate;
     @JoinColumn(name = "forum_post_id", referencedColumnName = "id")
     @ManyToOne(optional = false)
+    @JsonIgnore
     private ForumPost forumPost;
     @OneToMany(mappedBy = "parent")
+    @JsonIgnore
     private Set<ForumReply> forumReplySet;
     @JoinColumn(name = "parent_id", referencedColumnName = "id")
     @ManyToOne
+    @JsonIgnore
     private ForumReply parent;
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     @ManyToOne(optional = false)

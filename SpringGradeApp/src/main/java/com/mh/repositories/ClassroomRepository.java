@@ -36,4 +36,6 @@ public interface ClassroomRepository {
     boolean existUserInClassroom(int userId, int classRoomId);
 
     List<Classroom> getClassroomsByUser(User user, Map<String, String> params);
+
+    Classroom getClassroomByForumPostId(int id);
 }

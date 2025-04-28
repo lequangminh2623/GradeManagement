@@ -9,6 +9,7 @@ import com.mh.pojo.Semester;
 import com.mh.pojo.GradeDetail;
 import com.mh.pojo.User;
 import com.mh.pojo.dto.ForumPostDTO;
+import com.mh.pojo.dto.ForumReplyDTO;
 import com.mh.pojo.dto.UserDTO;
 import jakarta.validation.ConstraintViolation;
 import java.util.HashSet;
@@ -100,6 +101,12 @@ public class WebAppValidator implements Validator {
         } else if (target instanceof ForumPostDTO) {
             for (Validator validator : springValidators) {
                 if (validator instanceof ForumPostDTOValidator) {
+                    validator.validate(target, errors);
+                }
+            }
+        } else if (target instanceof ForumReplyDTO) {
+            for (Validator validator : springValidators) {
+                if (validator instanceof ForumReplyDTOValidator) {
                     validator.validate(target, errors);
                 }
             }

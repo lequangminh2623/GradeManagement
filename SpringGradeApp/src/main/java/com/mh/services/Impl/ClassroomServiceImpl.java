@@ -83,4 +83,9 @@ public class ClassroomServiceImpl implements ClassroomService {
         return this.classroomRepo.getClassroomsByUser(user, params);
     }
 
+    @Override
+    public Classroom getClassroomByForumPostId(int id) {
+        return this.classroomRepo.getClassroomByForumPostId(id);
+    }
+
 }

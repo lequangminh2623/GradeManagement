@@ -36,7 +36,7 @@ public class ApiGradeController {
 
     @GetMapping("/student")
     public ResponseEntity<?> getStudentGrades(Authentication authentication) {
-        User currentUser = userService.getUserByEmail(authentication.getName());
+        User currentUser = this.userService.getCurrentUser();
 
         if (currentUser.getStudent() == null) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)

@@ -30,6 +30,8 @@ public interface UserService extends UserDetailsService {
     int countUser(Map<String, String> params);
 
     List<User> getUserByRole(List<String> roles);
-    
+
     boolean existsByEmail(String email, Integer excludeId);
+
+    User getCurrentUser();
 }

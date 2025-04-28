@@ -4,8 +4,10 @@
  */
 package com.mh.pojo.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.mh.pojo.ForumReply;
 import java.util.Date;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  *
@@ -20,6 +22,11 @@ public class ForumReplyDTO {
     private Date updatedDate;
     private String user;
     private int parentId;
+    @JsonIgnore
+    private MultipartFile file;
+
+    public ForumReplyDTO() {
+    }
 
     public ForumReplyDTO(ForumReply reply) {
         this.id = reply.getId();
@@ -127,6 +134,20 @@ public class ForumReplyDTO {
      */
     public void setUser(String user) {
         this.user = user;
+    }
+
+    /**
+     * @return the file
+     */
+    public MultipartFile getFile() {
+        return file;
+    }
+
+    /**
+     * @param file the file to set
+     */
+    public void setFile(MultipartFile file) {
+        this.file = file;
     }
 
 }

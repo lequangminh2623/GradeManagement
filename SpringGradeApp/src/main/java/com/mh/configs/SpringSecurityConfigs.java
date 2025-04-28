@@ -12,6 +12,7 @@ import com.mh.validators.ClassroomValidator;
 import com.mh.validators.CourseValidator;
 import com.mh.validators.ForumPostDTOValidator;
 import com.mh.validators.ForumPostValidator;
+import com.mh.validators.ForumReplyDTOValidator;
 import com.mh.validators.ForumReplyValidator;
 import com.mh.validators.SemesterValidator;
 import com.mh.validators.GradeValidator;
@@ -92,6 +93,9 @@ public class SpringSecurityConfigs {
     @Autowired
     private ForumPostDTOValidator forumPostDTOValidator;
 
+    @Autowired
+    private ForumReplyDTOValidator forumReplyDTOValidator;
+
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -167,6 +171,7 @@ public class SpringSecurityConfigs {
         springValidators.add(gradeValidator);
         springValidators.add(userDTOValidator);
         springValidators.add(forumPostDTOValidator);
+        springValidators.add(forumReplyDTOValidator);
         WebAppValidator validator = new WebAppValidator();
         validator.setSpringValidators(springValidators);
         return validator;

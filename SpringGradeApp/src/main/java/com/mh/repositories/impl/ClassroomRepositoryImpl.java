@@ -5,11 +5,13 @@
 package com.mh.repositories.impl;
 
 import com.mh.pojo.Classroom;
+import com.mh.pojo.ForumPost;
 import com.mh.pojo.Student;
 import com.mh.pojo.User;
 import com.mh.repositories.ClassroomRepository;
 import com.mh.utils.PageSize;
 import jakarta.persistence.Query;
+import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Join;
@@ -275,6 +277,20 @@ public class ClassroomRepositoryImpl implements ClassroomRepository {
         }
 
         return query.getResultList();
+    }
+
+    @Override
+    public Classroom getClassroomByForumPostId(int id) {
+        Session s = this.factory.getObject().getCurrentSession();
+        CriteriaBuilder cb = s.getCriteriaBuilder();
+        CriteriaQuery<Classroom> cq = cb.createQuery(Classroom.class);
+        Root<ForumPost> root = cq.from(ForumPost.class);
+
+        cq.select(root.get("classroom"))
+                .where(cb.equal(root.get("id"), id));
+
+        TypedQuery<Classroom> typedQuery = s.createQuery(cq);
+        return typedQuery.getSingleResult();
     }
 
 }

@@ -38,8 +38,8 @@ public class ForumReplyServiceImpl implements ForumReplyService {
     }
 
     @Override
-    public List<ForumReply> getForumRepliesByForumPostIdAndForumReplyId(int forumPostId, int parentId) {
-        return this.forumReplyRepo.getForumRepliesByForumPostIdAndForumReplyId(forumPostId, parentId);
+    public List<ForumReply> getForumRepliesByForumPostIdAndForumReplyId(int forumPostId, int parentId, Map<String, String> params) {
+        return this.forumReplyRepo.getForumRepliesByForumPostIdAndForumReplyId(forumPostId, parentId, params);
     }
 
     @Override
@@ -68,7 +68,7 @@ public class ForumReplyServiceImpl implements ForumReplyService {
             forumReply.setCreatedDate(new Date());
         }
 
-        if (!forumReply.getFile().isEmpty()) {
+        if (forumReply.getFile() != null && !forumReply.getFile().isEmpty()) {
             try {
                 Map res = cloudinary.uploader().upload(forumReply.getFile().getBytes(),
                         ObjectUtils.asMap("resource_type", "auto", "folder", "GradeManagement"));
@@ -85,6 +85,22 @@ public class ForumReplyServiceImpl implements ForumReplyService {
     @Override
     public void deleteReplyById(int id) {
         this.forumReplyRepo.deleteReplyById(id);
+    }
+
+    @Override
+    public boolean isReplyStillEditable(int forumReplyId) {
+        ForumReply reply = this.forumReplyRepo.getForumReplyById(forumReplyId);
+        Date createdDate = reply.getCreatedDate();
+        Date currentDate = new Date();
+
+        long time = (currentDate.getTime() - createdDate.getTime()) / (60 * 1000);
+        return time < 30;
+    }
+
+    @Override
+    public boolean checkOwnerForumReplyPermission(int userId, int replyId) {
+        ForumReply reply = forumReplyRepo.getForumReplyById(replyId);
+        return reply.getUser().getId() == userId;
     }
 
 }
