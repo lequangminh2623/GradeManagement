@@ -6,7 +6,10 @@ package com.mh.services.Impl;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
+import com.mh.pojo.Classroom;
 import com.mh.pojo.ForumPost;
+import com.mh.pojo.User;
+import com.mh.repositories.ClassroomRepository;
 import com.mh.repositories.ForumPostRepository;
 import com.mh.services.ForumPostService;
 import java.io.IOException;
@@ -31,6 +34,9 @@ public class ForumPostServiceImpl implements ForumPostService {
     @Autowired
     private Cloudinary cloudinary;
 
+    @Autowired
+    private ClassroomRepository classroomRepository;
+
     @Override
     public List<ForumPost> getForumPosts(Map<String, String> params) {
         return this.forumPostRepo.getForumPosts(params);
@@ -53,7 +59,7 @@ public class ForumPostServiceImpl implements ForumPostService {
             forumPost.setCreatedDate(new Date());
         }
 
-        if (!forumPost.getFile().isEmpty()) {
+        if (forumPost.getFile() != null && !forumPost.getFile().isEmpty()) {
             try {
                 Map res = cloudinary.uploader().upload(forumPost.getFile().getBytes(),
                         ObjectUtils.asMap("resource_type", "auto", "folder", "GradeManagement"));
@@ -70,6 +76,27 @@ public class ForumPostServiceImpl implements ForumPostService {
     @Override
     public void deleteForumPostById(int id) {
         this.forumPostRepo.deleteForumPostById(id);
+    }
+
+    @Override
+    public boolean checkForumPostPermission(int userId, int classroomId) {
+        return this.classroomRepository.existUserInClassroom(userId, classroomId);
+    }
+
+    @Override
+    public boolean checkOwnerForumPostPermission(int userId, int forumPostId) {
+        ForumPost forumPost = forumPostRepo.getForumPostById(forumPostId);
+        return forumPost.getUser().getId() == userId;
+    }
+
+    @Override
+    public boolean isPostStillEditable(int forumPostId) {
+        ForumPost forumPost = forumPostRepo.getForumPostById(forumPostId);
+        Date createdDate = forumPost.getCreatedDate();
+        Date currentDate = new Date();
+
+        long time = (currentDate.getTime() - createdDate.getTime()) / (60 * 1000);
+        return time < 30;
     }
 
 }

@@ -29,12 +29,14 @@ public interface GradeDetailService {
     boolean existsByStudentAndCourseAndSemester(Integer studentId, Integer courseId, Integer semesterId, Integer excludeId);
 
     boolean existsByGradeDetailIdAndGradeIndex(Integer gradeDetailId, Integer gradeIndex, Integer currentExtraGradeId);
-    
+
     TranscriptDTO getTranscriptForClassroom(Integer classroomId);
-    
+
     void updateGradesForClassroom(Integer classroomId, List<GradeDTO> gradeRequests);
 
     void uploadGradesFromCsv(Integer classroomId, MultipartFile file) throws IOException;
-        
+
     List<GradeDTO> getGradesByClassroom(Integer classroomId);
+
+    List<GradeDetail> getGradesByStudent(Integer userId);
 }

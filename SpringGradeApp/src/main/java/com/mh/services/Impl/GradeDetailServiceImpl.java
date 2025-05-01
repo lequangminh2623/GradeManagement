@@ -298,4 +298,10 @@ public class GradeDetailServiceImpl implements GradeDetailService {
         }
         return result;
     }
+
+    @Override
+    public List<GradeDetail> getGradesByStudent(Integer userId) {
+        return this.gradeDetailRepo.getGradeDetailByStudent(userId);
+    }
+
 }

@@ -111,7 +111,9 @@ public class ApiUserController {
                 return ResponseEntity.status(500).body("Lỗi khi tạo JWT");
             }
         }
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Sai thông tin đăng nhập");
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .contentType(MediaType.parseMediaType("text/plain; charset=UTF-8"))
+                .body("Sai thông tin đăng nhập");
     }
 
     @RequestMapping("/secure/profile")

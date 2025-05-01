@@ -4,7 +4,9 @@
  */
 package com.mh.services;
 
+import com.mh.pojo.Classroom;
 import com.mh.pojo.ForumPost;
+import com.mh.pojo.User;
 import java.util.List;
 import java.util.Map;
 
@@ -24,4 +26,9 @@ public interface ForumPostService {
 
     void deleteForumPostById(int id);
 
+    boolean checkForumPostPermission(int userId, int classroomId);
+
+    boolean checkOwnerForumPostPermission(int userId, int forumPostId);
+
+    boolean isPostStillEditable(int forumPostId);
 }

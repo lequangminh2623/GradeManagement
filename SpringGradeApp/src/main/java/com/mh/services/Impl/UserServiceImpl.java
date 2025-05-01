@@ -20,6 +20,7 @@ import java.util.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -74,7 +75,7 @@ public class UserServiceImpl implements UserService {
         if (user.getRole() == null) {
             user.setRole("ROLE_STUDENT");
         }
-        if (!user.getFile().isEmpty()) {
+        if (user.getFile() != null && !user.getFile().isEmpty()) {
             try {
                 Map res = cloudinary.uploader().upload(user.getFile().getBytes(),
                         ObjectUtils.asMap("resource_type", "auto", "folder", "GradeManagement"));
@@ -115,6 +116,13 @@ public class UserServiceImpl implements UserService {
     @Override
     public boolean existsByEmail(String email, Integer excludeId) {
         return this.userRepo.existsByEmail(email, excludeId);
+    }
+
+    @Override
+    public User getCurrentUser() {
+        String email = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        User user = this.userRepo.getUserByEmail(email);
+        return user;
     }
 
 }

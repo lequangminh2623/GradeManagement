@@ -142,4 +142,18 @@ public class GradeDetailRepositoryImpl implements GradeDetailRepository {
         return count > 0;
     }
 
+    @Override
+    public List<GradeDetail> getGradeDetailByStudent(Integer id) {
+        Session s = this.factory.getObject().getCurrentSession();
+        CriteriaBuilder cb = s.getCriteriaBuilder();
+        CriteriaQuery<GradeDetail> cq = cb.createQuery(GradeDetail.class);
+        Root<GradeDetail> root = cq.from(GradeDetail.class);
+
+        cq.where(cb.equal(root.get("student").get("id"), id));
+        cq.select(root);
+
+        Query query = s.createQuery(cq);
+        return query.getResultList();
+    }
+
 }

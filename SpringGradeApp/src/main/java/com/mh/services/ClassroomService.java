@@ -5,6 +5,7 @@
 package com.mh.services;
 
 import com.mh.pojo.Classroom;
+import com.mh.pojo.User;
 import java.util.List;
 import java.util.Map;
 
@@ -33,6 +34,10 @@ public interface ClassroomService {
     boolean existsStudentInOtherClassroom(int studentId, int semesterId, int courseId, Integer excludeClassroomId);
 
     boolean existUserInClassroom(int userId, int classRoomId);
-    
+  
+    List<Classroom> getClassroomsByUser(User user, Map<String, String> params);
+  
+    Classroom getClassroomByForumPostId(int id);
+  
     void lockClassroomGrades(Integer classroomId);
 }

@@ -141,4 +141,14 @@ public class ClassroomServiceImpl implements ClassroomService {
         }
     }
 
+    @Override
+    public List<Classroom> getClassroomsByUser(User user, Map<String, String> params) {
+        return this.classroomRepo.getClassroomsByUser(user, params);
+    }
+
+    @Override
+    public Classroom getClassroomByForumPostId(int id) {
+        return this.classroomRepo.getClassroomByForumPostId(id);
+    }
+
 }

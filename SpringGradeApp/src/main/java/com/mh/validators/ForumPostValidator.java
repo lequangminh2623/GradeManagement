@@ -33,10 +33,15 @@ public class ForumPostValidator implements Validator {
         if (post.getTitle() == null || post.getTitle().trim().isEmpty()) {
             errors.rejectValue("title", "forumPost.title.notNull");
         }
+        
+        if (post.getContent()== null || post.getContent().trim().isEmpty()) {
+            errors.rejectValue("content", "forumPost.content.notNull");
+        }
 
         if (post.getClassroom() == null || post.getClassroom().getId() == null) {
             errors.rejectValue("classroom", "forumPost.classroom.notNull");
         }
+        
 
         if (post.getUser() == null || post.getUser().getId() == null) {
             errors.rejectValue("user", "forumPost.user.notNull");

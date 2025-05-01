@@ -72,7 +72,9 @@
 
                 <div class="col-md-12">
                     <label class="form-label">Nội dung:</label>
-                    <textarea class="form-control" aria-label="With textarea" th:field="*{content}" ></textarea>
+                    <textarea class="form-control" aria-label="With textarea" th:field="*{content}"
+                              th:classappend="${#fields.hasErrors('content')} ? 'is-invalid'" ></textarea>
+                    <div class="invalid-feedback" th:errors="*{content}"></div>
                 </div>
 
 

@@ -12,7 +12,7 @@ public interface ForumReplyRepository {
 
     List<ForumReply> getForumRepliesByForumPostId(int forumPostId, Map<String, String> params);
 
-    List<ForumReply> getForumRepliesByForumPostIdAndForumReplyId(int forumPostId, int parentId);
+    List<ForumReply> getForumRepliesByForumPostIdAndForumReplyId(int forumPostId, int parentId, Map<String, String> params);
 
     int countForumRepliesByForumPostId(int forumPostId, Map<String, String> params);
 

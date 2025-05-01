@@ -14,21 +14,37 @@ import com.itextpdf.layout.element.Table;
 import com.itextpdf.layout.properties.TextAlignment;
 import com.itextpdf.layout.properties.UnitValue;
 import com.mh.pojo.Classroom;
+import com.mh.pojo.ForumPost;
+import com.mh.pojo.User;
+import com.mh.pojo.dto.ClassroomDTO;
+import com.mh.pojo.dto.ForumPostDTO;
 import com.mh.pojo.dto.GradeDTO;
 import com.mh.pojo.dto.TranscriptDTO;
 import com.mh.services.ClassroomService;
+import com.mh.services.ForumPostService;
 import com.mh.services.GradeDetailService;
+import com.mh.services.UserService;
+import com.mh.validators.WebAppValidator;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
@@ -43,6 +59,24 @@ public class ApiClassroomController {
 
     @Autowired
     private ClassroomService classroomService;
+
+    @Autowired
+    private UserService userService;
+
+    @Autowired
+    private ForumPostService forumPostService;
+
+    @Autowired
+    @Qualifier("webAppValidator")
+    private WebAppValidator webAppValidator;
+
+    @InitBinder
+    public void initBinder(WebDataBinder binder) {
+        binder.setValidator(webAppValidator);
+    }
+
+    @Autowired
+    private MessageSource messageSource;
 
     private void checkLecturerPermission(Integer classroomId) {
         Classroom classroom = classroomService.getClassroomById(classroomId);
@@ -80,8 +114,8 @@ public class ApiClassroomController {
         classroomService.lockClassroomGrades(classroomId);
 
         return ResponseEntity.status(HttpStatus.OK)
-                    .contentType(MediaType.parseMediaType("text/plain; charset=UTF-8"))
-                    .body("Điểm của lớp " + classroomId + " khóa thành công!");
+                .contentType(MediaType.parseMediaType("text/plain; charset=UTF-8"))
+                .body("Điểm của lớp " + classroomId + " khóa thành công!");
     }
 
     @PostMapping("/{classroomId}/grades")
@@ -98,8 +132,8 @@ public class ApiClassroomController {
                     .body("Lỗi: " + e.getMessage());
         }
         return ResponseEntity.status(HttpStatus.OK)
-                    .contentType(MediaType.parseMediaType("text/plain; charset=UTF-8"))
-                    .body("Lưu điểm thành công!");
+                .contentType(MediaType.parseMediaType("text/plain; charset=UTF-8"))
+                .body("Lưu điểm thành công!");
     }
 
     @PostMapping("/{classroomId}/grades/import")
@@ -257,6 +291,86 @@ public class ApiClassroomController {
 
         response.getOutputStream().write(baos.toByteArray());
         response.getOutputStream().flush();
+    }
+
+    @GetMapping("")
+    public ResponseEntity<List<ClassroomDTO>> getClassrooms(@RequestParam Map<String, String> params) {
+        User user = this.userService.getCurrentUser();
+
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        String page = params.get("page");
+
+        if (page == null || page.isEmpty()) {
+            params.put("page", "1");
+        }
+
+        List<Classroom> classrooms = classroomService.getClassroomsByUser(user, params);
+        List<ClassroomDTO> classroomsDto = classrooms.stream().map(ClassroomDTO::new).collect(Collectors.toList());
+
+        return ResponseEntity.ok(classroomsDto);
+    }
+
+    @GetMapping("/{classroomId}/forums")
+    public ResponseEntity<?> getForumsPosts(@RequestParam Map<String, String> params, @PathVariable(value = "classroomId") int classroomId) {
+        User user = this.userService.getCurrentUser();
+
+        boolean check = this.forumPostService.checkForumPostPermission(user.getId(), classroomId);
+        if (!check) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .contentType(MediaType.parseMediaType("text/plain; charset=UTF-8"))
+                    .body("Bạn không có quyền truy cập");
+        }
+
+        String page = params.get("page");
+
+        if (page == null || page.isEmpty()) {
+            params.put("page", "1");
+        }
+
+        params.put("classroom", String.valueOf(classroomId));
+
+        List<ForumPost> forumPosts = this.forumPostService.getForumPosts(params);
+
+        return ResponseEntity.ok(forumPosts);
+    }
+
+    @PostMapping("/{classroomId}/forums")
+    public ResponseEntity<?> addForumsPost(@ModelAttribute @Valid ForumPostDTO forumPostDTO, BindingResult result,
+            @PathVariable(value = "classroomId") int classroomId) {
+        if (result.hasErrors()) {
+            List<Map<String, String>> errors = result.getFieldErrors().stream()
+                    .map(error -> {
+                        Map<String, String> err = new HashMap<>();
+                        err.put("field", error.getField());
+                        err.put("message", error.getDefaultMessage() != null ? error.getDefaultMessage()
+                                : messageSource.getMessage(error.getCode(), null, Locale.ITALY));
+                        return err;
+                    })
+                    .collect(Collectors.toList());
+
+            return ResponseEntity.badRequest().body(errors);
+        }
+
+        User user = this.userService.getCurrentUser();
+
+        boolean check = this.forumPostService.checkForumPostPermission(user.getId(), classroomId);
+        if (!check) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .contentType(MediaType.parseMediaType("text/plain; charset=UTF-8"))
+                    .body("Bạn không có quyền truy cập");
+        }
+
+        ForumPost forumPost = new ForumPost();
+        forumPost.setTitle(forumPostDTO.getTitle());
+        forumPost.setContent(forumPostDTO.getContent());
+        forumPost.setFile(forumPostDTO.getFile());
+        forumPost.setUser(user);
+        forumPost.setClassroom(this.classroomService.getClassroomById(classroomId));
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(this.forumPostService.saveForumPost(forumPost));
     }
 
 }

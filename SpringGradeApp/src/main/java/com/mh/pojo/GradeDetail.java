@@ -4,6 +4,7 @@
  */
 package com.mh.pojo;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.Basic;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -47,13 +48,15 @@ public class GradeDetail implements Serializable {
     @Basic(optional = false)
     @Column(name = "id")
     private Integer id;
-    @Max(value=10)  @Min(value=0)//if you know range of your decimal fields consider using these annotations to enforce field validation
+    @Max(value = 10)
+    @Min(value = 0)//if you know range of your decimal fields consider using these annotations to enforce field validation
     @Column(name = "final_grade")
     private Double finalGrade;
     @Column(name = "midterm_grade")
     private Double midtermGrade;
     @Column(name = "updated_date")
     @Temporal(TemporalType.TIMESTAMP)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy HH:mm:ss", timezone = "UTC")
     private Date updatedDate;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "gradeDetail", fetch = FetchType.EAGER, orphanRemoval = true)
     @OrderBy("gradeIndex ASC")
@@ -163,5 +166,5 @@ public class GradeDetail implements Serializable {
     public String toString() {
         return "com.mh.pojo.GradeDetail[ id=" + id + " ]";
     }
-    
+
 }
