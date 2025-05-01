@@ -222,7 +222,7 @@ public class GradeDetailServiceImpl implements GradeDetailService {
     }
 
     private Double checkValidGrade(Double grade) {
-        if (grade < 0 || grade > 10) {
+        if (grade != null && (grade < 0 || grade > 10)) {
             throw new IllegalArgumentException("Điểm phải nằm trong khoảng từ 0 đến 10.");
         }
         return grade;
@@ -274,6 +274,7 @@ public class GradeDetailServiceImpl implements GradeDetailService {
         }
     }
 
+    @Override
     public List<GradeDTO> getGradesByClassroom(Integer classroomId) {
         Set<Student> students = classroomService.getClassroomWithStudents(classroomId).getStudentSet();
         List<GradeDTO> result = new ArrayList<>();

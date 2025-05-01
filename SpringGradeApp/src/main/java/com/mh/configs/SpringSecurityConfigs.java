@@ -31,7 +31,6 @@ import org.springframework.context.support.ResourceBundleMessageSource;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
@@ -51,17 +50,10 @@ import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
     "com.mh.controllers",
     "com.mh.repositories",
     "com.mh.services",
-    "com.mh.validators"
+    "com.mh.validators",
+    "com.mh.utils"
 })
 public class SpringSecurityConfigs {
-
-    Dotenv dotenv = Dotenv.load();
-    String cloudName = dotenv.get("CLOUD_NAME");
-    String apiKey = dotenv.get("API_KEY");
-    String apiSecret = dotenv.get("API_SECRET");
-
-    @Autowired
-    private UserDetailsService userDetailsService;
 
     @Autowired
     private ClassroomValidator classroomValidator;
@@ -126,13 +118,13 @@ public class SpringSecurityConfigs {
 
     @Bean
     public Cloudinary cloudinary() {
-        Cloudinary cloudinary
-                = new Cloudinary(ObjectUtils.asMap(
-                        "cloud_name", cloudName,
-                        "api_key", apiKey,
-                        "api_secret", apiSecret,
-                        "secure", true));
-        return cloudinary;
+        Dotenv dotenv = Dotenv.load();
+        return new Cloudinary(ObjectUtils.asMap(
+                "cloud_name", dotenv.get("CLOUD_NAME"),
+                "api_key", dotenv.get("API_KEY"),
+                "api_secret", dotenv.get("API_SECRET"),
+                "secure", true
+        ));
     }
 
     @Bean

@@ -5,13 +5,22 @@
 package com.mh.services.Impl;
 
 import com.mh.pojo.Classroom;
+import com.mh.pojo.ExtraGrade;
+import com.mh.pojo.GradeDetail;
+import com.mh.pojo.Student;
 import com.mh.pojo.User;
 import com.mh.repositories.ClassroomRepository;
 import com.mh.services.ClassroomService;
+import com.mh.services.GradeDetailService;
+import com.mh.utils.MailUtils;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 /**
  *
@@ -21,7 +30,13 @@ import org.springframework.stereotype.Service;
 public class ClassroomServiceImpl implements ClassroomService {
 
     @Autowired
-    ClassroomRepository classroomRepo;
+    private ClassroomRepository classroomRepo;
+    
+    @Autowired
+    private GradeDetailService gradeDetailService;
+    
+    @Autowired
+    private MailUtils mailUtils;
 
     @Override
     public Classroom saveClassroom(Classroom classroom) {
@@ -76,6 +91,54 @@ public class ClassroomServiceImpl implements ClassroomService {
     @Override
     public boolean existUserInClassroom(int userId, int classRoomId) {
         return this.classroomRepo.existUserInClassroom(userId, classRoomId);
+    }
+    
+    @Override
+    public void lockClassroomGrades(Integer classroomId) {
+        Classroom classroom = this.getClassroomWithStudents(classroomId);
+        Set<Student> students = classroom.getStudentSet();
+
+        if (students.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Không có sinh viên trong lớp này.");
+        }
+
+        for (Student student : students) {
+            Map<String, Integer> params = new HashMap<>();
+            params.put("classroomId", classroomId);
+            params.put("studentId", student.getId());
+            List<GradeDetail> gradeDetails = gradeDetailService.getGradeDetail(params);
+            if (gradeDetails == null) {
+                return;
+            }
+            GradeDetail gradeDetail = gradeDetails.get(0);
+            if (gradeDetail == null
+                    || gradeDetail.getMidtermGrade() == null
+                    || gradeDetail.getFinalGrade() == null) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Chưa nhập đầy đủ điểm cho tất cả sinh viên.");
+            }
+
+            if (gradeDetail.getExtraGradeSet() != null) {
+                for (ExtraGrade extra : gradeDetail.getExtraGradeSet()) {
+                    if (extra.getGrade() == null) {
+                        throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Chưa nhập đầy đủ điểm cho tất cả sinh viên.");
+                    }
+                }
+            }
+        }
+
+        classroom.setGradeStatus("LOCKED");
+        this.saveClassroom(classroom);
+
+        // Gửi email thông báo bất đồng bộ cho từng sinh viên
+        for (Student student : students) {
+            User user = student.getUser();
+            if (user != null && user.getEmail() != null) {
+                String subject = "Thông báo khóa điểm lớp " + classroom.getName();
+                String body = String.format("Chào %s %s,\n\nBảng điểm lớp %s đã được công bố.\nVui lòng kiểm tra điểm của bạn trên hệ thống.",
+                        user.getLastName(), user.getFirstName(), classroom.getName());
+                mailUtils.sendEmailAsync(user.getEmail(), subject, body);
+            }
+        }
     }
 
     @Override
