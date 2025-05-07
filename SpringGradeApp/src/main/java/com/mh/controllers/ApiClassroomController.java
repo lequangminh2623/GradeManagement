@@ -172,35 +172,34 @@ public class ApiClassroomController {
                 .mapToInt(g -> g.getExtraGrades() != null ? g.getExtraGrades().size() : 0)
                 .max().orElse(0);
 
-        PrintWriter writer = response.getWriter();
-
-        writer.print("studentId,midtermGrade,finalGrade");
-        for (int i = 1; i <= maxExtra; i++) {
-            writer.print(",extra" + i);
-        }
-        writer.println();
-
-        for (GradeDTO grade : gradeList) {
-            writer.print(grade.getStudentId() + ","
-                    + grade.getMidtermGrade() + ","
-                    + grade.getFinalGrade());
-
-            List<Double> extras = grade.getExtraGrades();
-            if (extras == null) {
-                extras = new ArrayList<>();
-            }
-            for (int i = 0; i < maxExtra; i++) {
-                if (i < extras.size()) {
-                    writer.print("," + extras.get(i));
-                } else {
-                    writer.print(",");
-                }
+        try (PrintWriter writer = response.getWriter()) {
+            writer.print("studentId,midtermGrade,finalGrade");
+            for (int i = 1; i <= maxExtra; i++) {
+                writer.print(",extra" + i);
             }
             writer.println();
-        }
+            
+            for (GradeDTO grade : gradeList) {
+                writer.print(grade.getStudentId() + ","
+                        + grade.getMidtermGrade() + ","
+                        + grade.getFinalGrade());
+                
+                List<Double> extras = grade.getExtraGrades();
+                if (extras == null) {
+                    extras = new ArrayList<>();
+                }
+                for (int i = 0; i < maxExtra; i++) {
+                    if (i < extras.size()) {
+                        writer.print("," + extras.get(i));
+                    } else {
+                        writer.print(",");
+                    }
+                }
+                writer.println();
+            }
 
-        writer.flush();
-        writer.close();
+            writer.flush();
+        }
     }
 
     @GetMapping("/{classroomId}/grades/export/pdf")
