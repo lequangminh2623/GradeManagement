@@ -1,14 +1,17 @@
 import { useEffect, useState } from "react";
 import { Alert, Button, Card, Col, Row } from "react-bootstrap";
-import{ authApis, endpoints } from "../configs/Apis";
+import { authApis, endpoints } from "../configs/Apis";
 import { useSearchParams } from "react-router-dom";
 import MySpinner from "./layouts/MySpinner";
+import { useNavigate } from "react-router-dom";
+
 
 const ClassroomList = () => {
     const [classrooms, setClassrooms] = useState([]);
     const [page, setPage] = useState(1);
     const [loading, setLoading] = useState(false);
     const [q] = useSearchParams();
+    const navigate = useNavigate();
 
     const loadClassrooms = async () => {
         try {
@@ -26,7 +29,7 @@ const ClassroomList = () => {
                 url += `&sortBy=${sortBy}`;
             }
 
-            const res = await  authApis().get(url);
+            const res = await authApis().get(url);
             const data = res.data;
 
             if (data.length === 0) {
@@ -77,17 +80,23 @@ const ClassroomList = () => {
                         <Card>
                             <Card.Body>
                                 <Card.Title>{c.name}</Card.Title>
-                                <Card.Text>{c.description}</Card.Text>
-                                <Button 
-                                    variant="primary" 
-                                    className="me-2" 
-                                    href={`/classrooms/${c.id}`}>
-                                    Xem chi tiết
+
+                                <Card.Text>
+                                    <strong>Trạng thái điểm:</strong> {c.gradeStatus}<br />
+                                    <strong>Học phần:</strong> {c.course?.name}<br />
+                                    <strong>Học kỳ:</strong> {c.semester?.academicYear.year + ' - ' + c.semester?.semesterType}<br />
+                                    <strong>Giảng viên:</strong> {c.lecturer?.lastName} {c.lecturer?.firstName}
+                                </Card.Text>
+
+                                <Button
+                                    variant="primary"
+                                    className="me-2"
+                                    onClick={() => navigate(`/classrooms/${c.id}`)}>
+                                    Quản lý điểm
                                 </Button>
-                                <Button variant="secondary">
-                                    Quản lý sinh viên
-                                </Button>
+
                             </Card.Body>
+
                         </Card>
                     </Col>
                 ))}
