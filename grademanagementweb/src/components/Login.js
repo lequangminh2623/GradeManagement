@@ -15,6 +15,7 @@ const Login = () => {
     const [user, setUser] = useState({});
     const [msg, setMsg] = useState();
     const [loading, setLoading] = useState(false);
+    const [fieldErrors, setFieldErrors] = useState({});
     const nav = useNavigate();
     const dispatch = useContext(MyDispatcherContext);
 
@@ -22,79 +23,112 @@ const Login = () => {
         setUser({ ...user, [field]: value });
     };
 
+    const validate = () => {
+        for (let i of info) {
+            if (!(i.field in user) || user[i.field] === '') {
+                setFieldErrors({ [i.field]: `${i.title} không được để trống` })
+                return false
+            }
+        }
+
+        return true
+    }
+
     const login = async (e) => {
         e.preventDefault();
-        try {
-            setLoading(true);
+        setMsg('')
+        setFieldErrors({})
 
-            let res = await Apis.post(endpoints['login'], {
-                ...user
-            });
-            cookie.save('token', res.data.token);
+        if (validate() === true) {
+            try {
+                setLoading(true);
 
-            let u = await authApis().get(endpoints['profile']);
+                let res = await Apis.post(endpoints['login'], {
+                    ...user
+                });
+                cookie.save('token', res.data.token);
 
-            dispatch({
-                type: "login",
-                payload: u.data
-            });
+                let u = await authApis().get(endpoints['profile']);
 
-            nav("/");
-        } catch (ex) {
-            console.error(ex);
-            setMsg("Đăng nhập thất bại. Vui lòng kiểm tra thông tin!");
-        } finally {
-            setLoading(false);
+                dispatch({
+                    type: "login",
+                    payload: u.data
+                });
+
+                nav("/");
+            } catch (ex) {
+                if (ex.response?.status === 401) {
+                    const errs = ex.response.data;
+                    setMsg(errs);
+                } else {
+                    setMsg("Lỗi hệ thống hoặc kết nối.");
+                }
+            } finally {
+                setLoading(false);
+            }
         }
     };
 
     return (
         <Container className="d-flex justify-content-center align-items-center" style={{ minHeight: "100vh" }}>
             <Row className="w-75">
-                <Col md={{ span: 6, offset: 3 }}>
-                    <Card className="shadow rounded-4">
-                        <Card.Body>
-                            <h1 className="text-center text-primary mt-1">Đăng nhập</h1>
-
-                            {msg && <Alert variant="danger">{msg}</Alert>}
-
-                            <Form onSubmit={login}>
-                                {info.map(i => (
-                                    <Form.Group className="mt-3" key={i.field}>
-                                        <Form.Label>{i.title}</Form.Label>
-                                        <Form.Control
-                                            value={user[i.field] || ""}
-                                            onChange={e => setState(e.target.value, i.field)}
-                                            type={i.type}
-                                            placeholder={i.title}
-                                            required
-                                        />
-                                    </Form.Group>
-                                ))}
-
-                                <div className="d-grid gap-2 mt-4">
-                                    {loading ? <MySpinner /> :
-                                        <Button type="submit" variant="primary">
-                                            Đăng nhập
-                                        </Button>
-                                    }
-                                </div>
-                            </Form>
-
-                            <hr className="my-4" />
-
-                            <div className="d-grid gap-2">
-                                <Button className="d-flex justify-content-center align-items-center" variant="outline-secondary"
-                                    onClick={() => console.log('google')}>
-                                    <FcGoogle className="me-1" /> Đăng nhập với Google
-                                </Button>
-
-                                <div className="text-center">
-                                    Chưa có tài khoản? <Link to="/register" style={{ textDecoration: 'none' }}>Đăng ký</Link>
-                                </div>
+                <Col md={{ span: 12, offset: 0 }}>
+                    <Row className="align-items-center">
+                        <Col md={6}>
+                            <div>
+                                <p className="text-primary display-2"><strong>Grade</strong></p>
+                                <h4>Hệ thống quản lý điểm sinh viên</h4>
                             </div>
-                        </Card.Body>
-                    </Card>
+                        </Col>
+                        <Col md={6}>
+                            <Card className="shadow rounded-4">
+                                <Card.Body>
+                                    <h1 className="text-center text-primary mt-1">Đăng nhập</h1>
+
+                                    {msg && <Alert variant="danger">{msg}</Alert>}
+
+                                    <Form onSubmit={login}>
+                                        {info.map((i) => (
+                                            <Form.Group className="mt-3" key={i.field}>
+                                                <Form.Label>{i.title}</Form.Label>
+                                                <Form.Control
+                                                    type={i.type}
+                                                    placeholder={i.title}
+                                                    value={user[i.field] || ""}
+                                                    onChange={e => setState(e.target.value, i.field)}
+                                                    isInvalid={!!fieldErrors[i.field]}
+                                                />
+                                                <Form.Control.Feedback type="invalid">
+                                                    {fieldErrors[i.field]}
+                                                </Form.Control.Feedback>
+                                            </Form.Group>
+                                        ))}
+
+                                        <div className="d-grid gap-2 mt-4">
+                                            {loading ? <MySpinner /> :
+                                                <Button type="submit" variant="primary">
+                                                    Đăng nhập
+                                                </Button>
+                                            }
+                                        </div>
+                                    </Form>
+
+                                    <hr className="my-4" />
+
+                                    <div className="d-grid gap-2">
+                                        <Button className="d-flex justify-content-center align-items-center" variant="outline-secondary"
+                                            onClick={() => console.log('google')}>
+                                            <FcGoogle className="me-1" /> Đăng nhập với Google
+                                        </Button>
+
+                                        <div className="text-center">
+                                            Chưa có tài khoản? <Link to="/register" style={{ textDecoration: 'none' }}>Đăng ký</Link>
+                                        </div>
+                                    </div>
+                                </Card.Body>
+                            </Card>
+                        </Col>
+                    </Row>
                 </Col>
             </Row>
         </Container>

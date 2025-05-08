@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Alert, Button, Card, Col, Row } from "react-bootstrap";
+import { Alert, Button, Card, Col, Container, Row } from "react-bootstrap";
 import { authApis, endpoints } from "../configs/Apis";
 import { useSearchParams } from "react-router-dom";
 import MySpinner from "./layouts/MySpinner";
@@ -66,15 +66,15 @@ const ClassroomList = () => {
     };
 
     return (
-        <>
+        <Container className="p-3" style={{ minHeight: "100vh" }}>
+
             {classrooms.length === 0 && !loading && (
                 <Alert variant="info" className="m-2">
                     Không có lớp học nào!
                 </Alert>
             )}
 
-            {/* danh sách lớp */}
-            <Row className="gy-3">
+            <Row className="w-100 gy-3">
                 {classrooms.map(c => (
                     <Col key={c.id} md={4} xs={6} className="p-2">
                         <Card>
@@ -111,7 +111,7 @@ const ClassroomList = () => {
             )}
 
             {loading && <MySpinner />}
-        </>
+        </Container>
     );
 };
 

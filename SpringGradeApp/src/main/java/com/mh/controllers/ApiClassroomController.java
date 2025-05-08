@@ -69,6 +69,15 @@ public class ApiClassroomController {
     @Autowired
     private MessageSource messageSource;
 
+    @Autowired
+    @Qualifier("webAppValidator")
+    private WebAppValidator webAppValidator;
+
+    @InitBinder
+    public void initBinder(WebDataBinder binder) {
+        binder.setValidator(webAppValidator);
+    }
+
     private void checkLecturerPermission(Integer classroomId) {
         Classroom classroom = classroomService.getClassroomById(classroomId);
 
@@ -169,12 +178,12 @@ public class ApiClassroomController {
                 writer.print(",extra" + i);
             }
             writer.println();
-            
+
             for (GradeDTO grade : gradeList) {
                 writer.print(grade.getStudentId() + ","
                         + grade.getMidtermGrade() + ","
                         + grade.getFinalGrade());
-                
+
                 List<Double> extras = grade.getExtraGrades();
                 if (extras == null) {
                     extras = new ArrayList<>();
