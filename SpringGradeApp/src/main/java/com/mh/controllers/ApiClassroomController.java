@@ -67,15 +67,6 @@ public class ApiClassroomController {
     private ForumPostService forumPostService;
 
     @Autowired
-    @Qualifier("webAppValidator")
-    private WebAppValidator webAppValidator;
-
-    @InitBinder
-    public void initBinder(WebDataBinder binder) {
-        binder.setValidator(webAppValidator);
-    }
-
-    @Autowired
     private MessageSource messageSource;
 
     private void checkLecturerPermission(Integer classroomId) {

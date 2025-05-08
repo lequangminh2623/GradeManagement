@@ -42,7 +42,7 @@ const Header = () => {
                                     roundedCircle
                                     style={{ width: "80px", height: "80px" }}
                                 />
-                                <p className="mt-2 mb-1 fw-bold">{`${user.lastName}${user.firstName}`}</p>
+                                <p className="mt-2 mb-1 fw-bold">{`${user.lastName} ${user.firstName}`}</p>
                             </div>
                             <NavDropdown.Item as={Link} to="/profile">Quản lý tài khoản</NavDropdown.Item>
                             <NavDropdown.Divider />

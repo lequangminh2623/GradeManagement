@@ -10,6 +10,7 @@ import { MyDispatcherContext, MyUserContext } from "./configs/MyContexts";
 import { useReducer } from "react";
 import MyUserReducer from "./reducers/MyUserReducer";
 import Register from './components/Register';
+import ClassroomDetail from './components/ClassroomDetail';
 
 const App = () => {
   const [user, dispatch] = useReducer(MyUserReducer, null);
@@ -32,6 +33,8 @@ const App = () => {
                       <Routes>
                         <Route path="/" element={user ? <Home /> : <Navigate to="/login" />} />
                         <Route path="/classrooms" element={user ? <Classrooms /> : <Navigate to="/login" />} />
+                        <Route
+                          path="/classrooms/:classroomId" element={user ? <ClassroomDetail /> : <Navigate to="/login" />} />
                       </Routes>
                     </Container>
                   </div>

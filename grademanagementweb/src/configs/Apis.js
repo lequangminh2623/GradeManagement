@@ -8,6 +8,11 @@ export const endpoints = {
     'register': '/users',
     'login': '/login',
     'profile': '/secure/profile',
+    'classroom-details': (classroomId) => `/secure/classrooms/${classroomId}/grades`,
+    'classroom-import': (classroomId) => `/secure/classrooms/${classroomId}/grades/import`,
+    'classroom-lock': (classroomId) => `/secure/classrooms/${classroomId}/lock`,
+    'export-csv': (classroomId) => `/secure/classrooms/${classroomId}/grades/export/csv`,
+    'export-pdf': (classroomId) => `/secure/classrooms/${classroomId}/grades/export/pdf`,
 }
 
 export const authApis = () => {
