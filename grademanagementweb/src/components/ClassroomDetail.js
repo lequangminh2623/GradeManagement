@@ -4,7 +4,6 @@ import { useParams } from "react-router-dom";
 import { authApis, endpoints } from "../configs/Apis";
 import MySpinner from "./layouts/MySpinner";
 import { FaSave, FaPlus, FaTimes, FaUpload, FaLock, FaFileCsv, FaFilePdf } from "react-icons/fa";
-import { useNavigate } from 'react-router-dom';
 
 const MAX_EXTRA_GRADES = 3;
 
@@ -24,8 +23,6 @@ const ClassroomDetail = () => {
     const [loading, setLoading] = useState(false);
 
     const displayCount = Math.max(extraCount, 1);
-
-    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchTranscript = async () => {

@@ -66,15 +66,6 @@ public class ApiClassroomController {
     @Autowired
     private MessageSource messageSource;
 
-    @Autowired
-    @Qualifier("webAppValidator")
-    private WebAppValidator webAppValidator;
-
-    @InitBinder
-    public void initBinder(WebDataBinder binder) {
-        binder.setValidator(webAppValidator);
-    }
-
     private void checkLecturerPermission(Integer classroomId) {
         Classroom classroom = classroomService.getClassroomById(classroomId);
 

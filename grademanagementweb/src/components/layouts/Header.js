@@ -45,6 +45,9 @@ const Header = () => {
             <Link to="/classrooms" className="nav-link">
               Lớp học
             </Link>
+            <Link to="/chatbox" className="nav-link">
+              Nhắn tin
+            </Link>
             <NavDropdown title="Tiện ích" className="text-secondary">
               <NavDropdown.Item as={Link} to="/">
                 ABC
