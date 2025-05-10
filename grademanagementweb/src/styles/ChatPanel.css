@@ -11,6 +11,9 @@
 }
 
 .chat-history {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
     flex: 1;
     padding: 12px;
     overflow-y: auto;
@@ -18,20 +21,25 @@
 }
 
 .msg {
-    max-width: 60%;
+    display: inline-block;
+    /* Bọc vừa nội dung */
+    max-width: 70%;
+    /* Giới hạn tối đa (có thể điều chỉnh %) */
     margin-bottom: 8px;
     padding: 8px 12px;
     border-radius: 16px;
     word-break: break-word;
+    white-space: pre-wrap;
+    /* Hỗ trợ xuống dòng theo nội dung */
 }
 
 .msg.own {
-    margin-left: auto;
+    align-self: flex-end;
     background: #dcf8c6;
 }
 
 .msg.other {
-    margin-right: auto;
+    align-self: flex-start;
     background: #fff;
 }
 

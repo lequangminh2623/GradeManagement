@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext } from "react";
+import React, { useEffect, useState, useContext, useCallback } from "react";
 import Apis, { endpoints } from "../configs/Apis";
 import Sidebar from "./Sidebar";
 import ChatPanel from "./ChatPanel";
@@ -16,7 +16,7 @@ export default function ChatBox() {
   const [loading, setLoading] = useState(false);
   const [q] = useSearchParams();
 
-  const fetchUsers = async () => {
+  const fetchUsers = useCallback(async () => {
     try {
       setLoading(true);
       let url = `${endpoints['users']}?page=${page}`;
@@ -37,17 +37,16 @@ export default function ChatBox() {
       }
     } catch (err) {
       console.error("Error fetching users:", err);
-    }
-    finally {
+    } finally {
       setLoading(false);
     }
-  };
+  }, [page, q]);
 
   useEffect(() => {
     if (page > 0) {
       fetchUsers();
     }
-  }, [page, q]);
+  }, [page, fetchUsers]);
 
   useEffect(() => {
     setPage(1);

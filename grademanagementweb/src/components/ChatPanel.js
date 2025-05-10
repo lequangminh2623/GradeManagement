@@ -4,8 +4,6 @@ import {
   collection,
   addDoc,
   onSnapshot,
-  query,
-  orderBy,
   serverTimestamp,
   doc,
   setDoc
@@ -18,7 +16,7 @@ export default function ChatPanel({ selectedUser }) {
   const [text, setText] = useState("");
   const [messages, setMessages] = useState([]);
   const endRef = useRef();
-
+  const chatHistoryRef = useRef();
   const current = user.email;
   const other = selectedUser.email;
   const chatId = [current, other].sort().join("_");
@@ -26,14 +24,26 @@ export default function ChatPanel({ selectedUser }) {
   const messagesColl = collection(db, "chats", chatId, "messages");
 
   useEffect(() => {
-    const q = query(messagesColl, orderBy("timestamp"));
-    const unsub = onSnapshot(q, snap => {
-      setMessages(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+    if (!selectedUser) return;
+
+    const chatId = [current, selectedUser.email].sort().join("_");
+    const messagesColl = collection(db, "chats", chatId, "messages");
+
+    const unsubscribe = onSnapshot(messagesColl, snapshot => {
+      const msgs = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      msgs.sort((a, b) => a.timestamp?.toMillis() - b.timestamp?.toMillis());
+      setMessages(msgs);
     });
-    return () => unsub();
-  }, [selectedUser]);
+
+    return () => unsubscribe();
+  }, [selectedUser, current]);
 
   useEffect(() => {
+    const chatHistory = chatHistoryRef.current;
+    if (!chatHistory) return;
     endRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
@@ -59,6 +69,7 @@ export default function ChatPanel({ selectedUser }) {
     );
 
     setText("");
+    endRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
   return (
@@ -66,7 +77,7 @@ export default function ChatPanel({ selectedUser }) {
       <div className="chat-header">
         <h5>{`${selectedUser.lastName} ${selectedUser.firstName}`}</h5>
       </div>
-      <div className="chat-history">
+      <div className="chat-history" ref={chatHistoryRef}>
         {messages.map(m => (
           <div
             key={m.id}

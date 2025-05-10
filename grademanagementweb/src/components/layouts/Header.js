@@ -46,7 +46,7 @@ const Header = () => {
               Lớp học
             </Link>
             <Link to="/chatbox" className="nav-link">
-              Nhắn tin
+              Tin nhắn
             </Link>
             <NavDropdown title="Tiện ích" className="text-secondary">
               <NavDropdown.Item as={Link} to="/">
