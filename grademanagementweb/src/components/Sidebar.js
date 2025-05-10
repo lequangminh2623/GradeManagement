@@ -10,10 +10,21 @@ export default function Sidebar({
   previews = {},
   onEndReach
 }) {
+
+  const loadingRef = React.useRef(false);
+
   const handleScroll = (e) => {
-    const { scrollTop, scrollHeight, clientHeight } = e.target;
-    if (scrollHeight - scrollTop >= clientHeight) {
-      onEndReach();
+    const { scrollTop, scrollHeight, clientHeight } = e.currentTarget;
+    if (
+      !loadingRef.current &&
+      scrollHeight > clientHeight &&
+      scrollTop + clientHeight >= scrollHeight - 10
+    ) {
+      loadingRef.current = true;
+      Promise.resolve(onEndReach())
+        .finally(() => {
+          loadingRef.current = false;
+        });
     }
   };
 

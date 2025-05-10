@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { Alert, Button, Card, Col, Container, Row } from "react-bootstrap";
 import { authApis, endpoints } from "../configs/Apis";
 import { useSearchParams } from "react-router-dom";
@@ -13,7 +13,7 @@ const ClassroomList = () => {
     const [q] = useSearchParams();
     const navigate = useNavigate();
 
-    const loadClassrooms = async () => {
+    const loadClassrooms = useCallback(async () => {
         try {
             setLoading(true);
 
@@ -46,13 +46,13 @@ const ClassroomList = () => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [page, q]);
 
     useEffect(() => {
         if (page > 0) {
             loadClassrooms();
         }
-    }, [page, q]);
+    }, [page, q, loadClassrooms]);
 
     useEffect(() => {
         setPage(1);
