@@ -1,5 +1,5 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
+import { BrowserRouter, Route, Routes, Navigate, useLocation } from "react-router-dom";
 import Footer from "./components/layouts/Footer";
 import Header from "./components/layouts/Header";
 import Home from "./components/Home";
@@ -11,6 +11,7 @@ import { useReducer } from "react";
 import MyUserReducer from "./reducers/MyUserReducer";
 import Register from './components/Register';
 import ClassroomDetail from './components/ClassroomDetail';
+import RegisterGoogle from './components/RegisterGoogle';
 
 const App = () => {
   const [user, dispatch] = useReducer(MyUserReducer, null);

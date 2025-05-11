@@ -68,6 +68,8 @@ public class UserServiceImpl implements UserService {
     public User saveUser(User user) {
         if (user.getPassword() == null) {
             user.setPassword(this.passwordEncoder.encode("1"));
+        } else {
+            user.setPassword(this.passwordEncoder.encode(user.getPassword()));
         }
         if (user.getCreatedDate() == null) {
             user.setCreatedDate(new Date());

@@ -7,6 +7,7 @@ export const endpoints = {
     'classrooms': '/secure/classrooms',
     'register': '/users',
     'login': '/login',
+    'login-google': '/auth/google',
     'profile': '/secure/profile',
     'classroom-details': (classroomId) => `/secure/classrooms/${classroomId}/grades`,
     'classroom-import': (classroomId) => `/secure/classrooms/${classroomId}/grades/import`,

@@ -6,6 +6,8 @@ import { Link, useNavigate } from "react-router-dom";
 import cookie from 'react-cookies';
 import { MyDispatcherContext } from "../configs/MyContexts";
 import { FcGoogle } from "react-icons/fc";
+import { GoogleLogin } from "@react-oauth/google";
+import { jwtDecode } from "jwt-decode";
 
 const Login = () => {
     const info = [
@@ -69,6 +71,39 @@ const Login = () => {
         }
     };
 
+    const handleLoginGoogle = async (credentialResponse) => {
+        const decoded = jwtDecode(credentialResponse.credential);
+
+        try {
+            const res = await Apis.post(endpoints['login-google'], {
+                token: credentialResponse.credential,
+            });
+
+            if (res.data.isNewUser) {
+                nav("/register", { state: { newUser: res.data } });
+            } else {
+                cookie.save('token', res.data.token);
+
+                console.log(res.data.token)
+                let u = await authApis().get(endpoints['profile']);
+
+                dispatch({
+                    type: "login",
+                    payload: u.data
+                });
+
+                nav("/");
+            }
+        } catch (ex) {
+            if (ex.response?.status === 403) {
+                const errs = ex.response.data;
+                setMsg(errs);
+            } else {
+                setMsg("Lỗi hệ thống hoặc kết nối.");
+            }
+        }
+    };
+
     return (
         <Container className="d-flex justify-content-center align-items-center" style={{ minHeight: "100vh" }}>
             <Row className="w-75">
@@ -116,10 +151,8 @@ const Login = () => {
                                     <hr className="my-4" />
 
                                     <div className="d-grid gap-2">
-                                        <Button className="d-flex justify-content-center align-items-center" variant="outline-secondary"
-                                            onClick={() => console.log('google')}>
-                                            <FcGoogle className="me-1" /> Đăng nhập với Google
-                                        </Button>
+                                        <GoogleLogin
+                                            onSuccess={handleLoginGoogle} onError={() => console.log('Login Failed')} />
 
                                         <div className="text-center">
                                             Chưa có tài khoản? <Link to="/register" style={{ textDecoration: 'none' }}>Đăng ký</Link>

@@ -2,81 +2,93 @@ import { useRef, useState } from "react";
 import { Alert, Button, Card, Col, Container, Form, Row } from "react-bootstrap";
 import Apis, { endpoints } from "../configs/Apis";
 import MySpinner from "./layouts/MySpinner";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { FcGoogle } from "react-icons/fc";
 
 const Register = () => {
-    const [user, setUser] = useState({});
+    const location = useLocation();
+    const isGoogleRegister = !!location.state?.newUser;
+    const [user, setUser] = useState(location.state?.newUser || {});
     const avatar = useRef();
     const [msg, setMsg] = useState();
     const [fieldErrors, setFieldErrors] = useState({});
     const [loading, setLoading] = useState(false);
     const nav = useNavigate();
 
-    const info = [{
-        title: "Tên",
-        field: "firstName",
-        type: "text"
-    },
-    {
-        title: "Email",
-        field: "email",
-        type: "email"
-    }, {
-        title: "Họ và tên lót",
-        field: "lastName",
-        type: "text"
-    }, {
-        title: "Mật khẩu",
-        field: "password",
-        type: "password"
-    }, {
-        title: "Mã số sinh viên",
-        field: "code",
-        type: "text"
-    }, {
-        title: "Xác nhận mật khẩu",
-        field: "confirm",
-        type: "password"
-    }];
+    const info = [
+        {
+            title: "Tên",
+            field: "firstName",
+            type: "text",
+            disabled: isGoogleRegister
+        }, {
+            title: "Email",
+            field: "email",
+            type: "email",
+            disabled: isGoogleRegister
+        }, {
+            title: "Họ và tên lót",
+            field: "lastName",
+            type: "text",
+            disabled: isGoogleRegister
+        }, {
+            title: "Mật khẩu",
+            field: "password",
+            type: "password",
+            disabled: false
+        }, {
+            title: "Mã số sinh viên",
+            field: "code",
+            type: "text",
+            disabled: false
+        }, {
+            title: "Xác nhận mật khẩu",
+            field: "confirm",
+            type: "password",
+            disabled: false
+        }
+    ];
 
     const setState = (value, field) => {
         setUser({ ...user, [field]: value });
-    }
+    };
 
     const validate = () => {
         for (let i of info) {
             if (!(i.field in user) || user[i.field] === '') {
-                setFieldErrors({ [i.field]: `${i.title} không được để trống` })
-                return false
+                setFieldErrors({ [i.field]: `${i.title} không được để trống` });
+                return false;
             }
         }
 
-        if (!avatar.current?.files[0]) {
+        if (!isGoogleRegister && !avatar.current?.files[0]) {
             setFieldErrors({ avatar: "Cần có ảnh đại diện" });
             return false;
         }
 
         if (user.password !== user.confirm) {
-            setFieldErrors({ 'confirm': `Mật khẩu không khớp!` })
-            return false
+            setFieldErrors({ confirm: `Mật khẩu không khớp!` });
+            return false;
         }
-        return true
-    }
+
+        return true;
+    };
 
     const register = async (e) => {
         e.preventDefault();
-        setMsg('')
-        setFieldErrors({})
+        setMsg('');
+        setFieldErrors({});
 
         if (validate() === true) {
             let form = new FormData();
             for (let key in user) {
-                if (key !== 'confirm')
-                    form.append(key, user[key]);
+                if (key !== 'confirm') form.append(key, user[key]);
             }
 
-            form.append("file", avatar.current.files[0]);
+            if (!isGoogleRegister) {
+                form.append("file", avatar.current.files[0]);
+            }
+
             try {
                 setLoading(true);
 
@@ -112,10 +124,11 @@ const Register = () => {
 
                     <Card className="shadow rounded-4">
                         <Card.Body>
-                            <h1 className="text-center text-primary mt-1">Đăng ký tài khoản</h1>
+                            <h1 className="text-center text-primary mt-1">
+                                {isGoogleRegister ? "Hoàn tất đăng ký Google" : "Đăng ký tài khoản"}
+                            </h1>
 
                             {msg && <Alert variant="danger">{msg}</Alert>}
-
 
                             <Form onSubmit={register}>
                                 <Row>
@@ -128,6 +141,7 @@ const Register = () => {
                                                     placeholder={i.title}
                                                     value={user[i.field] || ""}
                                                     onChange={e => setState(e.target.value, i.field)}
+                                                    disabled={i.disabled}
                                                     isInvalid={!!fieldErrors[i.field]}
                                                 />
                                                 <Form.Control.Feedback type="invalid">
@@ -141,7 +155,8 @@ const Register = () => {
                                 <Form.Group className="mt-3">
                                     <Form.Label>Avatar</Form.Label>
                                     <Form.Control ref={avatar} type="file" placeholder="Ảnh đại diện"
-                                        isInvalid={!!fieldErrors['avatar']} />
+                                        isInvalid={!!fieldErrors['avatar']}
+                                    />
                                     <Form.Control.Feedback type="invalid">
                                         {fieldErrors['avatar']}
                                     </Form.Control.Feedback>
@@ -156,25 +171,30 @@ const Register = () => {
                                 </div>
                             </Form>
 
-                            <hr className="my-4" />
+                            {!isGoogleRegister && (
+                                <>
+                                    <hr className="my-4" />
+                                    <div className="d-grid gap-2">
+                                        <Button
+                                            className="d-flex justify-content-center align-items-center"
+                                            variant="outline-secondary"
+                                            onClick={() => console.log('google')}
+                                        >
+                                            <FcGoogle className="me-1" /> Đăng nhập với Google
+                                        </Button>
 
-                            <div className="d-grid gap-2">
-                                <Button className="d-flex justify-content-center align-items-center" variant="outline-secondary"
-                                    onClick={() => console.log('google')}>
-                                    <FcGoogle className="me-1" /> Đăng nhập với Google
-                                </Button>
-
-                                <div className="text-center">
-                                    Đã có tài khoản? <Link to="/login" style={{ textDecoration: 'none' }}>Đăng nhập</Link>
-                                </div>
-                            </div>
+                                        <div className="text-center">
+                                            Đã có tài khoản? <Link to="/login" style={{ textDecoration: 'none' }}>Đăng nhập</Link>
+                                        </div>
+                                    </div>
+                                </>
+                            )}
                         </Card.Body>
                     </Card>
                 </Col>
             </Row>
         </Container>
-
-    )
-}
+    );
+};
 
 export default Register;

@@ -85,10 +85,10 @@ public class ApiUserController {
         user.setFirstName(userDTO.getFirstName());
         user.setLastName(userDTO.getLastName());
         user.setEmail(userDTO.getEmail());
-        user.setPassword(this.passwordEncoder.encode(userDTO.getPassword()));
-        user.setActive(true);
+        user.setPassword(userDTO.getPassword());
         user.setFile(userDTO.getFile());
-
+        user.setActive(true);
+        
         Student student = new Student();
         student.setCode(userDTO.getCode());
         student.setUser(user);
