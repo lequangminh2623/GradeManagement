@@ -119,6 +119,7 @@ public class GradeDetailRepositoryImpl implements GradeDetailRepository {
         return count > 0;
     }
 
+    @Override
     public boolean existsByGradeDetailIdAndGradeIndex(Integer gradeDetailId, Integer gradeIndex, Integer currentExtraGradeId) {
         Session session = factory.getObject().getCurrentSession();
         CriteriaBuilder cb = session.getCriteriaBuilder();

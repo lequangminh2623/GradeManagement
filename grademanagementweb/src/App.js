@@ -11,7 +11,7 @@ import { useReducer } from "react";
 import MyUserReducer from "./reducers/MyUserReducer";
 import Register from './components/Register';
 import ClassroomDetail from './components/ClassroomDetail';
-import RegisterGoogle from './components/RegisterGoogle';
+import ChatBox from './components/ChatBox';
 
 const App = () => {
   const [user, dispatch] = useReducer(MyUserReducer, null);
@@ -34,8 +34,8 @@ const App = () => {
                       <Routes>
                         <Route path="/" element={user ? <Home /> : <Navigate to="/login" />} />
                         <Route path="/classrooms" element={user ? <Classrooms /> : <Navigate to="/login" />} />
-                        <Route
-                          path="/classrooms/:classroomId" element={user ? <ClassroomDetail /> : <Navigate to="/login" />} />
+                        <Route path="/classrooms/:classroomId" element={user ? <ClassroomDetail /> : <Navigate to="/login" />} />
+                        <Route path="/chatbox" element={user ? <ChatBox /> : <Navigate to="/login" />} />
                       </Routes>
                     </Container>
                   </div>

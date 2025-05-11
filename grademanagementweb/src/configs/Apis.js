@@ -14,6 +14,7 @@ export const endpoints = {
     'classroom-lock': (classroomId) => `/secure/classrooms/${classroomId}/lock`,
     'export-csv': (classroomId) => `/secure/classrooms/${classroomId}/grades/export/csv`,
     'export-pdf': (classroomId) => `/secure/classrooms/${classroomId}/grades/export/pdf`,
+    'users': '/users',
 }
 
 export const authApis = () => {

@@ -24,7 +24,6 @@ import com.mh.services.ClassroomService;
 import com.mh.services.ForumPostService;
 import com.mh.services.GradeDetailService;
 import com.mh.services.UserService;
-import com.mh.validators.WebAppValidator;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import java.io.ByteArrayOutputStream;
@@ -37,14 +36,12 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
@@ -68,15 +65,6 @@ public class ApiClassroomController {
 
     @Autowired
     private MessageSource messageSource;
-
-    @Autowired
-    @Qualifier("webAppValidator")
-    private WebAppValidator webAppValidator;
-
-    @InitBinder
-    public void initBinder(WebDataBinder binder) {
-        binder.setValidator(webAppValidator);
-    }
 
     private void checkLecturerPermission(Integer classroomId) {
         Classroom classroom = classroomService.getClassroomById(classroomId);

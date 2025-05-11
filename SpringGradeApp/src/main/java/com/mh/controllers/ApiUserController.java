@@ -9,6 +9,7 @@ import com.mh.pojo.User;
 import com.mh.pojo.dto.UserDTO;
 import com.mh.services.UserService;
 import com.mh.utils.JwtUtils;
+import com.mh.utils.PageSize;
 import com.mh.validators.WebAppValidator;
 import jakarta.validation.Valid;
 import java.security.Principal;
@@ -25,14 +26,17 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -118,4 +122,17 @@ public class ApiUserController {
     public ResponseEntity<User> getProfile(Principal principal) {
         return new ResponseEntity<>(this.userDetailsService.getUserByEmail(principal.getName()), HttpStatus.OK);
     }
+
+    @GetMapping(path = "/users", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<User>> listUsers(@RequestParam Map<String, String> params) {
+        String page = params.get("page");
+
+        if (page == null || page.isEmpty()) {
+            params.put("page", "1");
+        }
+
+        List<User> users = this.userDetailsService.getUsers(params);
+        return ResponseEntity.ok(users);
+    }
+
 }
