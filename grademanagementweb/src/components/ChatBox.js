@@ -30,9 +30,9 @@ export default function ChatBox() {
         setPage(0);
       } else {
         if (page === 1) {
-          setUsers(data);
+          setUsers(data.filter(u => u.role !== "ROLE_ADMIN"));
         } else {
-          setUsers(prev => [...prev, ...data]);
+          setUsers(prev => [...prev, ...data.filter(u => u.role !== "ROLE_ADMIN")]);
         }
       }
     } catch (err) {

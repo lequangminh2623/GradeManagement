@@ -14,6 +14,7 @@ import jakarta.persistence.Query;
 import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Expression;
 import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
@@ -291,6 +292,63 @@ public class ClassroomRepositoryImpl implements ClassroomRepository {
 
         TypedQuery<Classroom> typedQuery = s.createQuery(cq);
         return typedQuery.getSingleResult();
+    }
+
+    @Override
+    public List<Student> getStudentsInClassroom(Integer classroomId, Map<String, String> params) {
+        if (classroomId == null) {
+            throw new IllegalArgumentException("Thiếu tham số classroomId");
+        }
+
+        Session session = this.factory.getObject().getCurrentSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<Student> cq = cb.createQuery(Student.class);
+        Root<Student> root = cq.from(Student.class);
+
+        Join<Student, Classroom> classJoin = root.join("classroomSet", JoinType.INNER);
+        Join<Student, User> userJoin = root.join("user", JoinType.INNER);
+
+        List<Predicate> predicates = new ArrayList<>();
+        predicates.add(cb.equal(classJoin.get("id"), classroomId));
+
+        if (params != null) {
+            String kw = params.get("kw");
+            if (kw != null && !kw.isEmpty()) {
+                String pattern = "%" + kw.toLowerCase() + "%";
+                Expression<String> lastNameLower = cb.lower(userJoin.get("lastName"));
+                Expression<String> firstNameLower = cb.lower(userJoin.get("firstName"));
+                Expression<String> fullNameExpr = cb.concat(
+                        cb.concat(lastNameLower, " "),
+                        firstNameLower
+                );
+                Predicate codeLike = cb.like(cb.lower(root.get("code")), pattern);
+                Predicate fullNameLike = cb.like(fullNameExpr, pattern);
+                predicates.add(cb.or(codeLike, fullNameLike));
+            }
+        }
+
+        cq.select(root)
+                .distinct(true)
+                .where((Expression<Boolean>) cb.and(predicates.toArray(new Predicate[0])));
+
+        if (params != null) {
+            String sortBy = params.get("sortBy");
+            if (sortBy != null && !sortBy.isEmpty()) {
+                cq.orderBy(cb.asc(root.get(sortBy)));
+            }
+        }
+
+        Query query = session.createQuery(cq);
+
+        if (params != null && params.containsKey("page")) {
+            int page = Integer.parseInt(params.get("page"));
+            int pageSize = PageSize.USER_PAGE_SIZE.getSize();
+            int start = (page - 1) * pageSize;
+            query.setFirstResult(start);
+            query.setMaxResults(pageSize);
+        }
+
+        return query.getResultList();
     }
 
 }
