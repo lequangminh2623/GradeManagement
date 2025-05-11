@@ -4,13 +4,19 @@ import com.mh.pojo.Classroom;
 import com.mh.pojo.ExtraGrade;
 import com.mh.pojo.GradeDetail;
 import com.mh.repositories.ClassroomRepository;
+import com.mh.pojo.Student;
+import com.mh.pojo.User;
+import com.mh.pojo.dto.GradeDetailDTO;
 import com.mh.repositories.GradeDetailRepository;
 import jakarta.persistence.Query;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
+import jakarta.persistence.criteria.SetJoin;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import org.hibernate.Session;
@@ -29,7 +35,7 @@ public class GradeDetailRepositoryImpl implements GradeDetailRepository {
 
     @Autowired
     private LocalSessionFactoryBean factory;
-    
+
     @Autowired
     private ClassroomRepository classroomRepo;
 
@@ -147,14 +153,45 @@ public class GradeDetailRepositoryImpl implements GradeDetailRepository {
     }
 
     @Override
-    public List<GradeDetail> getGradeDetailByStudent(Integer id) {
+    public List<GradeDetailDTO> getGradeDetailByStudent(Integer id, Map<String, String> params) {
         Session s = this.factory.getObject().getCurrentSession();
         CriteriaBuilder cb = s.getCriteriaBuilder();
-        CriteriaQuery<GradeDetail> cq = cb.createQuery(GradeDetail.class);
-        Root<GradeDetail> root = cq.from(GradeDetail.class);
+        CriteriaQuery<GradeDetailDTO> cq = cb.createQuery(GradeDetailDTO.class);
 
-        cq.where(cb.equal(root.get("student").get("id"), id));
-        cq.select(root);
+        Root<GradeDetail> gradeRoot = cq.from(GradeDetail.class);
+
+        Join<GradeDetail, Student> studentJoin = gradeRoot.join("student");
+        Join<Student, Classroom> classroomJoin = studentJoin.join("classroomSet");
+
+        List<Predicate> predicates = new ArrayList<>();
+
+        Predicate statusPredicate = cb.equal(classroomJoin.get("gradeStatus"), "LOCKED");
+        Predicate studentPredicate = cb.equal(studentJoin.get("id"), id);
+        Predicate courseMatch = cb.equal(classroomJoin.get("course").get("id"), gradeRoot.get("course").get("id"));
+        Predicate semesterMatch = cb.equal(classroomJoin.get("semester").get("id"), gradeRoot.get("semester").get("id"));
+
+        predicates.addAll(Arrays.asList(statusPredicate, studentPredicate, courseMatch, semesterMatch));
+
+        if (params != null) {
+            String kw = params.get("kw");
+            if (kw != null && !kw.isEmpty()) {
+                Predicate namePredicate = cb.like(gradeRoot.get("course").get("name"), "%" + kw + "%");
+                predicates.add(namePredicate);
+            }
+        }
+
+        cq.where(predicates.toArray(new Predicate[0]));
+
+        cq.orderBy(
+                cb.desc(gradeRoot.get("semester").get("academicYear").get("id")),
+                cb.desc(gradeRoot.get("semester").get("id"))
+        );
+
+        cq.select(cb.construct(
+                GradeDetailDTO.class,
+                gradeRoot,
+                classroomJoin.get("name")
+        ));
 
         Query query = s.createQuery(cq);
         return query.getResultList();

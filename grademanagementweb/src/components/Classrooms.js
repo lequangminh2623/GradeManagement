@@ -1,24 +1,27 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useContext } from "react";
 import { Alert, Button, Card, Col, Container, Row } from "react-bootstrap";
 import { authApis, endpoints } from "../configs/Apis";
 import { useSearchParams } from "react-router-dom";
 import MySpinner from "./layouts/MySpinner";
 import { useNavigate } from "react-router-dom";
-
+import { MyUserContext } from "../configs/MyContexts";
+import { Pagination } from "react-bootstrap";
 
 const ClassroomList = () => {
     const [classrooms, setClassrooms] = useState([]);
     const [page, setPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
     const [loading, setLoading] = useState(false);
     const [q] = useSearchParams();
     const navigate = useNavigate();
+    const user = useContext(MyUserContext);
 
     const loadClassrooms = useCallback(async () => {
         try {
             setLoading(true);
 
             let url = `${endpoints['classrooms']}?page=${page}`;
-
+            
             const kw = q.get('kw');
             if (kw) {
                 url += `&kw=${kw}`;
@@ -32,15 +35,8 @@ const ClassroomList = () => {
             const res = await authApis().get(url);
             const data = res.data;
 
-            if (data.length === 0) {
-                setPage(0);
-            } else {
-                if (page === 1) {
-                    setClassrooms(data);
-                } else {
-                    setClassrooms(prev => [...prev, ...data]);
-                }
-            }
+            setClassrooms(data.content);
+            setTotalPages(data.totalPages); 
         } catch (ex) {
             console.error("Failed to load classrooms:", ex);
         } finally {
@@ -49,25 +45,15 @@ const ClassroomList = () => {
     }, [page, q]);
 
     useEffect(() => {
-        if (page > 0) {
-            loadClassrooms();
-        }
+        loadClassrooms();
     }, [page, q, loadClassrooms]);
 
-    useEffect(() => {
-        setPage(1);
-        setClassrooms([]);
-    }, [q]);
-
-    const loadMore = () => {
-        if (!loading && page > 0) {
-            setPage(prev => prev + 1);
-        }
+    const handlePageChange = (pageNumber) => {
+        setPage(pageNumber);
     };
 
     return (
         <Container className="p-3" style={{ minHeight: "100vh" }}>
-
             {classrooms.length === 0 && !loading && (
                 <Alert variant="info" className="m-2">
                     Không có lớp học nào!
@@ -77,7 +63,7 @@ const ClassroomList = () => {
             <Row className="w-100 gy-3">
                 {classrooms.map(c => (
                     <Col key={c.id} md={4} xs={6} className="p-2">
-                        <Card>
+                        <Card className="shadow-sm rounded-3">
                             <Card.Body>
                                 <Card.Title>{c.name}</Card.Title>
 
@@ -89,25 +75,36 @@ const ClassroomList = () => {
                                 </Card.Text>
 
                                 <Button
+                                    variant="success"
+                                    className="me-2"
+                                    onClick={() => navigate(`/classrooms/${c.id}/forums`)}>
+                                    Diễn đàn
+                                </Button>
+
+                                {user.role === "ROLE_LECTURER" && <Button
                                     variant="primary"
                                     className="me-2"
                                     onClick={() => navigate(`/classrooms/${c.id}`)}>
                                     Quản lý điểm
-                                </Button>
-
+                                </Button>}
                             </Card.Body>
-
                         </Card>
                     </Col>
                 ))}
             </Row>
 
-            {page > 0 && (
-                <div className="text-center m-3">
-                    <Button onClick={loadMore} disabled={loading} variant="primary">
-                        Xem thêm
-                    </Button>
-                </div>
+            {totalPages > 1 && (
+                <Pagination className="justify-content-center mt-3">
+                    {[...Array(totalPages).keys()].map(number => (
+                        <Pagination.Item
+                            key={number + 1}
+                            active={number + 1 === page}
+                            onClick={() => handlePageChange(number + 1)}
+                        >
+                            {number + 1}
+                        </Pagination.Item>
+                    ))}
+                </Pagination>
             )}
 
             {loading && <MySpinner />}

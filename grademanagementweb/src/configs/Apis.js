@@ -7,6 +7,7 @@ export const endpoints = {
     'classrooms': '/secure/classrooms',
     'register': '/users',
     'login': '/login',
+    'login-google': '/auth/google',
     'profile': '/secure/profile',
     'classroom-details': (classroomId) => `/secure/classrooms/${classroomId}/grades`,
     'classroom-import': (classroomId) => `/secure/classrooms/${classroomId}/grades/import`,
@@ -14,6 +15,7 @@ export const endpoints = {
     'export-csv': (classroomId) => `/secure/classrooms/${classroomId}/grades/export/csv`,
     'export-pdf': (classroomId) => `/secure/classrooms/${classroomId}/grades/export/pdf`,
     'users': '/users',
+    'student-grades': '/secure/grades/student'
 }
 
 export const authApis = () => {

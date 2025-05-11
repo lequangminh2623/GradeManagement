@@ -38,7 +38,9 @@ public interface ClassroomRepository {
 
     List<Classroom> getClassroomsByUser(User user, Map<String, String> params);
 
+    int countClassroomsByUser(User user, Map<String, String> params);
+
     Classroom getClassroomByForumPostId(int id);
-    
+
     List<Student> getStudentsInClassroom(Integer classroomId, Map<String, String> params);
 }

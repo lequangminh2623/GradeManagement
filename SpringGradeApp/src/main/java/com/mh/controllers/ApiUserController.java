@@ -9,7 +9,6 @@ import com.mh.pojo.User;
 import com.mh.pojo.dto.UserDTO;
 import com.mh.services.UserService;
 import com.mh.utils.JwtUtils;
-import com.mh.utils.PageSize;
 import com.mh.validators.WebAppValidator;
 import jakarta.validation.Valid;
 import java.security.Principal;
@@ -26,7 +25,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -89,10 +87,10 @@ public class ApiUserController {
         user.setFirstName(userDTO.getFirstName());
         user.setLastName(userDTO.getLastName());
         user.setEmail(userDTO.getEmail());
-        user.setPassword(this.passwordEncoder.encode(userDTO.getPassword()));
-        user.setActive(true);
+        user.setPassword(userDTO.getPassword());
         user.setFile(userDTO.getFile());
-
+        user.setActive(true);
+        
         Student student = new Student();
         student.setCode(userDTO.getCode());
         student.setUser(user);

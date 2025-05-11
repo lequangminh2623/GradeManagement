@@ -4,6 +4,7 @@
  */
 package com.mh.pojo;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Basic;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -44,6 +45,7 @@ public class ExtraGrade implements Serializable {
     private Double grade;
     @JoinColumn(name = "grade_detail_id", referencedColumnName = "id")
     @ManyToOne(optional = false)
+    @JsonIgnore
     private GradeDetail gradeDetail;
     @Column(name = "grade_index", nullable = false)
     private Integer gradeIndex;

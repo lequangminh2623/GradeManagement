@@ -1,9 +1,9 @@
-import { useContext, useState } from "react";
+import { use, useContext, useState } from "react";
 import { Button, Container, Form, Image, InputGroup, Nav, Navbar, NavDropdown } from "react-bootstrap";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { MyDispatcherContext, MyUserContext } from "../../configs/MyContexts";
 import { FaRegUser } from "react-icons/fa6";
-import { FaSearch } from "react-icons/fa";
+import { FaSearch, FaUserCircle } from "react-icons/fa";
 
 const Header = () => {
   const user = useContext(MyUserContext);
@@ -42,12 +42,20 @@ const Header = () => {
             <Link to="/" className="nav-link">
               Trang chủ
             </Link>
+
             <Link to="/classrooms" className="nav-link">
               Lớp học
             </Link>
+
+            {(user && user.role === "ROLE_STUDENT") &&
+              <Link to="/grades" className="nav-link">
+                Điểm
+              </Link>}
+
             <Link to="/chatbox" className="nav-link">
               Tin nhắn
             </Link>
+
             <NavDropdown title="Tiện ích" className="text-secondary">
               <NavDropdown.Item as={Link} to="/">
                 ABC
@@ -72,9 +80,14 @@ const Header = () => {
           {user ? (
             <NavDropdown
               align="end"
-              title={<FaRegUser size={25} color="#0d6efd" />}
+              title={<Image
+                src={user.avatar}
+                roundedCircle
+                style={{ width: '45px', height: '45px' }}
+              />}
               id="user-dropdown"
               className="ms-4"
+              style={{ color: "#0d6efd" }}
             >
               <div className="text-center px-3 py-2">
                 <Image

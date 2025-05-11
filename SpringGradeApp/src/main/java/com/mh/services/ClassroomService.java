@@ -37,20 +37,22 @@ public interface ClassroomService {
     boolean existsStudentInOtherClassroom(int studentId, int semesterId, int courseId, Integer excludeClassroomId);
 
     boolean existUserInClassroom(int userId, int classRoomId);
-  
+
     List<Classroom> getClassroomsByUser(User user, Map<String, String> params);
-  
+
+    int countClassroomsByUser(User user, Map<String, String> params);
+
     Classroom getClassroomByForumPostId(int id);
-  
+
     void lockClassroomGrades(Integer classroomId);
-    
+
     void checkLecturerPermission(Integer classroomId);
-    
+
     void checkExportPermission(Integer classroomId);
-    
+
     void exportGradesToCsv(Integer classroomId, HttpServletResponse response) throws IOException;
-    
+
     void exportGradesToPdf(Integer classroomId, HttpServletResponse response) throws IOException;
-    
+
     List<Student> getStudentsInClassroom(Integer classroomId, Map<String, String> params);
 }

@@ -9,6 +9,7 @@ import com.mh.pojo.ExtraGrade;
 import com.mh.pojo.GradeDetail;
 import com.mh.pojo.Student;
 import com.mh.pojo.dto.GradeDTO;
+import com.mh.pojo.dto.GradeDetailDTO;
 import com.mh.pojo.dto.TranscriptDTO;
 import com.mh.repositories.GradeDetailRepository;
 import com.mh.services.ClassroomService;
@@ -302,8 +303,8 @@ public class GradeDetailServiceImpl implements GradeDetailService {
     }
 
     @Override
-    public List<GradeDetail> getGradesByStudent(Integer userId) {
-        return this.gradeDetailRepo.getGradeDetailByStudent(userId);
+    public List<GradeDetailDTO> getGradesByStudent(Integer userId, Map<String, String> params) {
+        return this.gradeDetailRepo.getGradeDetailByStudent(userId, params);
     }
 
 }
