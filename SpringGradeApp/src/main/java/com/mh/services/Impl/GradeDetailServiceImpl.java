@@ -134,8 +134,10 @@ public class GradeDetailServiceImpl implements GradeDetailService {
     }
 
     @Override
-    public TranscriptDTO getTranscriptForClassroom(Integer classroomId) {
-        Classroom classroom = classroomService.getClassroomWithStudents(classroomId);
+    public TranscriptDTO getTranscriptForClassroom(Integer classroomId, Map<String, String> params) {
+        Classroom classroom = classroomService.getClassroomById(classroomId);
+        List<Student> students = classroomService.getStudentsInClassroom(classroom.getId(), params);
+        
         if (classroom == null) {
             throw new EntityNotFoundException("Không tìm thấy lớp học với id: " + classroomId);
         }
@@ -151,7 +153,7 @@ public class GradeDetailServiceImpl implements GradeDetailService {
         List<GradeDTO> gradeDTOList = new ArrayList<>();
 
         if (classroom.getStudentSet() != null) {
-            for (Student student : classroom.getStudentSet()) {
+            for (Student student : students) {
                 GradeDTO gradeDTO = new GradeDTO();
                 gradeDTO.setStudentId(student.getId());
                 gradeDTO.setStudentCode(student.getCode());

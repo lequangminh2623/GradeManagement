@@ -44,7 +44,7 @@ export default function ChatPanel({ selectedUser }) {
   useEffect(() => {
     const chatHistory = chatHistoryRef.current;
     if (!chatHistory) return;
-    endRef.current?.scrollIntoView({ behavior: "smooth" });
+    endRef.current?.scrollIntoView({ behavior: "auto" });
   }, [messages]);
 
   const sendMessage = async e => {
@@ -69,7 +69,7 @@ export default function ChatPanel({ selectedUser }) {
     );
 
     setText("");
-    endRef.current?.scrollIntoView({ behavior: "smooth" });
+    endRef.current?.scrollIntoView({ behavior: "auto" });
   };
 
   return (

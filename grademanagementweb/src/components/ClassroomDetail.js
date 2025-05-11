@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Table, Button, Form, Row, Col } from "react-bootstrap";
-import { useParams } from "react-router-dom";
+import { useParams, useSearchParams } from "react-router-dom";
 import { authApis, endpoints } from "../configs/Apis";
 import MySpinner from "./layouts/MySpinner";
 import { FaSave, FaPlus, FaTimes, FaUpload, FaLock, FaFileCsv, FaFilePdf } from "react-icons/fa";
@@ -21,45 +21,56 @@ const ClassroomDetail = () => {
     const [students, setStudents] = useState([]);
     const [extraCount, setExtraCount] = useState(0);
     const [loading, setLoading] = useState(false);
-
+    const [q] = useSearchParams();
+    const [page, setPage] = useState(1);
     const displayCount = Math.max(extraCount, 1);
 
-    useEffect(() => {
-        const fetchTranscript = async () => {
+    const fetchTranscript = useCallback(async () => {
+        try {
             setLoading(true);
-            try {
-                const res = await authApis().get(
-                    endpoints["classroom-details"](classroomId)
-                );
-                const data = res.data;
 
-                setClassInfo({
-                    classroomName: data.classroomName,
-                    lecturerName: data.lecturerName,
-                    courseName: data.courseName,
-                    academicTerm: data.academicTerm,
-                    gradeStatus: data.gradeStatus,
-                });
+            let url = `${endpoints["classroom-details"](classroomId)}?page=${page}`;
 
-                const studentsCopy = data.students.map((s) => ({
-                    ...s,
-                    extraGrades: [...s.extraGrades],
-                }));
-                setStudents(studentsCopy);
-
-                const maxEx = Math.min(
-                    MAX_EXTRA_GRADES,
-                    Math.max(0, ...studentsCopy.map((s) => s.extraGrades.length))
-                );
-                setExtraCount(maxEx);
-            } catch (err) {
-                console.error("Lỗi khi lấy bảng điểm:", err);
-            } finally {
-                setLoading(false);
+            const kw = q.get('kw');
+            if (kw) {
+                url += `&kw=${kw}`;
             }
-        };
-        fetchTranscript();
-    }, [classroomId]);
+
+            const res = await authApis().get(url);
+            const data = res.data;
+
+            setClassInfo({
+                classroomName: data.classroomName,
+                lecturerName: data.lecturerName,
+                courseName: data.courseName,
+                academicTerm: data.academicTerm,
+                gradeStatus: data.gradeStatus,
+            });
+
+            const studentsCopy = data.students.map((s) => ({
+                ...s,
+                extraGrades: [...s.extraGrades],
+            }));
+            setStudents(studentsCopy);
+
+            const maxEx = Math.min(
+                MAX_EXTRA_GRADES,
+                Math.max(0, ...studentsCopy.map((s) => s.extraGrades.length))
+            );
+            setExtraCount(maxEx);
+
+        } catch (err) {
+            console.error("Lỗi khi lấy bảng điểm:", err);
+        } finally {
+            setLoading(false);
+        }
+    }, [classroomId, page, q]);
+
+    useEffect(() => {
+        if (page > 0) {
+            fetchTranscript();
+        }
+    }, [page, q, fetchTranscript]);
 
     const addExtra = () => {
         if (extraCount < MAX_EXTRA_GRADES) {
@@ -182,7 +193,7 @@ const ClassroomDetail = () => {
             if (response.status !== 200) {
                 throw new Error('Failed to download file');
             }
-            
+
             const blob = new Blob([response.data], { type: response.data.type });
             const downloadUrl = window.URL.createObjectURL(blob);
             const link = document.createElement('a');
@@ -197,8 +208,7 @@ const ClassroomDetail = () => {
             alert('Không thể tải file. Vui lòng thử lại.');
         }
     };
-
-
+    
     if (loading) return <MySpinner />;
 
     return (

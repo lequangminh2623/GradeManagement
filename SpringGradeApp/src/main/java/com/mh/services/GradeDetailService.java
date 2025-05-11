@@ -30,7 +30,7 @@ public interface GradeDetailService {
 
     boolean existsByGradeDetailIdAndGradeIndex(Integer gradeDetailId, Integer gradeIndex, Integer currentExtraGradeId);
 
-    TranscriptDTO getTranscriptForClassroom(Integer classroomId);
+    TranscriptDTO getTranscriptForClassroom(Integer classroomId, Map<String, String> params);
 
     void updateGradesForClassroom(Integer classroomId, List<GradeDTO> gradeRequests);
 

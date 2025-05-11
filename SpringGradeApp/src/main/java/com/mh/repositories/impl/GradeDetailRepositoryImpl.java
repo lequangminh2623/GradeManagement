@@ -1,12 +1,13 @@
 package com.mh.repositories.impl;
 
+import com.mh.pojo.Classroom;
 import com.mh.pojo.ExtraGrade;
 import com.mh.pojo.GradeDetail;
+import com.mh.repositories.ClassroomRepository;
 import com.mh.repositories.GradeDetailRepository;
 import jakarta.persistence.Query;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
-import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import java.util.ArrayList;
@@ -28,6 +29,9 @@ public class GradeDetailRepositoryImpl implements GradeDetailRepository {
 
     @Autowired
     private LocalSessionFactoryBean factory;
+    
+    @Autowired
+    private ClassroomRepository classroomRepo;
 
     @Override
     public List<GradeDetail> getGradeDetail(Map<String, Integer> params) {
@@ -57,9 +61,9 @@ public class GradeDetailRepositoryImpl implements GradeDetailRepository {
 
             Integer classroomId = params.get("classroomId");
             if (classroomId != null) {
-                Join<Object, Object> studentJoin = root.join("student");
-                Join<Object, Object> classroomJoin = studentJoin.join("classroomSet");
-                predicates.add(cb.equal(classroomJoin.get("id"), classroomId));
+                Classroom classroom = classroomRepo.getClassroomById(classroomId);
+                predicates.add(cb.equal(root.get("course").get("id"), classroom.getCourse().getId()));
+                predicates.add(cb.equal(root.get("semester").get("id"), classroom.getSemester().getId()));
             }
 
             cq.where(predicates.toArray(new Predicate[0]));
@@ -129,7 +133,6 @@ public class GradeDetailRepositoryImpl implements GradeDetailRepository {
         Predicate byGradeDetail = cb.equal(root.get("gradeDetail").get("id"), gradeDetailId);
         Predicate byIndex = cb.equal(root.get("gradeIndex"), gradeIndex);
 
-        // Bỏ qua chính nó nếu đang update
         if (currentExtraGradeId != null) {
             Predicate notSameId = cb.notEqual(root.get("id"), currentExtraGradeId);
             query.where(cb.and(byGradeDetail, byIndex, notSameId));

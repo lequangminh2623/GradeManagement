@@ -5,7 +5,10 @@
 package com.mh.services;
 
 import com.mh.pojo.Classroom;
+import com.mh.pojo.Student;
 import com.mh.pojo.User;
+import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -40,4 +43,14 @@ public interface ClassroomService {
     Classroom getClassroomByForumPostId(int id);
   
     void lockClassroomGrades(Integer classroomId);
+    
+    void checkLecturerPermission(Integer classroomId);
+    
+    void checkExportPermission(Integer classroomId);
+    
+    void exportGradesToCsv(Integer classroomId, HttpServletResponse response) throws IOException;
+    
+    void exportGradesToPdf(Integer classroomId, HttpServletResponse response) throws IOException;
+    
+    List<Student> getStudentsInClassroom(Integer classroomId, Map<String, String> params);
 }
