@@ -5,6 +5,7 @@
 package com.mh.repositories;
 
 import com.mh.pojo.Classroom;
+import com.mh.pojo.Student;
 import com.mh.pojo.User;
 import java.util.List;
 import java.util.Map;
@@ -38,4 +39,6 @@ public interface ClassroomRepository {
     List<Classroom> getClassroomsByUser(User user, Map<String, String> params);
 
     Classroom getClassroomByForumPostId(int id);
+    
+    List<Student> getStudentsInClassroom(Integer classroomId, Map<String, String> params);
 }

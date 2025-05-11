@@ -6,6 +6,7 @@ package com.mh.repositories.impl;
 
 import com.mh.pojo.User;
 import com.mh.repositories.UserRepository;
+import com.mh.utils.PageSize;
 import jakarta.persistence.Query;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
@@ -28,8 +29,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Repository
 @Transactional
 public class UserRepositoryImpl implements UserRepository {
-
-    private static final int PAGE_SIZE = 10;
 
     @Autowired
     private LocalSessionFactoryBean factory;
@@ -91,8 +90,8 @@ public class UserRepositoryImpl implements UserRepository {
 
         if (params != null && params.containsKey("page")) {
             int page = Integer.parseInt(params.get("page"));
-            int start = (page - 1) * PAGE_SIZE;
-            query.setMaxResults(PAGE_SIZE);
+        int start = (page - 1) * PageSize.USER_PAGE_SIZE.getSize();
+            query.setMaxResults(PageSize.USER_PAGE_SIZE.getSize());
             query.setFirstResult(start);
         }
 
