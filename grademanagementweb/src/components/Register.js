@@ -61,7 +61,7 @@ const Register = () => {
             }
         }
 
-        if (!isGoogleRegister && !avatar.current?.files[0]) {
+        if (!avatar.current?.files[0]) {
             setFieldErrors({ avatar: "Cần có ảnh đại diện" });
             return false;
         }
@@ -85,9 +85,7 @@ const Register = () => {
                 if (key !== 'confirm') form.append(key, user[key]);
             }
 
-            if (!isGoogleRegister) {
-                form.append("file", avatar.current.files[0]);
-            }
+            form.append("file", avatar.current.files[0]);
 
             try {
                 setLoading(true);

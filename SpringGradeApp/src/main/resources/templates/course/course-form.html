@@ -25,6 +25,13 @@
                 <div class="invalid-feedback" th:errors="*{name}"></div>
             </div>
 
+            <div>
+                <label for="name" class="form-label">Số tín chỉ:</label>
+                <input type="text" class="form-control" id="credit" th:field="*{credit}" placeholder="" 
+                       th:classappend="${#fields.hasErrors('credit')} ? 'is-invalid'"/>
+                <div class="invalid-feedback" th:errors="*{credit}"></div>
+            </div>
+
             <input type="hidden" th:field="*{id}" />
 
             <div>

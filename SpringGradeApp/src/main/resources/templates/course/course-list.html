@@ -35,6 +35,7 @@
                     <tr>
                         <th>ID</th>
                         <th>Tên môn</th>
+                        <th>Tín chỉ</th>
                         <th>Hành động</th>
                     </tr>
                 </thead>
@@ -42,6 +43,7 @@
                     <tr th:each="c : ${courses}">
                         <td th:text="${c.id}"></td>
                         <td th:text="${c.name}"></td>
+                        <td th:text="${c.credit}"></td>
                         <td>
                             <a th:href="@{'/courses/' + ${c.id}}" class="btn btn-warning">✏️</a>
                             <button class="btn btn-danger" th:onclick="'deleteCourse(\''+@{/courses/}+'\','+${c.id}+')'">🗑️</button>

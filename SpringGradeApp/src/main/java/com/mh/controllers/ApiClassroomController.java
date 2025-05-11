@@ -11,6 +11,7 @@ import com.mh.services.ClassroomService;
 import com.mh.services.ForumPostService;
 import com.mh.services.GradeDetailService;
 import com.mh.services.UserService;
+import com.mh.utils.PageSize;
 import com.mh.validators.WebAppValidator;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -50,7 +51,7 @@ public class ApiClassroomController {
 
     @Autowired
     private MessageSource messageSource;
-    
+
     @Autowired
     @Qualifier("webAppValidator")
     private WebAppValidator webAppValidator;
@@ -59,6 +60,7 @@ public class ApiClassroomController {
     public void initBinder(WebDataBinder binder) {
         binder.setValidator(webAppValidator);
     }
+
     @GetMapping("/{classroomId}/grades")
     public ResponseEntity<TranscriptDTO> getGradeSheetForClassroom(@PathVariable("classroomId") Integer classroomId, @RequestParam Map<String, String> params) {
         classroomService.checkLecturerPermission(classroomId);
@@ -135,7 +137,7 @@ public class ApiClassroomController {
     }
 
     @GetMapping("")
-    public ResponseEntity<List<ClassroomDTO>> getClassrooms(@RequestParam Map<String, String> params) {
+    public ResponseEntity<?> getClassrooms(@RequestParam Map<String, String> params) {
         User user = this.userService.getCurrentUser();
 
         if (user == null) {
@@ -150,8 +152,11 @@ public class ApiClassroomController {
 
         List<Classroom> classrooms = classroomService.getClassroomsByUser(user, params);
         List<ClassroomDTO> classroomsDto = classrooms.stream().map(ClassroomDTO::new).collect(Collectors.toList());
-
-        return ResponseEntity.ok(classroomsDto);
+        int totalPages = (int) Math.ceil((double) this.classroomService.countClassroomsByUser(user, params)
+                / PageSize.CLASSROOM_PAGE_SIZE.getSize());
+        return ResponseEntity.ok(Map.of("content", classroomsDto,
+                "totalPages", totalPages
+        ));
     }
 
     @GetMapping("/{classroomId}/forums")

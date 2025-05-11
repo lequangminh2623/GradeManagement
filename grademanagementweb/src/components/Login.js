@@ -84,7 +84,6 @@ const Login = () => {
             } else {
                 cookie.save('token', res.data.token);
 
-                console.log(res.data.token)
                 let u = await authApis().get(endpoints['profile']);
 
                 dispatch({

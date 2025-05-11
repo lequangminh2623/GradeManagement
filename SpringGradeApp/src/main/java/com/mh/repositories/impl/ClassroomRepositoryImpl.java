@@ -351,4 +351,36 @@ public class ClassroomRepositoryImpl implements ClassroomRepository {
         return query.getResultList();
     }
 
+    @Override
+    public int countClassroomsByUser(User user, Map<String, String> params) {
+        Session s = this.factory.getObject().getCurrentSession();
+        CriteriaBuilder cb = s.getCriteriaBuilder();
+        CriteriaQuery<Long> cq = cb.createQuery(Long.class);
+        Root<Classroom> root = cq.from(Classroom.class);
+        cq.select(cb.count(root));
+
+        List<Predicate> predicates = new ArrayList<>();
+        if (user.getRole().equals("ROLE_LECTURER")) {
+            predicates.add(cb.equal(root.get("lecturer").get("id"), user.getId()));
+        } else if (user.getRole().equals("ROLE_STUDENT")) {
+            Join<Object, Object> studentJoin = root.join("studentSet", JoinType.INNER);
+            Predicate isStudent = cb.equal(studentJoin.get("id"), user.getId());
+            predicates.add(isStudent);
+        }
+
+        if (params != null) {
+            String kw = params.get("kw");
+            if (kw != null && !kw.isEmpty()) {
+                Predicate namePredicate = cb.like(root.get("name"), "%" + kw + "%");
+                predicates.add(namePredicate);
+            }
+        }
+
+        cq.where(predicates.toArray(new Predicate[0]));
+
+        Long result = s.createQuery(cq).getSingleResult();
+        return result.intValue();
+
+    }
+
 }

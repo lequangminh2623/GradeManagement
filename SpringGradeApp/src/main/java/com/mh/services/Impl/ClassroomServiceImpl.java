@@ -51,10 +51,10 @@ public class ClassroomServiceImpl implements ClassroomService {
 
     @Autowired
     private ClassroomRepository classroomRepo;
-    
+
     @Autowired
     private GradeDetailService gradeDetailService;
-    
+
     @Autowired
     private MailUtils mailUtils;
 
@@ -112,7 +112,7 @@ public class ClassroomServiceImpl implements ClassroomService {
     public boolean existUserInClassroom(int userId, int classRoomId) {
         return this.classroomRepo.existUserInClassroom(userId, classRoomId);
     }
-    
+
     @Override
     public void lockClassroomGrades(Integer classroomId) {
         Classroom classroom = this.getClassroomWithStudents(classroomId);
@@ -170,7 +170,7 @@ public class ClassroomServiceImpl implements ClassroomService {
     public Classroom getClassroomByForumPostId(int id) {
         return this.classroomRepo.getClassroomByForumPostId(id);
     }
-    
+
     public void exportGradesToCsv(Integer classroomId, HttpServletResponse response) throws IOException {
         response.setContentType("text/csv");
         String filename = "grades_classroom_" + classroomId + ".csv";
@@ -295,7 +295,7 @@ public class ClassroomServiceImpl implements ClassroomService {
         response.getOutputStream().write(baos.toByteArray());
         response.getOutputStream().flush();
     }
-    
+
     @Override
     public void checkLecturerPermission(Integer classroomId) {
         Classroom classroom = this.getClassroomById(classroomId);
@@ -322,6 +322,11 @@ public class ClassroomServiceImpl implements ClassroomService {
     @Override
     public List<Student> getStudentsInClassroom(Integer classroomId, Map<String, String> params) {
         return this.classroomRepo.getStudentsInClassroom(classroomId, params);
+    }
+
+    @Override
+    public int countClassroomsByUser(User user, Map<String, String> params) {
+        return this.classroomRepo.countClassroomsByUser(user, params);
     }
 
 }

@@ -6,9 +6,11 @@ package com.mh.controllers;
 
 import com.mh.pojo.GradeDetail;
 import com.mh.pojo.User;
+import com.mh.pojo.dto.GradeDetailDTO;
 import com.mh.services.GradeDetailService;
 import com.mh.services.UserService;
 import java.util.List;
+import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -17,6 +19,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -35,7 +38,7 @@ public class ApiGradeController {
     private UserService userService;
 
     @GetMapping("/student")
-    public ResponseEntity<?> getStudentGrades(Authentication authentication) {
+    public ResponseEntity<?> getStudentGrades(Authentication authentication, @RequestParam Map<String, String> params) {
         User currentUser = this.userService.getCurrentUser();
 
         if (currentUser.getStudent() == null) {
@@ -44,7 +47,7 @@ public class ApiGradeController {
                     .body("Bạn không có quyền truy cập");
         }
 
-        List<GradeDetail> gradeSheet = gradeDetailService.getGradesByStudent(currentUser.getStudent().getId());
+        List<GradeDetailDTO> gradeSheet = gradeDetailService.getGradesByStudent(currentUser.getStudent().getId(), params);
         return ResponseEntity.ok(gradeSheet);
 
     }

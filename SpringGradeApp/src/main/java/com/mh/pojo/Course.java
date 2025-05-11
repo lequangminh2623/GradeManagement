@@ -16,6 +16,8 @@ import jakarta.persistence.NamedQueries;
 import jakarta.persistence.NamedQuery;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.io.Serializable;
@@ -43,6 +45,12 @@ public class Course implements Serializable {
     @NotNull
     @Column(name = "name")
     private String name;
+    @Basic(optional = false)
+    @NotNull
+    @Min(value = 0, message = "{course.credit.invalid}")
+    @Max(value = 7, message = "{course.credit.invalid}")
+    @Column(name = "credit")
+    private int credit;
     @OneToMany(mappedBy = "course")
     @JsonIgnore
     private Set<GradeDetail> gradeDetailSet;
@@ -117,6 +125,20 @@ public class Course implements Serializable {
     @Override
     public String toString() {
         return "com.mh.pojo.Course[ id=" + id + " ]";
+    }
+
+    /**
+     * @return the credit
+     */
+    public int getCredit() {
+        return credit;
+    }
+
+    /**
+     * @param credit the credit to set
+     */
+    public void setCredit(int credit) {
+        this.credit = credit;
     }
 
 }

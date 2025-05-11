@@ -15,6 +15,7 @@ export const endpoints = {
     'export-csv': (classroomId) => `/secure/classrooms/${classroomId}/grades/export/csv`,
     'export-pdf': (classroomId) => `/secure/classrooms/${classroomId}/grades/export/pdf`,
     'users': '/users',
+    'student-grades': '/secure/grades/student'
 }
 
 export const authApis = () => {
