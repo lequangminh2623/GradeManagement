@@ -4,23 +4,18 @@
  */
 package com.mh.controllers;
 
-import com.mh.services.AcademicYearService;
-import com.mh.services.ClassroomService;
-import com.mh.services.CourseService;
-import com.mh.services.ExtraGradeService;
-import com.mh.services.ForumPostService;
-import com.mh.services.ForumReplyService;
+import com.mh.pojo.dto.SemesterAnalysisResult;
 import com.mh.services.GradeDetailService;
 import com.mh.services.SemesterService;
-import com.mh.services.StudentService;
-import com.mh.services.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 /**
  *
@@ -31,25 +26,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 public class IndexController {
 
     @Autowired
-    AcademicYearService academicYearService;
+    private GradeDetailService gradeDetailService;
+    
     @Autowired
-    ClassroomService classroomService;
-    @Autowired
-    CourseService courseService;
-    @Autowired
-    ExtraGradeService extraGradeService;
-    @Autowired
-    ForumPostService forumPostService;
-    @Autowired
-    ForumReplyService forumReplyService;
-    @Autowired
-    GradeDetailService gradeDetailService;
-    @Autowired
-    SemesterService semesterService;
-    @Autowired
-    StudentService studentService;
-    @Autowired
-    UserService userService;
+    private SemesterService semesterService;
 
     @ModelAttribute
     public void requestURI(HttpServletRequest request, Model model) {
@@ -61,9 +41,13 @@ public class IndexController {
         model.addAttribute("contextPath", request.getContextPath());
     }
 
-    @RequestMapping("/")
-    public String index(Model model) {
-//        model.addAttribute("year", this.academicYearService.getAcademicYears());
+    @GetMapping("/")
+    public String index(@RequestParam(name = "semesterId", required = false, defaultValue = "1") int semesterId,
+            Model model) {
+        SemesterAnalysisResult result = gradeDetailService.analyzeSemester(semesterId);
+        model.addAttribute("result", result);
+        model.addAttribute("semesters", semesterService.getSemesters(null));
         return "index";
     }
+
 }

@@ -1,7 +1,6 @@
 package com.mh.repositories;
 
 import com.mh.pojo.GradeDetail;
-import com.mh.pojo.dto.GradeDTO;
 import com.mh.pojo.dto.GradeDetailDTO;
 import java.util.List;
 import java.util.Map;
@@ -23,4 +22,6 @@ public interface GradeDetailRepository {
     boolean existsByGradeDetailIdAndGradeIndex(Integer gradeDetailId, Integer gradeIndex, Integer currentExtraGradeId);
 
     List<GradeDetailDTO> getGradeDetailByStudent(Integer id, Map<String, String> params);
+    
+    List<GradeDetail> getGradeDetailBySemester(Integer semesterId);
 }
