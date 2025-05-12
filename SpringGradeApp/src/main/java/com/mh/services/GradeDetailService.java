@@ -7,6 +7,7 @@ package com.mh.services;
 import com.mh.pojo.GradeDetail;
 import com.mh.pojo.dto.GradeDTO;
 import com.mh.pojo.dto.GradeDetailDTO;
+import com.mh.pojo.dto.SemesterAnalysisResult;
 import com.mh.pojo.dto.TranscriptDTO;
 import java.io.IOException;
 import java.util.List;
@@ -40,4 +41,8 @@ public interface GradeDetailService {
     List<GradeDTO> getGradesByClassroom(Integer classroomId);
 
     List<GradeDetailDTO> getGradesByStudent(Integer userId, Map<String, String> params);
+    
+    List<GradeDetail> getGradeDetailBySemester(Integer semesterId);
+    
+    SemesterAnalysisResult analyzeSemester(int semesterId);
 }

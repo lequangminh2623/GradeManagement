@@ -5,7 +5,7 @@ import com.mh.pojo.ExtraGrade;
 import com.mh.pojo.GradeDetail;
 import com.mh.repositories.ClassroomRepository;
 import com.mh.pojo.Student;
-import com.mh.pojo.User;
+import com.mh.pojo.dto.GradeDTO;
 import com.mh.pojo.dto.GradeDetailDTO;
 import com.mh.repositories.GradeDetailRepository;
 import jakarta.persistence.Query;
@@ -14,11 +14,12 @@ import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
-import jakarta.persistence.criteria.SetJoin;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
@@ -195,6 +196,22 @@ public class GradeDetailRepositoryImpl implements GradeDetailRepository {
 
         Query query = s.createQuery(cq);
         return query.getResultList();
+    }
+
+    @Override
+    public List<GradeDetail> getGradeDetailBySemester(Integer semesterId) {
+        Session session = this.factory.getObject().getCurrentSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<GradeDetail> cq = cb.createQuery(GradeDetail.class);
+        Root<GradeDetail> root = cq.from(GradeDetail.class);
+        
+        Join<Object, Object> semesterJoin = root.join("semester");
+
+        Predicate semesterPredicate = cb.equal(semesterJoin.get("id"), semesterId);
+
+        cq.select(root).where(semesterPredicate);
+
+        return session.createQuery(cq).getResultList();
     }
 
 }
