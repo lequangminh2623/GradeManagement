@@ -1,0 +1,26 @@
+.forum-card {
+    transition: transform 0.2s ease-in-out;
+    position: relative;
+}
+
+.forum-card:hover {
+    transform: scale(1.02);
+}
+
+.post-image-container {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s ease, opacity 0.4s ease;
+    opacity: 0;
+}
+
+.forum-card:hover .post-image-container {
+    max-height: 300px;
+    opacity: 1;
+    margin-top: 10px;
+}
+
+.post-image {
+    max-height: 150px;
+    width: auto;
+}
