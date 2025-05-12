@@ -5,6 +5,7 @@ import com.mh.pojo.ForumPost;
 import com.mh.pojo.ForumReply;
 import com.mh.pojo.User;
 import com.mh.pojo.dto.ForumPostDTO;
+import com.mh.pojo.dto.ForumPostDetailDTO;
 import com.mh.pojo.dto.ForumReplyDTO;
 import com.mh.services.ClassroomService;
 import com.mh.services.ForumPostService;
@@ -97,7 +98,7 @@ public class ApiForumController {
         List<ForumReply> replies = this.forumReplyService.getForumRepliesByForumPostId(forumPostId, params);
 
         forumPost.setForumReplySet(new HashSet<>(replies));
-        return ResponseEntity.ok(forumPost);
+        return ResponseEntity.ok(new ForumPostDetailDTO(forumPost));
     }
 
     @PutMapping("/{forumPostId}")
