@@ -15,7 +15,13 @@ export const endpoints = {
     'export-csv': (classroomId) => `/secure/classrooms/${classroomId}/grades/export/csv`,
     'export-pdf': (classroomId) => `/secure/classrooms/${classroomId}/grades/export/pdf`,
     'users': '/users',
-    'student-grades': '/secure/grades/student'
+    'student-grades': '/secure/grades/student',
+    'forum-posts': (classroomId) => `/secure/classrooms/${classroomId}/forums`,
+    'forum-post-detail': (postId) => `/secure/forums/${postId}`,
+    'forum-reply': (postId) => `/secure/forums/${postId}/replies`,
+    'forum-reply-detail': (postId, replyId) => `/secure/forums/${postId}/replies/${replyId}`,
+    'forum-child-replies': (postId, replyId) => `/secure/forums/${postId}/replies/${replyId}/child-replies`,
+
 }
 
 export const authApis = () => {
