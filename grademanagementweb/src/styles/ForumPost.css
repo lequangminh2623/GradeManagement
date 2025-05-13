@@ -24,3 +24,7 @@
     max-height: 150px;
     width: auto;
 }
+
+.transition-colors {
+    transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+}

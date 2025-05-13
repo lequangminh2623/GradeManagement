@@ -1,19 +1,30 @@
 import "../styles/ForumPost.css";
 import React, { useContext, useEffect, useState } from 'react';
-import { Button, Card, Col, Image, OverlayTrigger, Tooltip } from 'react-bootstrap';
-import { useNavigate } from 'react-router-dom';
-import { PiNotePencil } from "react-icons/pi";
-import { RiDeleteBin7Line } from "react-icons/ri";
+import { Button, Card, Image, OverlayTrigger, Tooltip } from 'react-bootstrap';
+import { useNavigate, useParams } from 'react-router-dom';
 import { MyUserContext } from '../configs/MyContexts';
 import { checkPermission, checkCanEdit, formatVietnamTime } from '../utils/utils';
-import { FaRegEye } from "react-icons/fa";
+import { FaPenToSquare, FaEye, FaTrashCan } from "react-icons/fa6";
+import { authApis, endpoints } from "../configs/Apis";
 
-
-const ForumPost = ({ post, classRoomName }) => {
+const ForumPost = ({ post, classRoomName, onPostDeleted }) => {
     const nav = useNavigate();
     const [perm, setPerm] = useState(false)
     const [canEditOrDelete, setCanEditOrDelete] = useState(false)
     const user = useContext(MyUserContext)
+    const { classroomId } = useParams();
+
+    const handleDeletePost = async () => {
+        if (!window.confirm("Bạn có chắc chắn muốn xoá bài đăng này?")) return;
+
+        try {
+            await authApis().delete(endpoints['forum-post-detail'](post.id));
+            onPostDeleted(post.id);
+        } catch (ex) {
+            console.error("Delete error:", ex);
+            alert("Xoá bài viết thất bại!");
+        }
+    }
 
     useEffect(() => {
         if (checkPermission(post.user.id, user.id) === true) {
@@ -41,6 +52,7 @@ const ForumPost = ({ post, classRoomName }) => {
             </Card.Header>
             <Card.Body>
                 <Card.Title>{post.title}</Card.Title>
+
                 {post.image ? (
                     <div className="post-image-container text-center">
                         <Image
@@ -52,13 +64,15 @@ const ForumPost = ({ post, classRoomName }) => {
                     </div>
                 ) : <div className="post-image-container">
                 </div>}
+
                 <div className='d-flex justify-content-end post-image-container'>
                     <Button
+                        size="sm"
                         className="rounded-5 me-2"
-                        variant="info"
-                        onClick={() => nav(`/forum/${post.id}`, { state: { classRoomName: classRoomName } })}
+                        variant="outline"
+                        onClick={() => nav(`/classrooms/${classroomId}/forums/${post.id}`, { state: { classRoomName: classRoomName } })}
                     >
-                        <FaRegEye size={25} />
+                        <FaEye size={25} />
                     </Button>
 
                     {perm && <>
@@ -70,11 +84,12 @@ const ForumPost = ({ post, classRoomName }) => {
                         >
                             <span className="me-2">
                                 <Button
+                                    size="sm"
                                     className="rounded-5"
-                                    variant="warning"
+                                    variant="outline"
                                     disabled={!canEditOrDelete}
                                 >
-                                    <PiNotePencil size={25} />
+                                    <FaPenToSquare size={22} />
                                 </Button>
                             </span>
                         </OverlayTrigger>
@@ -87,11 +102,13 @@ const ForumPost = ({ post, classRoomName }) => {
                         >
                             <span className="me-2">
                                 <Button
+                                    size="sm"
                                     className='rounded-5'
-                                    variant="danger"
+                                    variant="outline"
                                     disabled={!canEditOrDelete}
+                                    onClick={handleDeletePost}
                                 >
-                                    <RiDeleteBin7Line size={25} />
+                                    <FaTrashCan size={22} />
                                 </Button>
                             </span>
                         </OverlayTrigger>

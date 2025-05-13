@@ -15,6 +15,7 @@ import com.mh.validators.WebAppValidator;
 import jakarta.validation.Valid;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -97,7 +98,7 @@ public class ApiForumController {
         ForumPost forumPost = this.forumPostService.getForumPostById(forumPostId);
         List<ForumReply> replies = this.forumReplyService.getForumRepliesByForumPostId(forumPostId, params);
 
-        forumPost.setForumReplySet(new HashSet<>(replies));
+        forumPost.setForumReplySet(new LinkedHashSet<>(replies));
         return ResponseEntity.ok(new ForumPostDetailDTO(forumPost));
     }
 

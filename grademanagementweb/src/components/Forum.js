@@ -59,6 +59,10 @@ const Forum = () => {
             setPage(page + 1);
     }
 
+    const handlePostDeleted = (deletedId) => {
+        setPosts(prev => prev.filter(p => p.id !== deletedId));
+    }
+
     useEffect(() => {
         if (page !== 1)
             setPage(1);
@@ -71,14 +75,12 @@ const Forum = () => {
     }, [q, page]);
 
     useEffect(() => {
-        if (location.state?.refresh) {
-            setPosts([])
-            setPage(1)
-            loadPosts()
-
-            nav(location.pathname, { replace: true, state: {} });
+        if (location.state?.newPost) {
+            alert('Đăng bài thành công!')
+            setPosts(prev => [location.state.newPost, ...prev]);
+            nav(location.pathname, { replace: true, state: { ...location.state, newPost: null } });
         }
-    }, [location.state]);
+    }, [location.state?.newPost]);
 
     if (loading && posts.length === 0) return <MySpinner />;
 
@@ -97,7 +99,7 @@ const Forum = () => {
                 <Row className="g-4 align-items-stretch">
                     {posts.map(post => (
                         <Col md={6} key={post.id} >
-                            <ForumPost post={post} classRoomName={classRoomName}/>
+                            <ForumPost post={post} classRoomName={classRoomName} onPostDeleted={handlePostDeleted} />
                         </Col>
                     ))}
                 </Row>

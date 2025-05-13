@@ -1,38 +1,79 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Button, Card, Col, Image, OverlayTrigger, Tooltip, Row, Container, Alert } from 'react-bootstrap';
-import { PiNotePencil } from "react-icons/pi";
-import { RiDeleteBin7Line } from "react-icons/ri";
-import { useParams, useNavigate, Link, useLocation } from 'react-router-dom';
+import { Button, Card, Col, Image, OverlayTrigger, Tooltip, Row, Container } from 'react-bootstrap';
+import { useParams, useNavigate, Link, useLocation, Outlet } from 'react-router-dom';
 import { MyUserContext } from '../configs/MyContexts';
 import MySpinner from './layouts/MySpinner';
 import { authApis, endpoints } from '../configs/Apis';
 import ForumReply from './ForumReply';
 import { checkPermission, checkCanEdit, formatVietnamTime } from '../utils/utils';
+import { FaPenToSquare, FaTrashCan } from "react-icons/fa6";
 
 const ForumPostDetail = () => {
-    const { postId } = useParams();
+    const { classroomId, postId } = useParams();
     const nav = useNavigate();
     const [post, setPost] = useState(null);
+    const [replies, setReplies] = useState([])
     const [perm, setPerm] = useState(false);
     const [canEditOrDelete, setCanEditOrDelete] = useState(false);
     const user = useContext(MyUserContext);
     const [loading, setLoading] = useState(false)
     const location = useLocation()
-    const { classRoomName } = location.state || ''
+    const [{ classRoomName }, setClassRoomName] = useState(location.state || '')
+    const isAddPage = location.pathname.endsWith('/add');
+    const [page, setPage] = useState(1)
 
 
     const loadForumPost = async () => {
         try {
             setLoading(true)
 
-            const res = await authApis().get(endpoints['forum-post-detail'](postId))
-            setPost(res.data)
+            const url = `${endpoints['forum-post-detail'](postId)}?page=${page}`
+            console.log(url)
+            const res = await authApis().get(url)
+
+            if (res.data.forumReplies.length === 0) {
+                setPage(0);
+            } else {
+                if (page === 1) {
+                    setPost(res.data)
+                    setReplies(res.data.forumReplies)
+                }
+                else {
+                    setReplies(prev => [...prev, ...res.data.forumReplies]);
+                }
+
+            }
 
         } catch (ex) {
             console.error(ex)
         } finally {
             setLoading(false)
         }
+    }
+
+    const handleDeletePost = async () => {
+        if (!window.confirm("Bạn có chắc chắn muốn xoá bài đăng này?")) return;
+
+        try {
+            await authApis().delete(endpoints['forum-post-detail'](post.id));
+
+            nav(`/classrooms/${classroomId}/forums`)
+        } catch (ex) {
+            console.error("Delete error:", ex);
+            alert("Xoá bài viết thất bại!");
+        }
+    }
+
+    const toggleAddReply = () => {
+        if (isAddPage) {
+            nav(`/classrooms/${classroomId}/forums/${postId}`);
+        } else {
+            nav(`/classrooms/${classroomId}/forums/${postId}/add`);
+        }
+    }
+
+    const handleReplyDeleted = (deletedId) => {
+        setReplies(prev => prev.filter(r => r.id !== deletedId));
     }
 
     useEffect(() => {
@@ -47,6 +88,31 @@ const ForumPostDetail = () => {
             }
         }
     }, [post])
+
+    const loadMore = () => {
+        if (!loading && page > 0)
+            setPage(page + 1);
+    }
+
+    useEffect(() => {
+        if (page !== 1)
+            setPage(1);
+        setPost()
+        setReplies([])
+    }, []);
+
+    useEffect(() => {
+        if (page > 0)
+            loadForumPost();
+    }, [page]);
+
+    useEffect(() => {
+        if (location.state?.newReply) {
+            alert('Phản hồi thành công!')
+            setReplies(prev => [location.state.newReply, ...prev]);
+            nav(location.pathname, { replace: true, state: { ...location.state, newReply: null } });
+        }
+    }, [location.state?.newReply]);
 
     if (loading && !post) return <MySpinner />
 
@@ -84,11 +150,12 @@ const ForumPostDetail = () => {
                                 >
                                     <span className="me-2">
                                         <Button
+                                            size='sm'
                                             className="rounded-5"
-                                            variant="warning"
+                                            variant="outline"
                                             disabled={!canEditOrDelete}
                                         >
-                                            <PiNotePencil size={25} />
+                                            <FaPenToSquare size={22} />
                                         </Button>
                                     </span>
                                 </OverlayTrigger>
@@ -101,11 +168,13 @@ const ForumPostDetail = () => {
                                 >
                                     <span className="me-2">
                                         <Button
+                                            size='sm'
                                             className='rounded-5'
-                                            variant="danger"
+                                            variant="outline"
+                                            onClick={handleDeletePost}
                                             disabled={!canEditOrDelete}
                                         >
-                                            <RiDeleteBin7Line size={25} />
+                                            <FaTrashCan size={22} />
                                         </Button>
                                     </span>
                                 </OverlayTrigger>
@@ -131,13 +200,25 @@ const ForumPostDetail = () => {
 
                 <Row className="mt-4">
                     <Col>
-                        <h5>Phản hồi</h5>
-                        {post.forumReplies.length > 0 ? post.forumReplies.map(i =>
-                            <div className='mb-3'>
-                                <ForumReply reply={i} />
+                        <div className="d-flex justify-content-between mb-3">
+                            <h5>Phản hồi</h5>
+                            <Button variant="success" onClick={toggleAddReply}>
+                                {isAddPage ? 'Đóng' : '+ Thêm phản hồi'}
+                            </Button>
+                        </div>
+
+                        <Outlet />
+
+                        {replies.length > 0 ? replies.map(i =>
+                            <div className='mb-3' key={i.id}>
+                                <ForumReply reply={i} onReplyDeleted={handleReplyDeleted} />
                             </div>
                         ) : <div className='text-center'>
                             Không có phản hồi!
+                        </div>}
+
+                        {page > 0 && <div className="text-center mb-2 mt-3">
+                            <Button variant="primary" onClick={loadMore}>Xem thêm...</Button>
                         </div>}
                     </Col>
                 </Row>

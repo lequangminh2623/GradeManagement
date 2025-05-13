@@ -4,26 +4,22 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { authApis, endpoints } from '../configs/Apis';
 import MySpinner from './layouts/MySpinner';
 
-const CreatePost = () => {
-    const [post, setPost] = useState({})
+const CreateReply = () => {
+    const [reply, setReply] = useState({})
     const image = useRef()
     const [loading, setLoading] = useState(false);
     const [msg, setMsg] = useState("");
     const [fieldErrors, setFieldErrors] = useState({});
     const { classroomId } = useParams();
     const nav = useNavigate();
+    const { postId } = useParams()
 
     const setState = (value, field) => {
-        setPost({ ...post, [field]: value });
+        setReply({ ...reply, [field]: value });
     };
 
     const validate = () => {
-        if (!post.title || post.title.trim() === '') {
-            setFieldErrors({ title: 'Tiêu đề không được để trống' })
-            return false
-        }
-
-        if (!post.content || post.content.trim() === '') {
+        if (!reply.content || reply.content.trim() === '') {
             setFieldErrors({ content: 'Nội dung không được để trống' })
             return false
         }
@@ -31,7 +27,7 @@ const CreatePost = () => {
         return true
     }
 
-    const handleAddPost = async (e) => {
+    const handleAddReply = async (e) => {
         e.preventDefault();
         setMsg("");
         setFieldErrors({})
@@ -41,19 +37,19 @@ const CreatePost = () => {
                 setLoading(true);
 
                 let form = new FormData();
-                for (let key in post) {
-                    form.append(key, post[key]);
+                for (let key in reply) {
+                    form.append(key, reply[key]);
                 }
 
                 if (image.current.files[0]) {
                     form.append("file", image.current.files[0]);
                 }
 
-                const res = await authApis().post(endpoints['forum-posts'](classroomId), form, {
+                const res = await authApis().post(endpoints['forum-reply'](postId), form, {
                     headers: { "Content-Type": "multipart/form-data" }
                 });
 
-                nav(`/classrooms/${classroomId}/forums`, { state: { newPost: res.data } });
+                nav(`/classrooms/${classroomId}/forums/${postId}`, { state: { newReply: res.data } });
             } catch (ex) {
                 console.log(ex)
                 if (ex.response?.status === 400 && Array.isArray(ex.response.data)) {
@@ -64,7 +60,7 @@ const CreatePost = () => {
 
                     setFieldErrors(errs);
                 } else {
-                    setMsg("Lỗi khi tạo bài đăng");
+                    setMsg("Lỗi khi phản hồi");
                 }
             } finally {
                 setLoading(false);
@@ -75,34 +71,20 @@ const CreatePost = () => {
     return (
         <Card className="shadow-sm my-3">
             <Card.Header >
-                <h3 className="text-center">Tạo bài đăng mới</h3>
+                <h3 className="text-center">Phản hồi</h3>
             </Card.Header>
 
             <Card.Body className='p-4'>
                 {msg && <Alert variant="danger">{msg}</Alert>}
 
-                <Form onSubmit={handleAddPost}>
-
-                    <Form.Group className="mb-3">
-                        <Form.Label>Tiêu đề</Form.Label>
-                        <Form.Control
-                            type="text"
-                            value={post['title']}
-                            onChange={(e) => setState(e.target.value, "title")}
-                            placeholder="Nhập tiêu đề"
-                            isInvalid={!!fieldErrors['title']}
-                        />
-                        <Form.Control.Feedback type="invalid">
-                            {fieldErrors['title']}
-                        </Form.Control.Feedback>
-                    </Form.Group>
+                <Form onSubmit={handleAddReply}>
 
                     <Form.Group className="mb-3">
                         <Form.Label>Nội dung</Form.Label>
                         <Form.Control
                             as="textarea"
                             rows={5}
-                            value={post['content']}
+                            value={reply['content']}
                             onChange={(e) => setState(e.target.value, "content")}
                             placeholder="Nhập nội dung"
                             isInvalid={!!fieldErrors['content']}
@@ -124,7 +106,7 @@ const CreatePost = () => {
                     <div className="d-grid">
                         {loading ? <MySpinner /> :
                             <Button variant="primary" type="submit" disabled={loading}>
-                                Đăng bài
+                                Gửi phản hồi
                             </Button>
                         }
                     </div>
@@ -135,4 +117,4 @@ const CreatePost = () => {
     );
 };
 
-export default CreatePost;
+export default CreateReply;
