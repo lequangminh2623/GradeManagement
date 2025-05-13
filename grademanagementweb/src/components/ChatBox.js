@@ -3,7 +3,7 @@ import Apis, { endpoints } from "../configs/Apis";
 import Sidebar from "./Sidebar";
 import ChatPanel from "./ChatPanel";
 import { MyUserContext } from "../configs/MyContexts";
-import { collection, onSnapshot, orderBy, query, where } from "firebase/firestore";
+import { collection, onSnapshot, orderBy, query, where, doc, addDoc, setDoc, serverTimestamp } from "firebase/firestore";
 import { db } from "../configs/Firebase";
 import { useSearchParams } from "react-router-dom";
 
@@ -86,6 +86,27 @@ export default function ChatBox() {
     return () => unsub();
   }, [user]);
 
+  const handleChatbotInteraction = async (message) => {
+    try {
+      const response = await Apis.post(endpoints['ask'], {
+        query: message,
+      }, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response || !response.data) {
+        throw new Error("Invalid response from chatbot API");
+      }
+
+      return response.data;
+    } catch (err) {
+      console.error("Error calling chatbot API:", err);
+      return "Xin lỗi, tôi không thể trả lời lúc này.";
+    }
+  };
+
   if (!user) {
     return <div>Đang tải người dùng...</div>;
   }
@@ -102,7 +123,10 @@ export default function ChatBox() {
       />
 
       {selectedUser ? (
-        <ChatPanel selectedUser={selectedUser} />
+        <ChatPanel
+          selectedUser={selectedUser}
+          onChatbotInteraction={selectedUser.email === "chatbot@ou.edu.vn" ? handleChatbotInteraction : null}
+        />
       ) : (
         <div style={{
           flex: 1,
