@@ -16,7 +16,7 @@ export const endpoints = {
     'export-pdf': (classroomId) => `/secure/classrooms/${classroomId}/grades/export/pdf`,
     'users': '/users',
     'student-grades': '/secure/grades/student',
-    'ask': '/ai/ask'
+    'ask': '/ai/ask',
     'forum-posts': (classroomId) => `/secure/classrooms/${classroomId}/forums`,
     'forum-post-detail': (postId) => `/secure/forums/${postId}`,
     'forum-reply': (postId) => `/secure/forums/${postId}/replies`,
