@@ -8,8 +8,10 @@ import com.mh.pojo.Classroom;
 import com.mh.pojo.ExtraGrade;
 import com.mh.pojo.GradeDetail;
 import com.mh.pojo.Student;
+import com.mh.pojo.dto.GradeClusterResultDTO;
 import com.mh.pojo.dto.GradeDTO;
 import com.mh.pojo.dto.GradeDetailDTO;
+import com.mh.pojo.dto.SemesterAnalysisResult;
 import com.mh.pojo.dto.TranscriptDTO;
 import com.mh.repositories.GradeDetailRepository;
 import com.mh.services.ClassroomService;
@@ -32,6 +34,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.springframework.web.multipart.MultipartFile;
+import smile.clustering.KMeans;
 
 /**
  *
@@ -138,7 +141,7 @@ public class GradeDetailServiceImpl implements GradeDetailService {
     public TranscriptDTO getTranscriptForClassroom(Integer classroomId, Map<String, String> params) {
         Classroom classroom = classroomService.getClassroomById(classroomId);
         List<Student> students = classroomService.getStudentsInClassroom(classroom.getId(), params);
-        
+
         if (classroom == null) {
             throw new EntityNotFoundException("Không tìm thấy lớp học với id: " + classroomId);
         }
@@ -305,6 +308,131 @@ public class GradeDetailServiceImpl implements GradeDetailService {
     @Override
     public List<GradeDetailDTO> getGradesByStudent(Integer userId, Map<String, String> params) {
         return this.gradeDetailRepo.getGradeDetailByStudent(userId, params);
+    }
+
+    @Override
+    public List<GradeDetail> getGradeDetailBySemester(Integer semesterId) {
+        return this.gradeDetailRepo.getGradeDetailBySemester(semesterId);
+    }
+
+    @Override
+    public SemesterAnalysisResult analyzeSemester(int semesterId) {
+
+        // 1. Lấy dữ liệu GradeDetail theo học kỳ
+        List<GradeDetail> gradeDetails = this.getGradeDetailBySemester(semesterId);
+
+        // 2. Chuyển thành GradeDTO
+        List<GradeDTO> gradeList = gradeDetails.stream().map(grade -> {
+            GradeDTO dto = new GradeDTO();
+            dto.setStudentId(grade.getStudent().getId());
+            dto.setStudentCode(grade.getStudent().getCode());
+            dto.setFullName(grade.getStudent().getUser().getLastName() + " " + grade.getStudent().getUser().getFirstName());
+            dto.setMidtermGrade(grade.getMidtermGrade());
+            dto.setFinalGrade(grade.getFinalGrade());
+            List<Double> extra = grade.getExtraGradeSet().stream()
+                    .sorted(Comparator.comparingInt(ExtraGrade::getGradeIndex))
+                    .map(ExtraGrade::getGrade)
+                    .collect(Collectors.toList());
+            dto.setExtraGrades(extra);
+            return dto;
+        }).collect(Collectors.toList());
+
+        // 3. Xác định số cột extra tối đa để pad vào ma trận
+        int maxExtra = gradeList.stream()
+                .mapToInt(g -> g.getExtraGrades() == null ? 0 : g.getExtraGrades().size())
+                .max().orElse(0);
+
+        // 4. Xây dựng ma trận dữ liệu với padding
+        double[][] data = gradeList.stream().map(g -> {
+            List<Double> features = new ArrayList<>();
+            features.add(g.getMidtermGrade() != null ? g.getMidtermGrade() : 0.0);
+            features.add(g.getFinalGrade() != null ? g.getFinalGrade() : 0.0);
+            List<Double> extras = g.getExtraGrades() == null ? Collections.emptyList() : g.getExtraGrades();
+            for (int i = 0; i < maxExtra; i++) {
+                features.add(i < extras.size() ? extras.get(i) : 0.0);
+            }
+            return features.stream().mapToDouble(Double::doubleValue).toArray();
+        }).toArray(double[][]::new);
+
+        if (gradeDetails.isEmpty()) {
+            SemesterAnalysisResult emptyResult = new SemesterAnalysisResult();
+            emptyResult.setTotalStudents(0);
+            emptyResult.setWeakStudents(0);
+            emptyResult.setWeakRatio(0);
+            emptyResult.setWeakStudentList(Collections.emptyList());
+            emptyResult.setCourseWeakRatios(Collections.emptyMap());
+            emptyResult.setCriticalCourses(Collections.emptyList());
+            return emptyResult;
+        }
+
+        // 5. Chạy KMeans phân cụm 2 nhóm
+        KMeans kmeans = KMeans.fit(data, 2);
+        int[] labels = kmeans.y;
+
+        // 6. Tính điểm trung bình mỗi cụm để xác định nhóm yếu
+        Map<Integer, List<double[]>> clusters = new HashMap<>();
+        for (int i = 0; i < labels.length; i++) {
+            clusters.computeIfAbsent(labels[i], k -> new ArrayList<>()).add(data[i]);
+        }
+        Map<Integer, Double> clusterAvg = new HashMap<>();
+        for (Map.Entry<Integer, List<double[]>> entry : clusters.entrySet()) {
+            double sum = 0;
+            int count = 0;
+            for (double[] vec : entry.getValue()) {
+                for (double v : vec) {
+                    sum += v;
+                    count++;
+                }
+            }
+            clusterAvg.put(entry.getKey(), sum / count);
+        }
+        // Nhóm có avg nhỏ hơn là yếu
+        int weakCluster = clusterAvg.get(0) <= clusterAvg.get(1) ? 0 : 1;
+
+        // 7. Mapping kết quả với nhãn cố định: 0 = yếu, 1 = giỏi
+        List<GradeClusterResultDTO> clusterResults = new ArrayList<>();
+        for (int i = 0; i < gradeList.size(); i++) {
+            GradeDTO g = gradeList.get(i);
+            GradeClusterResultDTO dto = new GradeClusterResultDTO();
+            dto.setStudentId(g.getStudentId());
+            dto.setStudentCode(g.getStudentCode());
+            dto.setFullName(g.getFullName());
+            dto.setCourseName(gradeDetails.get(i).getCourse().getName());
+            // gán nhãn: 0 = yếu, 1 = giỏi
+            dto.setCluster(labels[i] == weakCluster ? 0 : 1);
+            clusterResults.add(dto);
+        }
+
+        // 8. Trả về kết quả phân tích học kỳ
+        return buildSemesterAnalysis(clusterResults);
+    }
+
+    public SemesterAnalysisResult buildSemesterAnalysis(List<GradeClusterResultDTO> clusterResults) {
+        SemesterAnalysisResult result = new SemesterAnalysisResult();
+        int total = clusterResults.size();
+        List<GradeClusterResultDTO> weakStudents = clusterResults.stream()
+                .filter(r -> r.getCluster() == 0)
+                .collect(Collectors.toList());
+        int weak = weakStudents.size();
+        result.setTotalStudents(total);
+        result.setWeakStudents(weak);
+        result.setWeakRatio(total == 0 ? 0 : (weak * 100.0 / total));
+        result.setWeakStudentList(weakStudents);
+        Map<String, List<GradeClusterResultDTO>> byCourse = clusterResults.stream()
+                .collect(Collectors.groupingBy(GradeClusterResultDTO::getCourseName));
+        Map<String, Double> courseWeakRatios = new HashMap<>();
+        List<String> criticalCourses = new ArrayList<>();
+        byCourse.forEach((course, list) -> {
+            long cnt = list.stream().filter(r -> r.getCluster() == 0).count();
+            double ratio = list.isEmpty() ? 0 : (cnt * 100.0 / list.size());
+            courseWeakRatios.put(course, ratio);
+            if (ratio >= 40.0) {
+                criticalCourses.add(course);
+            }
+        });
+        result.setCourseWeakRatios(courseWeakRatios);
+        result.setCriticalCourses(criticalCourses);
+        return result;
     }
 
 }
