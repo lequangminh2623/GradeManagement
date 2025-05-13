@@ -80,15 +80,15 @@ const Register = () => {
         setFieldErrors({});
 
         if (validate() === true) {
-            let form = new FormData();
-            for (let key in user) {
-                if (key !== 'confirm') form.append(key, user[key]);
-            }
-
-            form.append("file", avatar.current.files[0]);
-
             try {
                 setLoading(true);
+
+                let form = new FormData();
+                for (let key in user) {
+                    if (key !== 'confirm') form.append(key, user[key]);
+                }
+
+                form.append("file", avatar.current.files[0]);
 
                 await Apis.post(endpoints['register'], form, {
                     headers: {
