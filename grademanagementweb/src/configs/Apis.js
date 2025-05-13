@@ -16,7 +16,7 @@ export const endpoints = {
     'export-pdf': (classroomId) => `/secure/classrooms/${classroomId}/grades/export/pdf`,
     'users': '/users',
     'student-grades': '/secure/grades/student',
-    'ask': '/ai/ask'
+    'ask': '/ai/ask',
 }
 
 export const authApis = () => {
