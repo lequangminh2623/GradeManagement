@@ -21,7 +21,7 @@ const ClassroomList = () => {
             setLoading(true);
 
             let url = `${endpoints['classrooms']}?page=${page}`;
-            
+
             const kw = q.get('kw');
             if (kw) {
                 url += `&kw=${kw}`;
@@ -36,7 +36,7 @@ const ClassroomList = () => {
             const data = res.data;
 
             setClassrooms(data.content);
-            setTotalPages(data.totalPages); 
+            setTotalPages(data.totalPages);
         } catch (ex) {
             console.error("Failed to load classrooms:", ex);
         } finally {
@@ -63,7 +63,7 @@ const ClassroomList = () => {
             <Row className="w-100 gy-3">
                 {classrooms.map(c => (
                     <Col key={c.id} md={4} xs={6} className="p-2">
-                        <Card className="shadow-sm rounded-3">
+                        <Card className="shadow-sm rounded-3 forum-card">
                             <Card.Body>
                                 <Card.Title>{c.name}</Card.Title>
 
@@ -77,7 +77,7 @@ const ClassroomList = () => {
                                 <Button
                                     variant="success"
                                     className="me-2"
-                                    onClick={() => navigate(`/classrooms/${c.id}/forums`)}>
+                                    onClick={() => navigate(`/classrooms/${c.id}/forums`, { state: { classRoomName: c.name } })}>
                                     Diễn đàn
                                 </Button>
 

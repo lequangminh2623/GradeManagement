@@ -5,6 +5,7 @@ import com.mh.pojo.ForumPost;
 import com.mh.pojo.ForumReply;
 import com.mh.pojo.User;
 import com.mh.pojo.dto.ForumPostDTO;
+import com.mh.pojo.dto.ForumPostDetailDTO;
 import com.mh.pojo.dto.ForumReplyDTO;
 import com.mh.services.ClassroomService;
 import com.mh.services.ForumPostService;
@@ -14,6 +15,7 @@ import com.mh.validators.WebAppValidator;
 import jakarta.validation.Valid;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -96,8 +98,8 @@ public class ApiForumController {
         ForumPost forumPost = this.forumPostService.getForumPostById(forumPostId);
         List<ForumReply> replies = this.forumReplyService.getForumRepliesByForumPostId(forumPostId, params);
 
-        forumPost.setForumReplySet(new HashSet<>(replies));
-        return ResponseEntity.ok(forumPost);
+        forumPost.setForumReplySet(new LinkedHashSet<>(replies));
+        return ResponseEntity.ok(new ForumPostDetailDTO(forumPost));
     }
 
     @PutMapping("/{forumPostId}")

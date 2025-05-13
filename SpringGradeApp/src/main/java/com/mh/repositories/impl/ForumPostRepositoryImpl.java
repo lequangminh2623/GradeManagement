@@ -59,6 +59,8 @@ public class ForumPostRepositoryImpl implements ForumPostRepository {
 
         }
 
+        cq.orderBy(cb.desc(root.get("id")));
+
         Query query = session.createQuery(cq);
 
         if (params != null && params.containsKey("page")) {

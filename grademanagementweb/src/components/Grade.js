@@ -10,7 +10,6 @@ const Grade = () => {
     const [loading, setLoading] = useState(false);
     const [q] = useSearchParams();
 
-
     const loadGrades = async () => {
         try {
             setLoading(true)
@@ -63,22 +62,19 @@ const Grade = () => {
 
     return (
         <Container className="p-3" style={{ minHeight: "100vh" }}>
-            {gradesBySemester.length === 0 && loading ? (
-                <MySpinner />
-            ) : gradesBySemester.length > 0 ? gradesBySemester.map((semester, idx) =>
+            {gradesBySemester.length > 0 ? gradesBySemester.map((semester, idx) =>
                 <SemesterTable
                     key={idx}
                     semesterTitle={semester.semesterTitle}
                     subjects={semester.subjects}
                     summary={null}
                 />
-
             ) : <Alert variant="info" className="m-2">
                 Không có điểm!
             </Alert>
-
             }
 
+            {loading && <MySpinner />}
         </Container >
     );
 };

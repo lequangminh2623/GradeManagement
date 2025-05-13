@@ -17,6 +17,11 @@ export const endpoints = {
     'users': '/users',
     'student-grades': '/secure/grades/student',
     'ask': '/ai/ask',
+    'forum-posts': (classroomId) => `/secure/classrooms/${classroomId}/forums`,
+    'forum-post-detail': (postId) => `/secure/forums/${postId}`,
+    'forum-reply': (postId) => `/secure/forums/${postId}/replies`,
+    'forum-reply-detail': (postId, replyId) => `/secure/forums/${postId}/replies/${replyId}`,
+    'forum-child-replies': (postId, replyId) => `/secure/forums/${postId}/replies/${replyId}/child-replies`,
 }
 
 export const authApis = () => {
