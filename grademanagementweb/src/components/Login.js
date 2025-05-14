@@ -1,13 +1,11 @@
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Alert, Button, Form, Container, Row, Col, Card } from "react-bootstrap";
 import Apis, { authApis, endpoints } from "../configs/Apis";
 import MySpinner from "./layouts/MySpinner";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import cookie from 'react-cookies';
 import { MyDispatcherContext } from "../configs/MyContexts";
-import { FcGoogle } from "react-icons/fc";
-import { GoogleLogin } from "@react-oauth/google";
-import { jwtDecode } from "jwt-decode";
+import GoogleLoginButton from "./GoogleLoginButton";
 
 const Login = () => {
     const info = [
@@ -20,6 +18,7 @@ const Login = () => {
     const [fieldErrors, setFieldErrors] = useState({});
     const nav = useNavigate();
     const dispatch = useContext(MyDispatcherContext);
+    const location = useLocation()
 
     const setState = (value, field) => {
         setUser({ ...user, [field]: value });
@@ -69,39 +68,13 @@ const Login = () => {
                 setLoading(false);
             }
         }
-    };
+    }
 
-    const handleLoginGoogle = async (credentialResponse) => {
-        const decoded = jwtDecode(credentialResponse.credential);
-
-        try {
-            const res = await Apis.post(endpoints['login-google'], {
-                token: credentialResponse.credential,
-            });
-
-            if (res.data.isNewUser) {
-                nav("/register", { state: { newUser: res.data } });
-            } else {
-                cookie.save('token', res.data.token);
-
-                let u = await authApis().get(endpoints['profile']);
-
-                dispatch({
-                    type: "login",
-                    payload: u.data
-                });
-
-                nav("/");
-            }
-        } catch (ex) {
-            if (ex.response?.status === 403) {
-                const errs = ex.response.data;
-                setMsg(errs);
-            } else {
-                setMsg("Lỗi hệ thống hoặc kết nối.");
-            }
+    useEffect(() => {
+        if (location.state?.success === true) {
+            alert("Đăng ký tài khoản thành công")
         }
-    };
+    }, [location.state?.success])
 
     return (
         <Container className="d-flex justify-content-center align-items-center" style={{ minHeight: "100vh" }}>
@@ -150,8 +123,7 @@ const Login = () => {
                                     <hr className="my-4" />
 
                                     <div className="d-grid gap-2">
-                                        <GoogleLogin
-                                            onSuccess={handleLoginGoogle} onError={() => console.log('Login Failed')} />
+                                        <GoogleLoginButton setMsg={setMsg} />
 
                                         <div className="text-center">
                                             Chưa có tài khoản? <Link to="/register" style={{ textDecoration: 'none' }}>Đăng ký</Link>

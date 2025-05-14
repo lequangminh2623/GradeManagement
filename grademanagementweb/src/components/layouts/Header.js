@@ -83,7 +83,7 @@ const Header = () => {
               title={<Image
                 src={user.avatar}
                 roundedCircle
-                style={{ width: '45px', height: '45px' }}
+                style={{ width: '40px', height: '40px' }}
               />}
               id="user-dropdown"
               className="ms-4"

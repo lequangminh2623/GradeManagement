@@ -14,7 +14,7 @@ public enum PageSize {
     USER_PAGE_SIZE(10),
     CLASSROOM_PAGE_SIZE(5),
     FORUM_POST_PAGE_SIZE(10),
-    FORUM_REPLY_PAGE_SIZE(2);
+    FORUM_REPLY_PAGE_SIZE(5);
 
     private final int size;
 

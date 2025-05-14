@@ -11,6 +11,7 @@ import com.mh.services.ClassroomService;
 import com.mh.services.ForumPostService;
 import com.mh.services.ForumReplyService;
 import com.mh.services.UserService;
+import com.mh.utils.PageSize;
 import com.mh.validators.WebAppValidator;
 import jakarta.validation.Valid;
 import java.util.HashMap;
@@ -97,9 +98,14 @@ public class ApiForumController {
 
         ForumPost forumPost = this.forumPostService.getForumPostById(forumPostId);
         List<ForumReply> replies = this.forumReplyService.getForumRepliesByForumPostId(forumPostId, params);
+        int totalPages = (int) Math.ceil((double) this.forumReplyService.countForumRepliesByForumPostId(forumPostId, params)
+                / PageSize.FORUM_REPLY_PAGE_SIZE.getSize());
 
         forumPost.setForumReplySet(new LinkedHashSet<>(replies));
-        return ResponseEntity.ok(new ForumPostDetailDTO(forumPost));
+
+        return ResponseEntity.ok(Map.of("content", new ForumPostDetailDTO(forumPost),
+                "totalPages", totalPages
+        ));
     }
 
     @PutMapping("/{forumPostId}")

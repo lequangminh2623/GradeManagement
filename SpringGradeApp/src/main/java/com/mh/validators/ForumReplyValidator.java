@@ -8,6 +8,8 @@ import com.mh.pojo.ForumPost;
 import com.mh.pojo.ForumReply;
 import com.mh.services.ClassroomService;
 import com.mh.services.ForumPostService;
+import com.mh.services.ForumReplyService;
+import java.util.List;
 import java.util.Set;
 import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +29,9 @@ public class ForumReplyValidator implements Validator {
 
     @Autowired
     private ForumPostService forumPostService;
+
+    @Autowired
+    private ForumReplyService forumReplyService;
 
     @Override
     public boolean supports(Class<?> clazz) {
@@ -61,7 +66,7 @@ public class ForumReplyValidator implements Validator {
                 }
 
                 if (reply.getParent() != null && reply.getParent().getId() != null) {
-                    Set<ForumReply> replies = post.getForumReplySet();
+                    List<ForumReply> replies = this.forumReplyService.getForumRepliesByForumPostId(post.getId(), null);
 
                     if (!replies.contains(reply.getParent())) {
                         errors.rejectValue("forumPost", "forumReply.notInPost");

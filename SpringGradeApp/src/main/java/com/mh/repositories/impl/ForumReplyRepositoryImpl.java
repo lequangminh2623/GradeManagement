@@ -211,12 +211,7 @@ public class ForumReplyRepositoryImpl implements ForumReplyRepository {
         ForumReply reply = session.get(ForumReply.class, id);
 
         if (reply != null) {
-            ForumPost post = reply.getForumPost();
-            if (post != null) {
-                post.getForumReplySet().remove(reply);
-                session.remove(reply);
-            }
+            session.remove(reply);
         }
     }
-
 }
