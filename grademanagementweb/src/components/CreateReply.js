@@ -1,6 +1,6 @@
 import React, { useRef, useState } from 'react';
 import { Button, Form, Container, Alert, Spinner, Row, Col, Card } from 'react-bootstrap';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { authApis, endpoints } from '../configs/Apis';
 import MySpinner from './layouts/MySpinner';
 
@@ -13,6 +13,8 @@ const CreateReply = () => {
     const { classroomId } = useParams();
     const nav = useNavigate();
     const { postId } = useParams()
+    const locaiton = useLocation()
+    const parentId = locaiton.state?.parentId
 
     const setState = (value, field) => {
         setReply({ ...reply, [field]: value });
@@ -45,11 +47,20 @@ const CreateReply = () => {
                     form.append("file", image.current.files[0]);
                 }
 
+                if (parentId) {
+                    form.append("parentId", parentId)
+                }
+
                 const res = await authApis().post(endpoints['forum-reply'](postId), form, {
                     headers: { "Content-Type": "multipart/form-data" }
-                });
+                })
 
-                nav(`/classrooms/${classroomId}/forums/${postId}`, { state: { newReply: res.data } });
+                if (parentId) {
+                    nav(`/classrooms/${classroomId}/forums/${postId}`, { state: { newChildReply: res.data, parentId: parentId } });
+                } else {
+                    nav(`/classrooms/${classroomId}/forums/${postId}`, { state: { newReply: res.data } });
+                }
+
             } catch (ex) {
                 console.log(ex)
                 if (ex.response?.status === 400 && Array.isArray(ex.response.data)) {

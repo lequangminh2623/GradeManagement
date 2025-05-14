@@ -17,6 +17,7 @@ import Forum from './components/Forum';
 import CreatePost from './components/CreatePost';
 import ForumPostDetail from './components/ForumPostDetail';
 import CreateReply from './components/CreateReply';
+import ForumReply from './components/ForumReply';
 
 
 const App = () => {
@@ -67,10 +68,15 @@ const App = () => {
                         <Route path="/classrooms/:classroomId/forums/:postId" element={
                           user ? (user.role === "ROLE_ADMIN" ? <Navigate to='/' /> : <ForumPostDetail />) : <Navigate to='/login' />}
                         >
-                          <Route path="add"
-                            element={
-                              user ? (user.role === "ROLE_ADMIN" ? <Navigate to='/' /> : <CreateReply />) : <Navigate to='/login' />}
-                          /></Route>
+                          <Route path="add" element={
+                            user ? (user.role === "ROLE_ADMIN" ? <Navigate to='/' /> : <CreateReply />) : <Navigate to='/login' />} />
+
+                          <Route path="replies/:replyId">
+                            <Route path="add" element={
+                              user ? (user.role === "ROLE_ADMIN" ? <Navigate to='/' /> : <CreateReply />) : <Navigate to='/login' />} />
+                          </Route>
+                        </Route>
+
 
                         <Route path="/chatbox" element={user ? <ChatBox /> : <Navigate to="/login" />} />
                         <Route path="/grades"

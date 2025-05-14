@@ -37,14 +37,10 @@ const Forum = () => {
             }
 
             const res = await authApis().get(url);
+            setPosts(prev => [...prev, ...res.data.content]);
 
-            if (res.data.length === 0) {
+            if (page >= res.data.totalPages) {
                 setPage(0);
-            } else {
-                if (page === 1)
-                    setPosts(res.data);
-                else
-                    setPosts(prev => [...prev, ...res.data]);
             }
 
         } catch (ex) {

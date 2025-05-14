@@ -1,9 +1,9 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Alert, Button, Card, Col, Container, Form, Row } from "react-bootstrap";
 import Apis, { endpoints } from "../configs/Apis";
 import MySpinner from "./layouts/MySpinner";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { FcGoogle } from "react-icons/fc";
+import GoogleLoginButton from "./GoogleLoginButton";
 
 const Register = () => {
     const location = useLocation();
@@ -96,7 +96,7 @@ const Register = () => {
                     }
                 });
 
-                nav("/login");
+                nav("/login", { state: { success: true } });
             } catch (ex) {
                 if (ex.response?.status === 400 && Array.isArray(ex.response.data)) {
                     const errs = {};
@@ -113,6 +113,12 @@ const Register = () => {
             }
         }
     }
+
+    useEffect(() => {
+        if (location.state?.newUser) {
+            setUser(location.state.newUser)
+        }
+    }, [location.state?.newUser]);
 
     return (
         <Container className="d-flex justify-content-center align-items-center p-3" style={{ minHeight: "100vh" }}>
@@ -173,13 +179,7 @@ const Register = () => {
                                 <>
                                     <hr className="my-4" />
                                     <div className="d-grid gap-2">
-                                        <Button
-                                            className="d-flex justify-content-center align-items-center"
-                                            variant="outline-secondary"
-                                            onClick={() => console.log('google')}
-                                        >
-                                            <FcGoogle className="me-1" /> Đăng nhập với Google
-                                        </Button>
+                                        <GoogleLoginButton setMsg={setMsg} />
 
                                         <div className="text-center">
                                             Đã có tài khoản? <Link to="/login" style={{ textDecoration: 'none' }}>Đăng nhập</Link>

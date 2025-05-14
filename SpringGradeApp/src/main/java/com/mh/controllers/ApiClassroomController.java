@@ -179,8 +179,12 @@ public class ApiClassroomController {
         params.put("classroom", String.valueOf(classroomId));
 
         List<ForumPost> forumPosts = this.forumPostService.getForumPosts(params);
+        int totalPages = (int) Math.ceil((double) this.forumPostService.countForumPosts(params)
+                / PageSize.FORUM_POST_PAGE_SIZE.getSize());
 
-        return ResponseEntity.ok(forumPosts);
+        return ResponseEntity.ok(Map.of("content", forumPosts,
+                "totalPages", totalPages
+        ));
     }
 
     @PostMapping("/{classroomId}/forums")

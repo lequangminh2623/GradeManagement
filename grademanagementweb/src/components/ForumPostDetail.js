@@ -19,7 +19,7 @@ const ForumPostDetail = () => {
     const [loading, setLoading] = useState(false)
     const location = useLocation()
     const [{ classRoomName }, setClassRoomName] = useState(location.state || '')
-    const isAddPage = location.pathname.endsWith('/add');
+    const isAddPage = location.pathname.endsWith(`forums/${postId}/add`);
     const [page, setPage] = useState(1)
 
 
@@ -28,20 +28,12 @@ const ForumPostDetail = () => {
             setLoading(true)
 
             const url = `${endpoints['forum-post-detail'](postId)}?page=${page}`
-            console.log(url)
             const res = await authApis().get(url)
+            setPost(res.data.content)
+            setReplies(prev => [...prev, ...res.data.content.forumReplies]);
 
-            if (res.data.forumReplies.length === 0) {
+            if (page >= res.data.totalPages) {
                 setPage(0);
-            } else {
-                if (page === 1) {
-                    setPost(res.data)
-                    setReplies(res.data.forumReplies)
-                }
-                else {
-                    setReplies(prev => [...prev, ...res.data.forumReplies]);
-                }
-
             }
 
         } catch (ex) {
@@ -75,10 +67,6 @@ const ForumPostDetail = () => {
     const handleReplyDeleted = (deletedId) => {
         setReplies(prev => prev.filter(r => r.id !== deletedId));
     }
-
-    useEffect(() => {
-        loadForumPost()
-    }, [postId])
 
     useEffect(() => {
         if (post) {
@@ -118,7 +106,6 @@ const ForumPostDetail = () => {
 
     return (
         <Container className="p-3" style={{ minHeight: "100vh" }}>
-            {loading && <MySpinner />}
             <h3 className='mb-3'>{classRoomName}</h3>
             {post && <>
                 <Card className="shadow-sm">
@@ -207,7 +194,7 @@ const ForumPostDetail = () => {
                             </Button>
                         </div>
 
-                        <Outlet />
+                        {isAddPage && <Outlet />}
 
                         {replies.length > 0 ? replies.map(i =>
                             <div className='mb-3' key={i.id}>
@@ -216,6 +203,8 @@ const ForumPostDetail = () => {
                         ) : <div className='text-center'>
                             Không có phản hồi!
                         </div>}
+
+                        {loading && <MySpinner />}
 
                         {page > 0 && <div className="text-center mb-2 mt-3">
                             <Button variant="primary" onClick={loadMore}>Xem thêm...</Button>
