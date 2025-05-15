@@ -4,10 +4,12 @@
  */
 package com.mh.controllers;
 
+import com.mh.pojo.GradeDetail;
 import com.mh.pojo.dto.SemesterAnalysisResult;
 import com.mh.services.GradeDetailService;
 import com.mh.services.SemesterService;
 import jakarta.servlet.http.HttpServletRequest;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -42,11 +44,12 @@ public class IndexController {
     }
 
     @GetMapping("/")
-    public String index(@RequestParam(name = "semesterId", required = false, defaultValue = "1") int semesterId,
-            Model model) {
-        SemesterAnalysisResult result = gradeDetailService.analyzeSemester(semesterId);
+    public String index(@RequestParam(name = "semesterId", required = false, defaultValue = "1") int semesterId, Model model) {
+        List<GradeDetail> gradeDetails = gradeDetailService.getGradeDetailsBySemester(semesterId);
+        SemesterAnalysisResult result = gradeDetailService.analyzeSemester(gradeDetails);
         model.addAttribute("result", result);
         model.addAttribute("semesters", semesterService.getSemesters(null));
+        model.addAttribute("semesterId", semesterId);
         return "index";
     }
 

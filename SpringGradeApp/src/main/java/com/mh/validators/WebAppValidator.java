@@ -13,6 +13,7 @@ import com.mh.pojo.dto.ForumReplyDTO;
 import com.mh.pojo.dto.UserDTO;
 import jakarta.validation.ConstraintViolation;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -29,7 +30,11 @@ public class WebAppValidator implements Validator {
 
     @Override
     public boolean supports(Class<?> clazz) {
-        for (org.springframework.validation.Validator v : springValidators) {
+        if (List.class.isAssignableFrom(clazz)) {
+            return true;
+        }
+
+        for (Validator v : springValidators) {
             if (v.supports(clazz)) {
                 return true;
             }
@@ -111,6 +116,7 @@ public class WebAppValidator implements Validator {
                 }
             }
         }
+        return;
     }
 
     public void setSpringValidators(

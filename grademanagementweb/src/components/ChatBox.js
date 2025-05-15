@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useContext, useCallback } from "react";
-import Apis, { endpoints } from "../configs/Apis";
+import Apis, { authApis, endpoints } from "../configs/Apis";
 import Sidebar from "./Sidebar";
 import ChatPanel from "./ChatPanel";
 import { MyUserContext } from "../configs/MyContexts";
@@ -88,7 +88,7 @@ export default function ChatBox() {
 
   const handleChatbotInteraction = async (message) => {
     try {
-      const response = await Apis.post(endpoints['ask'], {
+      const response = await authApis().post(endpoints['ask'], {
         query: message,
       }, {
         headers: {

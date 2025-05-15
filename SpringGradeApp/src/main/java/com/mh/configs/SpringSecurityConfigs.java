@@ -110,9 +110,10 @@ public class SpringSecurityConfigs {
                 .loginProcessingUrl("/login")
                 .defaultSuccessUrl("/", true)
                 .failureUrl("/login?error=true").permitAll())
-                .logout(logout -> logout.logoutSuccessUrl("/login").permitAll());//.addFilterBefore(new JwtFilter(), UsernamePasswordAuthenticationFilter.class);
+                .logout(logout -> logout.logoutSuccessUrl("/login").permitAll());
+        
+        //.addFilterBefore(new JwtFilter(), UsernamePasswordAuthenticationFilter.class);
 
-//        http.csrf(c -> c.disable()).authorizeHttpRequests(requests -> requests.anyRequest().permitAll());
         return http.build();
     }
 

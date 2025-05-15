@@ -42,7 +42,9 @@ public interface GradeDetailService {
 
     List<GradeDetailDTO> getGradesByStudent(Integer userId, Map<String, String> params);
     
-    List<GradeDetail> getGradeDetailBySemester(Integer semesterId);
+    List<GradeDetail> getGradeDetailsBySemester(Integer semesterId);
     
-    SemesterAnalysisResult analyzeSemester(int semesterId);
+    SemesterAnalysisResult analyzeSemester(List<GradeDetail> gradeDetails);
+    
+    List<GradeDetail> getGradeDetailsByLecturerAndSemester(Integer lecturerId, Integer semesterId);
 }

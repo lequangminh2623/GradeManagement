@@ -22,15 +22,11 @@
 
 .msg {
     display: inline-block;
-    /* Bọc vừa nội dung */
     max-width: 70%;
-    /* Giới hạn tối đa (có thể điều chỉnh %) */
     margin-bottom: 8px;
     padding: 8px 12px;
     border-radius: 16px;
     word-break: break-word;
-    white-space: pre-wrap;
-    /* Hỗ trợ xuống dòng theo nội dung */
 }
 
 .msg.own {

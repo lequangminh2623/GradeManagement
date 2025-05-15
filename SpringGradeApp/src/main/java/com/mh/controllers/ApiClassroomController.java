@@ -31,6 +31,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequestMapping("/api/secure/classrooms")
@@ -72,9 +73,13 @@ public class ApiClassroomController {
     @PatchMapping("/{classroomId}/lock")
     public ResponseEntity<?> lockTranscript(@PathVariable("classroomId") Integer classroomId) {
         classroomService.checkLecturerPermission(classroomId);
-
-        classroomService.lockClassroomGrades(classroomId);
-
+        try {
+            classroomService.lockClassroomGrades(classroomId);
+        } catch (ResponseStatusException e) {
+            return ResponseEntity.status(e.getStatusCode()) // Lấy đúng mã lỗi
+                    .contentType(MediaType.parseMediaType("text/plain; charset=UTF-8"))
+                    .body(e.getReason());
+        }
         return ResponseEntity.status(HttpStatus.OK)
                 .contentType(MediaType.parseMediaType("text/plain; charset=UTF-8"))
                 .body("Điểm của lớp " + classroomId + " khóa thành công!");
