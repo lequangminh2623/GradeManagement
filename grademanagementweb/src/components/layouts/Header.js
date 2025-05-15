@@ -43,24 +43,25 @@ const Header = () => {
               Trang chủ
             </Link>
 
-            <Link to="/classrooms" className="nav-link">
-              Lớp học
-            </Link>
+            {(user && user.role !== "ROLE_ADMIN") && <>
+              <Link to="/classrooms" className="nav-link">
+                Lớp học
+              </Link>
 
-            {(user && user.role === "ROLE_STUDENT") &&
-              <Link to="/grades" className="nav-link">
-                Điểm
-              </Link>}
+              {(user.role === "ROLE_STUDENT") &&
+                <Link to="/grades" className="nav-link">
+                  Điểm
+                </Link>}
 
-            <Link to="/chatbox" className="nav-link">
-              Tin nhắn
-            </Link>
+              <Link to="/chatbox" className="nav-link">
+                Tin nhắn
+              </Link>
 
-            <NavDropdown title="Tiện ích" className="text-secondary">
-              <NavDropdown.Item as={Link} to="/">
-                ABC
-              </NavDropdown.Item>
-            </NavDropdown>
+              <NavDropdown title="Tiện ích" className="text-secondary">
+                <NavDropdown.Item as={Link} to="/">
+                  ABC
+                </NavDropdown.Item>
+              </NavDropdown></>}
           </Nav>
 
           <Form onSubmit={search} className="d-flex">

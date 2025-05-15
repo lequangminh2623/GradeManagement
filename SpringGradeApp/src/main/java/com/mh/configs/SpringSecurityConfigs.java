@@ -6,6 +6,7 @@ package com.mh.configs;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
+import com.mh.filters.JwtFilter;
 import com.mh.pojo.dto.ForumPostDTO;
 import com.mh.validators.AcademicYearValidator;
 import com.mh.validators.ClassroomValidator;
@@ -30,10 +31,15 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.support.ResourceBundleMessageSource;
 import org.springframework.core.annotation.Order;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.validation.Validator;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
@@ -98,21 +104,44 @@ public class SpringSecurityConfigs {
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws
-            Exception {
-        http.cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                .csrf(c -> c.disable()).authorizeHttpRequests(requests
-                -> requests.requestMatchers("/", "/home").authenticated()
-                        .requestMatchers("/api/**").permitAll()
-                        .requestMatchers("/users", "/users/**", "/classrooms", "/classrooms/**", "/courses", "/courses/**", "/years", "/years/**").hasRole("ADMIN")
-                        .anyRequest().authenticated())
-                .formLogin(form -> form.loginPage("/login")
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        String[] whiteList = {"/api/login", "/api/users"}; // Public API endpoints
+
+        http
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .csrf(csrf -> csrf.disable())
+                // Handle stateless API endpoints
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                // Request authorization
+                .authorizeHttpRequests(requests -> requests
+                // Public API
+                .requestMatchers(whiteList).permitAll()
+                // Admin-only (typically web pages)
+                .requestMatchers("/", "/home", "/users", "/users/**", "/classrooms", "/classrooms/**",
+                        "/courses", "/courses/**", "/years", "/years/**",
+                        "/forums", "/forums/**", "/replies", "/replies/**").hasRole("ADMIN")
+                // Role-based API routes
+                .requestMatchers("/api/secure/grades/student").hasRole("STUDENT")
+                .requestMatchers("/api/secure/ai/analysis", "/api/secure/classrooms/**").hasRole("LECTURER")
+                .requestMatchers("/api/secure/classrooms", "/api/secure/classrooms/*/forums",
+                        "/api/secure/ai/ask", "/api/secure/forums/**").hasAnyRole("LECTURER", "STUDENT")
+                // All secure API endpoints must be authenticated
+                .requestMatchers("/api/secure/**").authenticated()
+                // Any other route also requires authentication
+                .anyRequest().authenticated()
+                )
+                // Form login support for traditional users
+                .formLogin(form -> form
+                .loginPage("/login")
                 .loginProcessingUrl("/login")
                 .defaultSuccessUrl("/", true)
-                .failureUrl("/login?error=true").permitAll())
-                .logout(logout -> logout.logoutSuccessUrl("/login").permitAll());
-        
-        //.addFilterBefore(new JwtFilter(), UsernamePasswordAuthenticationFilter.class);
+                .failureUrl("/login?error=true")
+                .permitAll()
+                )
+                // Logout support (optional for JWT, essential for form login)
+                .logout(logout -> logout.logoutSuccessUrl("/login").permitAll())
+                // Add JWT filter before UsernamePasswordAuthenticationFilter
+                .addFilterBefore(new JwtFilter(), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
@@ -191,4 +220,5 @@ public class SpringSecurityConfigs {
 
         return source;
     }
+
 }
