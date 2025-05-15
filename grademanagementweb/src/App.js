@@ -50,7 +50,7 @@ const App = () => {
                       <Routes>
                         <Route path="/" element={user ? <Home /> : <Navigate to="/login" />} />
 
-                        <Route path="/classrooms" element={user ? <Classrooms /> : <Navigate to="/login" />} />
+                        <Route path="/classrooms" element={user ? (user.role === "ROLE_ADMIN" ? <Navigate to='/' /> : <Classrooms />) : <Navigate to='/login' />} />
 
                         <Route path="/classrooms/:classroomId"
                           element={
