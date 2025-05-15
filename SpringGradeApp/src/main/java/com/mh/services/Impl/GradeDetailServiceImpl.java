@@ -228,6 +228,8 @@ public class GradeDetailServiceImpl implements GradeDetailService {
     }
 
     private Double checkValidGrade(Double grade) {
+        
+        
         if (grade != null && (grade < 0 || grade > 10)) {
             throw new IllegalArgumentException("Điểm phải nằm trong khoảng từ 0 đến 10.");
         }
@@ -311,15 +313,12 @@ public class GradeDetailServiceImpl implements GradeDetailService {
     }
 
     @Override
-    public List<GradeDetail> getGradeDetailBySemester(Integer semesterId) {
-        return this.gradeDetailRepo.getGradeDetailBySemester(semesterId);
+    public List<GradeDetail> getGradeDetailsBySemester(Integer semesterId) {
+        return this.gradeDetailRepo.getGradeDetailsBySemester(semesterId);
     }
 
     @Override
-    public SemesterAnalysisResult analyzeSemester(int semesterId) {
-
-        // 1. Lấy dữ liệu GradeDetail theo học kỳ
-        List<GradeDetail> gradeDetails = this.getGradeDetailBySemester(semesterId);
+    public SemesterAnalysisResult analyzeSemester(List<GradeDetail> gradeDetails) {
 
         // 2. Chuyển thành GradeDTO
         List<GradeDTO> gradeList = gradeDetails.stream().map(grade -> {
@@ -349,7 +348,7 @@ public class GradeDetailServiceImpl implements GradeDetailService {
             features.add(g.getFinalGrade() != null ? g.getFinalGrade() : 0.0);
             List<Double> extras = g.getExtraGrades() == null ? Collections.emptyList() : g.getExtraGrades();
             for (int i = 0; i < maxExtra; i++) {
-                features.add(i < extras.size() ? extras.get(i) : 0.0);
+                features.add(i < extras.size() ? (extras.get(i) != null ? extras.get(i) : 0.0) : 0.0);
             }
             return features.stream().mapToDouble(Double::doubleValue).toArray();
         }).toArray(double[][]::new);
@@ -433,6 +432,11 @@ public class GradeDetailServiceImpl implements GradeDetailService {
         result.setCourseWeakRatios(courseWeakRatios);
         result.setCriticalCourses(criticalCourses);
         return result;
+    }
+
+    @Override
+    public List<GradeDetail> getGradeDetailsByLecturerAndSemester(Integer lecturerId, Integer semesterId) {
+        return this.gradeDetailRepo.getGradeDetailsByLecturerAndSemester(lecturerId, semesterId);
     }
 
 }

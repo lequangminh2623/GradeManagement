@@ -9,6 +9,7 @@ import {
   setDoc
 } from "firebase/firestore";
 import { MyUserContext } from "../configs/MyContexts";
+import ReactMarkdown from "react-markdown"; // Import ReactMarkdown
 import "../styles/ChatPanel.css";
 
 export default function ChatPanel({ selectedUser, onChatbotInteraction }) {
@@ -124,7 +125,9 @@ export default function ChatPanel({ selectedUser, onChatbotInteraction }) {
             key={m.id}
             className={`msg ${m.sender === current ? "own" : "other"}`}
           >
-            <div className="msg-text">{m.text}</div>
+            <div className="msg-text">
+              <ReactMarkdown>{m.text}</ReactMarkdown> {/* Render Markdown */}
+            </div>
           </div>
         ))}
         {loading && (

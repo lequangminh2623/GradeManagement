@@ -23,5 +23,7 @@ public interface GradeDetailRepository {
 
     List<GradeDetailDTO> getGradeDetailByStudent(Integer id, Map<String, String> params);
     
-    List<GradeDetail> getGradeDetailBySemester(Integer semesterId);
+    List<GradeDetail> getGradeDetailsBySemester(Integer semesterId);
+    
+    List<GradeDetail> getGradeDetailsByLecturerAndSemester(Integer lecturerId, Integer semesterId);
 }

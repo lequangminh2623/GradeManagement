@@ -1,9 +1,19 @@
 package com.mh.controllers;
 
+import com.mh.pojo.Classroom;
+import com.mh.pojo.GradeDetail;
+import com.mh.pojo.Semester;
+import com.mh.pojo.User;
 import com.mh.pojo.dto.SemesterAnalysisResult;
+import com.mh.services.ClassroomService;
 import com.mh.services.GradeDetailService;
+import com.mh.services.SemesterService;
+import com.mh.services.UserService;
+import java.security.Principal;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -16,17 +26,43 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 @RestController
-@RequestMapping("/api/ai")
+@RequestMapping("/api/secure/ai")
 public class AIController {
 
     @Autowired
     private GradeDetailService gradeDetailService;
 
+    @Autowired
+    private ClassroomService classroomService;
+
+    @Autowired
+    private UserService userService;
+
+    @Autowired
+    private SemesterService semesterService;
+
     @GetMapping("/analysis/{semesterId}")
-    public SemesterAnalysisResult clusterStudents(@PathVariable("semesterId") Integer semesterId) {
-        return gradeDetailService.analyzeSemester(semesterId);
+    public Map<String, Object> clusterStudents(@PathVariable("semesterId") String semesterId) {
+        if (semesterId == null) {
+            semesterId = "1";
+        }
+        String email = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        User lecturer = userService.getUserByEmail(email);
+
+        List<GradeDetail> gradeDetails = gradeDetailService.getGradeDetailsByLecturerAndSemester(lecturer.getId(), Integer.parseInt(semesterId));
+
+        SemesterAnalysisResult result = gradeDetailService.analyzeSemester(gradeDetails);
+
+        List<Semester> allSemesters = semesterService.getSemesters(null);
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("analysisResult", result);
+        response.put("semesters", allSemesters);
+
+        return response;
     }
 
     @PostMapping("/ask")
@@ -36,16 +72,14 @@ public class AIController {
             throw new IllegalArgumentException("Query cannot be null or empty");
         }
 
-        // Define the correct endpoint for ollama or phi
         String apiUrl = "http://localhost:11434/api/chat";
 
-        // Prepare the request payload
         Map<String, Object> requestBody = Map.of(
-            "model", "phi", // Corrected model name
-            "messages", List.of(
-                Map.of("role", "user", "content", userQuery)
-            ),
-            "stream", false
+                "model", "gemma2:2b",
+                "messages", List.of(
+                        Map.of("role", "user", "content", userQuery)
+                ),
+                "stream", false
         );
 
         // Set up headers

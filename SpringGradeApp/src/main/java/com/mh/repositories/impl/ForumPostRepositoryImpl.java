@@ -82,10 +82,22 @@ public class ForumPostRepositoryImpl implements ForumPostRepository {
 
         cq.select(cb.count(root));
 
-        String kw = params.get("kw");
-        if (kw != null && !kw.isEmpty()) {
-            Predicate predicate = cb.like(root.get("title"), "%" + kw + "%");
-            cq.where(predicate);
+        List<Predicate> predicates = new ArrayList<>();
+
+        if (params != null) {
+            String kw = params.get("kw");
+            if (kw != null && !kw.isEmpty()) {
+                Predicate namePredicate = cb.like(root.get("title"), "%" + kw + "%");
+                predicates.add(namePredicate);
+            }
+
+            String classroom = params.get("classroom");
+            if (classroom != null && !classroom.isEmpty()) {
+                predicates.add(cb.equal(root.get("classroom").get("id"), Integer.parseInt(classroom)));
+            }
+
+            cq.where(predicates.toArray(new Predicate[0]));
+
         }
 
         Long result = session.createQuery(cq).getSingleResult();

@@ -157,6 +157,8 @@ const ClassroomDetail = () => {
                 extraGrades: s.extraGrades.slice(0, extraCount)
             }));
 
+            console.log(payload);
+
             const res = await authApis().post(endpoints['classroom-details'](classroomId), payload);
             alert(res.data);
         } catch (err) {

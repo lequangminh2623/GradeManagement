@@ -261,8 +261,13 @@ public class ClassroomRepositoryImpl implements ClassroomRepository {
         if (params != null) {
             String kw = params.get("kw");
             if (kw != null && !kw.isEmpty()) {
-                Predicate namePredicate = cb.like(root.get("name"), "%" + kw + "%");
-                predicates.add(namePredicate);
+                Predicate kwPredicate = cb.like(root.get("name"), "%" + kw + "%");
+                predicates.add(kwPredicate);
+            }
+            String semesterId = params.get("semesterId");
+            if (semesterId != null) {
+                Predicate semesterPredicate = cb.equal(root.get("semester").get("id"), Integer.parseInt(semesterId));
+                predicates.add(semesterPredicate);
             }
         }
 

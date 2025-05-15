@@ -76,7 +76,7 @@ public class ForumController {
     }
 
     @GetMapping("/forums")
-    public String getAcademicYears(Model model, @RequestParam Map<String, String> params) {
+    public String getForumPosts(Model model, @RequestParam Map<String, String> params) {
         String page = params.get("page");
 
         if (page == null || page.isEmpty()) {
