@@ -19,6 +19,8 @@ const ClassroomDetail = () => {
         gradeStatus: "",
     });
     const [students, setStudents] = useState([]);
+    // Thêm state lưu lỗi điểm cho từng sinh viên
+    const [gradeErrors, setGradeErrors] = useState({}); 
     const [extraCount, setExtraCount] = useState(0);
     const [loading, setLoading] = useState(false);
     const [q] = useSearchParams();
@@ -103,6 +105,23 @@ const ClassroomDetail = () => {
             prev.map((s) => {
                 if (s.studentId !== studentId) return s;
                 const val = value === "" ? null : parseFloat(value);
+                // Kiểm tra lỗi
+                let error = "";
+                if (val !== null && (val < 0 || val > 10)) {
+                    error = "Điểm phải từ 0 đến 10";
+                }
+                setGradeErrors(prevErrs => {
+                    const errs = { ...prevErrs };
+                    if (!errs[studentId]) errs[studentId] = {};
+                    if (field === "extra") {
+                        if (!errs[studentId].extra) errs[studentId].extra = {};
+                        errs[studentId].extra[idx] = error;
+                    } else {
+                        errs[studentId][field] = error;
+                    }
+                    return errs;
+                });
+
                 if (field === "mid") return { ...s, midtermGrade: val };
                 if (field === "final") return { ...s, finalGrade: val };
                 if (field === "extra") {
@@ -210,7 +229,21 @@ const ClassroomDetail = () => {
             alert('Không thể tải file. Vui lòng thử lại.');
         }
     };
-    
+
+    const hasAnyGradeError = () => {
+        for (const sid in gradeErrors) {
+            if (!gradeErrors[sid]) continue;
+            if (gradeErrors[sid].mid) return true;
+            if (gradeErrors[sid].final) return true;
+            if (gradeErrors[sid].extra) {
+                for (const idx in gradeErrors[sid].extra) {
+                    if (gradeErrors[sid].extra[idx]) return true;
+                }
+            }
+        }
+        return false;
+    };
+
     if (loading) return <MySpinner />;
 
     return (
@@ -360,7 +393,21 @@ const ClassroomDetail = () => {
                                             max={10}
                                             step={0.1}
                                             disabled={idx >= extraCount}
+                                            isInvalid={
+                                                !!(
+                                                    gradeErrors[s.studentId] &&
+                                                    gradeErrors[s.studentId].extra &&
+                                                    gradeErrors[s.studentId].extra[idx]
+                                                )
+                                            }
                                         />
+                                        {gradeErrors[s.studentId] &&
+                                            gradeErrors[s.studentId].extra &&
+                                            gradeErrors[s.studentId].extra[idx] && (
+                                                <div className="text-danger small">
+                                                    {gradeErrors[s.studentId].extra[idx]}
+                                                </div>
+                                            )}
                                     </td>
                                 ))}
 
@@ -374,7 +421,18 @@ const ClassroomDetail = () => {
                                         min={0}
                                         max={10}
                                         step={0.1}
+                                        isInvalid={
+                                            !!(
+                                                gradeErrors[s.studentId] &&
+                                                gradeErrors[s.studentId].mid
+                                            )
+                                        }
                                     />
+                                    {gradeErrors[s.studentId] && gradeErrors[s.studentId].mid && (
+                                        <div className="text-danger small">
+                                            {gradeErrors[s.studentId].mid}
+                                        </div>
+                                    )}
                                 </td>
                                 <td>
                                     <Form.Control
@@ -386,7 +444,18 @@ const ClassroomDetail = () => {
                                         min={0}
                                         max={10}
                                         step={0.1}
+                                        isInvalid={
+                                            !!(
+                                                gradeErrors[s.studentId] &&
+                                                gradeErrors[s.studentId].final
+                                            )
+                                        }
                                     />
+                                    {gradeErrors[s.studentId] && gradeErrors[s.studentId].final && (
+                                        <div className="text-danger small">
+                                            {gradeErrors[s.studentId].final}
+                                        </div>
+                                    )}
                                 </td>
                             </tr>
                         ))}
@@ -395,7 +464,16 @@ const ClassroomDetail = () => {
             </fieldset>
 
             <div className="d-flex justify-content-between m-3">
-                <Button className="me-2" variant="primary" onClick={saveGrades} disabled={loading || classInfo.gradeStatus === "LOCKED"} >
+                <Button
+                    className="me-2"
+                    variant="primary"
+                    onClick={saveGrades}
+                    disabled={
+                        loading ||
+                        classInfo.gradeStatus === "LOCKED" ||
+                        hasAnyGradeError()
+                    }
+                >
                     <FaSave className="me-2" />
                     Lưu bảng điểm
                 </Button>
