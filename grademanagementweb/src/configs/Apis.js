@@ -4,7 +4,7 @@ import cookie from 'react-cookies'
 const BASE_URL = 'http://localhost:8080/SpringGradeApp/api/';
 
 export const endpoints = {
-    'register': '/users',
+    'users': '/users',
     'login': '/login',
     'login-google': '/auth/google',
     'profile': '/secure/profile',

@@ -1,6 +1,5 @@
 package com.mh.controllers;
 
-import com.mh.pojo.Classroom;
 import com.mh.pojo.GradeDetail;
 import com.mh.pojo.Semester;
 import com.mh.pojo.User;
@@ -9,11 +8,9 @@ import com.mh.services.ClassroomService;
 import com.mh.services.GradeDetailService;
 import com.mh.services.SemesterService;
 import com.mh.services.UserService;
-import java.security.Principal;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -36,24 +33,22 @@ public class AIController {
     private GradeDetailService gradeDetailService;
 
     @Autowired
-    private ClassroomService classroomService;
-
-    @Autowired
     private UserService userService;
 
     @Autowired
     private SemesterService semesterService;
 
     @GetMapping("/analysis/{semesterId}")
-    public Map<String, Object> clusterStudents(@PathVariable("semesterId") String semesterId) {
+    public Map<String, Object> clusterStudents(@PathVariable("semesterId") Integer semesterId) {
         if (semesterId == null) {
-            semesterId = "1";
+            semesterId = 1;
         }
         String email = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         User lecturer = userService.getUserByEmail(email);
+        System.out.println(lecturer.getId());
 
-        List<GradeDetail> gradeDetails = gradeDetailService.getGradeDetailsByLecturerAndSemester(lecturer.getId(), Integer.parseInt(semesterId));
-
+        List<GradeDetail> gradeDetails = gradeDetailService.getGradeDetailsByLecturerAndSemester(lecturer.getId(), semesterId);
+        System.out.println(gradeDetails);
         SemesterAnalysisResult result = gradeDetailService.analyzeSemester(gradeDetails);
 
         List<Semester> allSemesters = semesterService.getSemesters(null);

@@ -90,7 +90,7 @@ const Register = () => {
 
                 form.append("file", avatar.current.files[0]);
 
-                await Apis.post(endpoints['register'], form, {
+                await Apis.post(endpoints['users'], form, {
                     headers: {
                         'Content-Type': 'multipart/form-data'
                     }

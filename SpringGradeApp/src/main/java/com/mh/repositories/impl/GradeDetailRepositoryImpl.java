@@ -1,6 +1,7 @@
 package com.mh.repositories.impl;
 
 import com.mh.pojo.Classroom;
+import com.mh.pojo.Course;
 import com.mh.pojo.ExtraGrade;
 import com.mh.pojo.GradeDetail;
 import com.mh.repositories.ClassroomRepository;
@@ -12,8 +13,10 @@ import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.JoinType;
+import jakarta.persistence.criteria.Path;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
+import jakarta.persistence.criteria.Subquery;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -219,19 +222,27 @@ public class GradeDetailRepositoryImpl implements GradeDetailRepository {
         CriteriaQuery<GradeDetail> cq = cb.createQuery(GradeDetail.class);
         Root<GradeDetail> gradeRoot = cq.from(GradeDetail.class);
 
-        // Join đến student
-        Join<GradeDetail, Student> studentJoin = gradeRoot.join("student");
+        Path<Student> studentPath = gradeRoot.get("student");
+        Path<Course> coursePath = gradeRoot.get("course");
 
-        // Join đến classroom qua bảng many-to-many
-        Join<Student, Classroom> classroomJoin = studentJoin.join("classroomSet");
+        Subquery<Classroom> sub = cq.subquery(Classroom.class);
+        Root<Classroom> classroomRoot = sub.from(Classroom.class);
+        Join<Classroom, Student> subStudentJoin = classroomRoot.join("studentSet");
 
-        // Lọc theo lecturer và semester
-        Predicate lecturerPredicate = cb.equal(classroomJoin.get("lecturer").get("id"), lecturerId);
-        Predicate semesterPredicate = cb.equal(classroomJoin.get("semester").get("id"), semesterId);
+        Predicate lecturerMatch = cb.equal(classroomRoot.get("lecturer").get("id"), lecturerId);
+        Predicate semesterMatch = cb.equal(classroomRoot.get("semester").get("id"), semesterId);
+        Predicate courseMatch = cb.equal(classroomRoot.get("course").get("id"), coursePath.get("id"));
+        Predicate studentMatch = cb.equal(subStudentJoin.get("id"), studentPath.get("id"));
+
+        sub.select(classroomRoot)
+                .where(cb.and(lecturerMatch, semesterMatch, courseMatch, studentMatch));
+
+        Predicate semesterFilter = cb.equal(gradeRoot.get("semester").get("id"), semesterId);
+        Predicate classroomExists = cb.exists(sub);
 
         cq.select(gradeRoot)
-                .where(cb.and(lecturerPredicate, semesterPredicate))
-                .distinct(true); // để tránh trùng khi sinh viên học nhiều lớp
+                .where(cb.and(semesterFilter, classroomExists))
+                .distinct(true);
 
         return session.createQuery(cq).getResultList();
     }
