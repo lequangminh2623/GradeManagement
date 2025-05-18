@@ -105,30 +105,36 @@ public class SpringSecurityConfigs {
     @Order(1)
     public SecurityFilterChain apiSecurity(HttpSecurity http) throws Exception {
         http.cors(cors -> cors.configurationSource(corsConfigurationSource()))
-            .securityMatcher("/api/**")
-            .csrf(csrf -> csrf.disable())
-            .sessionManagement(sm -> sm
-            .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-            )
-            .authorizeHttpRequests(auth -> auth
-            .requestMatchers("/api/login", "/api/users").permitAll()
-            .requestMatchers("/api/secure/**").authenticated()
-            .requestMatchers("/api/secure/classrooms", "/api/secure/classrooms/*/forums",
-                    "/api/secure/ai/ask", "/api/secure/forums/**").hasAnyRole("LECTURER", "STUDENT")
-            .requestMatchers("/api/secure/grades/student").hasRole("STUDENT")
-            .requestMatchers("/api/secure/ai/analysis", "/api/secure/classrooms/**").hasRole("LECTURER")
-            .anyRequest().authenticated())
-            .addFilterBefore(new JwtFilter(), UsernamePasswordAuthenticationFilter.class)
-            .exceptionHandling(e -> e
-            .defaultAuthenticationEntryPointFor(
-                    (req, res, ex) -> {
-                        res.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                        res.setContentType("application/json");
-                        res.getWriter().write("{\"error\":\"Unauthorized\"}");
-                    },
-                    new AntPathRequestMatcher("/api/**")
-            )
-            );
+                .securityMatcher("/api/**")
+                .csrf(csrf -> csrf.disable())
+                .sessionManagement(sm -> sm
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                )
+                .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/api/secure/**").authenticated()
+                        
+                .requestMatchers("/api/login", "/api/users").permitAll()
+                        
+                .requestMatchers("/api/secure/ai/analysis/**", "/api/secure/classrooms/**").hasRole("LECTURER")
+                        
+                .requestMatchers("/api/secure/classrooms", "/api/secure/classrooms/*/forums",
+                        "/api/secure/ai/ask", "/api/secure/forums/**").hasAnyRole("LECTURER", "STUDENT")
+                        
+                .requestMatchers("/api/secure/grades/student").hasRole("STUDENT")
+                        
+                .anyRequest().authenticated()
+                )
+                .addFilterBefore(new JwtFilter(), UsernamePasswordAuthenticationFilter.class)
+                .exceptionHandling(e -> e
+                .defaultAuthenticationEntryPointFor(
+                        (req, res, ex) -> {
+                            res.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                            res.setContentType("application/json");
+                            res.getWriter().write("{\"error\":\"Unauthorized\"}");
+                        },
+                        new AntPathRequestMatcher("/api/**")
+                )
+                );
         return http.build();
     }
 
@@ -136,25 +142,25 @@ public class SpringSecurityConfigs {
     @Order(2)
     public SecurityFilterChain webSecurity(HttpSecurity http) throws Exception {
         http.cors(cors -> cors.configurationSource(corsConfigurationSource()))
-            .securityMatcher("/**")
-            .authorizeHttpRequests(auth -> auth
-            .requestMatchers("/login", "/css/**", "/js/**").permitAll()
-            .requestMatchers("/", "/home", "/users", "/users/**", "/classrooms", "/classrooms/**",
-                    "/courses", "/courses/**", "/years", "/years/**",
-                    "/forums", "/forums/**", "/replies", "/replies/**").hasRole("ADMIN")
-            )
-            .formLogin(form -> form.loginPage("/login")
-            .loginProcessingUrl("/login")
-            .defaultSuccessUrl("/", true)
-            .failureUrl("/login?error=true").permitAll())
-            .logout(logout -> logout
-            .logoutUrl("/logout")
-            .logoutRequestMatcher(
-                    new AntPathRequestMatcher("/logout", "GET")
-            )
-            .logoutSuccessUrl("/login?logout")
-            .permitAll()
-            );
+                .securityMatcher("/**")
+                .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/login", "/css/**", "/js/**").permitAll()
+                .requestMatchers("/", "/home", "/users", "/users/**", "/classrooms", "/classrooms/**",
+                        "/courses", "/courses/**", "/years", "/years/**",
+                        "/forums", "/forums/**", "/replies", "/replies/**").hasRole("ADMIN")
+                )
+                .formLogin(form -> form.loginPage("/login")
+                .loginProcessingUrl("/login")
+                .defaultSuccessUrl("/", true)
+                .failureUrl("/login?error=true").permitAll())
+                .logout(logout -> logout
+                .logoutUrl("/logout")
+                .logoutRequestMatcher(
+                        new AntPathRequestMatcher("/logout", "GET")
+                )
+                .logoutSuccessUrl("/login?logout")
+                .permitAll()
+                );
 
         return http.build();
     }

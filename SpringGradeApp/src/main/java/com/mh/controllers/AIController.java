@@ -45,7 +45,6 @@ public class AIController {
         }
         String email = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         User lecturer = userService.getUserByEmail(email);
-        System.out.println(lecturer.getId());
 
         List<GradeDetail> gradeDetails = gradeDetailService.getGradeDetailsByLecturerAndSemester(lecturer.getId(), semesterId);
         System.out.println(gradeDetails);
