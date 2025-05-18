@@ -45,6 +45,7 @@ function deleteClassroom(url, id) {
 }
 
 function removeStudentFromClassroom(endpoint, classroomId, studentId) {
+    console.log(endpoint + `${classroomId}/students/${studentId}`);
     if (confirm("Bạn có chắc chắn muốn xóa sinh viên và điểm khỏi lớp học này không?")) {
         fetch(endpoint + `${classroomId}/students/${studentId}`, {
             method: "DELETE"
@@ -140,3 +141,24 @@ function removeExtraColumn(index) {
         reindexExtraColumns();
     }
 }
+
+//document.addEventListener('DOMContentLoaded', () => {
+//  const classroomForm = document.getElementById('classroomForm');
+//  const gradesForm    = document.getElementById('gradesForm');
+//
+//  classroomForm.addEventListener('submit', async (e) => {
+//    e.preventDefault();  // chặn form gửi mặc định
+//
+//    // Gửi form Lưu lớp học bằng fetch + FormData
+//    const response = await fetch(classroomForm.action, {
+//      method: 'POST',
+//      body: new FormData(classroomForm),
+//      credentials: 'same-origin'
+//    });
+//
+////    if (response.status === 200) {
+////      gradesForm.submit();
+////    }
+//  });
+//});
+

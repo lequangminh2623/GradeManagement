@@ -19,6 +19,7 @@ import jakarta.persistence.PersistenceException;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Valid;
 import java.util.*;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
@@ -122,80 +123,37 @@ public class ClassroomController {
     }
 
     @PostMapping("")
-    public String saveClassroomAndStudents(@ModelAttribute @Valid Classroom classroom,
+    public String saveClassroomAndStudents(
+            @ModelAttribute @Valid Classroom classroom,
             BindingResult bindingResult,
             Model model) {
 
-        Map<Integer, GradeDetail> gradeMap = new HashMap<>();
-        for (Student s : classroom.getStudentSet()) {
-            Map<String, Integer> ref = new HashMap<>();
-            ref.put("classroomId", classroom.getId());
-            ref.put("studentId", s.getId());
-            List<GradeDetail> gradeDetails = gradeDetailService.getGradeDetail(ref);
-            GradeDetail gd = !gradeDetails.isEmpty() ? gradeDetails.get(0) : new GradeDetail();
-            if (gd.getExtraGradeSet() == null) {
-                gd.setExtraGradeSet(new HashSet<>());
-            }
-            gradeMap.put(s.getId(), gd);
-        }
+        Classroom savedClassroom = classroomService.saveClassroom(classroom);
+        gradeDetailService.initGradeDetailsForClassroom(savedClassroom);
 
+        Map<Integer, GradeDetail> gradeMap = savedClassroom.getStudentSet().stream()
+                .collect(Collectors.toMap(
+                        Student::getId,
+                        s -> gradeDetailService.getGradeDetail(
+                                Map.of("classroomId", savedClassroom.getId(),
+                                        "studentId", s.getId()))
+                                .stream().findFirst()
+                                .orElse(new GradeDetail())
+                ));
         if (bindingResult.hasErrors()) {
             model.addAttribute("errorMessage", "Có lỗi xảy ra");
             model.addAttribute("classroom", classroom);
             model.addAttribute("gradeMap", gradeMap);
             return "/classroom/classroom-form";
         }
-
-        Classroom savedClassroom = this.classroomService.saveClassroom(classroom);
-        savedClassroom = this.classroomService.getClassroomWithStudents(savedClassroom.getId());
-
-        model.addAttribute("classroom", savedClassroom);
-        model.addAttribute("gradeMap", gradeMap);
-
-        return "/classroom/classroom-form";
+        
+        return "redirect:/classrooms";
     }
 
     @PostMapping("/{id}/grades")
     public String saveGrades(@PathVariable("id") Integer classroomId,
             @RequestParam Map<String, String> allParams) {
-
-        Classroom classroom = classroomService.getClassroomWithStudents(classroomId);
-
-        Set<Student> allStudents = classroom.getStudentSet();
-
-        if (allStudents != null) {
-            for (Student student : allStudents) {
-                Integer studentId = student.getId();
-                try {
-                    String midStr = allParams.get("midtermGrade[" + studentId + "]");
-                    String finalStr = allParams.get("finalGrade[" + studentId + "]");
-
-                    Double midtermGrade = (midStr != null && !midStr.trim().isEmpty()) ? Double.valueOf(midStr.trim()) : null;
-                    Double finalGrade = (finalStr != null && !finalStr.trim().isEmpty()) ? Double.valueOf(finalStr.trim()) : null;
-                    List<Double> extraGrades = new ArrayList<>();
-
-                    int innerIndex = 0;
-                    while (true) {
-                        String paramName = "extraPoints[" + studentId + "][" + innerIndex + "]";
-                        String gradeStr = allParams.get(paramName);
-                        if (gradeStr == null) {
-                            break;
-                        }
-                        if (!gradeStr.trim().isEmpty()) {
-                            extraGrades.add(Double.valueOf(gradeStr.trim()));
-                        } else {
-                            extraGrades.add(null);
-                        }
-                        innerIndex++;
-                    }
-
-                    gradeDetailService.saveGradesForStudent(studentId, classroomId, midtermGrade, finalGrade, extraGrades);
-                } catch (NumberFormatException ex) {
-                    System.err.println("Error parsing grades for studentId " + studentId + ": " + ex.getMessage());
-                }
-            }
-        }
-
+        gradeDetailService.processAndSaveGrades(classroomId, allParams);
         return "redirect:/classrooms";
     }
 
