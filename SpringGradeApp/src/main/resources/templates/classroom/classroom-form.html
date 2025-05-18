@@ -17,7 +17,7 @@
         <div th:if="${errorMessage}" class="alert alert-danger" role="alert">
             <span th:text="${errorMessage}"></span>
         </div>
-        <form method="post" th:action="@{/classrooms}" th:object="${classroom}" class="row g-3">
+        <form id="classroomForm" method="post" th:action="@{/classrooms}" th:object="${classroom}" class="row g-3">
             <input type="hidden" th:field="*{id}" />
 
             <div class="row g-3">
@@ -89,7 +89,7 @@
                 <button type="submit" class="btn btn-primary m-1">💾 Lưu lớp học</button>
             </div>
         </form>
-        <form method="post" th:action="@{/classrooms/{id}/grades(id=${classroom.id})}" th:object="${classroom}" class="row g-3">
+        <form id="gradesForm" method="post" th:action="@{/classrooms/{id}/grades(id=${classroom.id})}" th:object="${classroom}" class="row g-3">
             <div class="col-12 mt-4">
                 <h3>Bảng điểm lớp học</h3>
                 <table class="table table-striped table-bordered">

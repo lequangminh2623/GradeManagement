@@ -4,6 +4,7 @@
  */
 package com.mh.services;
 
+import com.mh.pojo.Classroom;
 import com.mh.pojo.GradeDetail;
 import com.mh.pojo.dto.GradeDTO;
 import com.mh.pojo.dto.GradeDetailDTO;
@@ -47,4 +48,8 @@ public interface GradeDetailService {
     SemesterAnalysisResult analyzeSemester(List<GradeDetail> gradeDetails);
     
     List<GradeDetail> getGradeDetailsByLecturerAndSemester(Integer lecturerId, Integer semesterId);
+    
+    void processAndSaveGrades(Integer classroomId, Map<String, String> allParams);
+    
+    void initGradeDetailsForClassroom(Classroom classroom);
 }

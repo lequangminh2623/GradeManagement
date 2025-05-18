@@ -4,6 +4,7 @@
  */
 package com.mh.services.Impl;
 
+import com.google.common.collect.HashBiMap;
 import com.mh.pojo.Classroom;
 import com.mh.pojo.ExtraGrade;
 import com.mh.pojo.GradeDetail;
@@ -26,6 +27,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -436,6 +438,103 @@ public class GradeDetailServiceImpl implements GradeDetailService {
     @Override
     public List<GradeDetail> getGradeDetailsByLecturerAndSemester(Integer lecturerId, Integer semesterId) {
         return this.gradeDetailRepo.getGradeDetailsByLecturerAndSemester(lecturerId, semesterId);
+    }
+
+    @Override
+    public void processAndSaveGrades(Integer classroomId, Map<String, String> allParams) {
+        Classroom classroom = classroomService.getClassroomWithStudents(classroomId);
+        Set<Student> allStudents = classroom.getStudentSet();
+
+        int maxExtraGrades = 0;
+        Map<Integer, List<String>> extraGradesRawMap = new HashMap<>();
+
+        for (Student student : allStudents) {
+            Integer studentId = student.getId();
+            List<String> extraRawList = new ArrayList<>();
+            int innerIndex = 0;
+
+            while (true) {
+                String paramName = "extraPoints[" + studentId + "][" + innerIndex + "]";
+                String gradeStr = allParams.get(paramName);
+                if (gradeStr == null) {
+                    break;
+                }
+                extraRawList.add(gradeStr);
+                innerIndex++;
+            }
+
+            extraGradesRawMap.put(studentId, extraRawList);
+            maxExtraGrades = Math.max(maxExtraGrades, extraRawList.size());
+        }
+
+        for (Student student : allStudents) {
+            Integer studentId = student.getId();
+            try {
+                String midStr = allParams.get("midtermGrade[" + studentId + "]");
+                String finalStr = allParams.get("finalGrade[" + studentId + "]");
+
+                Double midtermGrade = (midStr != null && !midStr.trim().isEmpty()) ? Double.valueOf(midStr.trim()) : null;
+                Double finalGrade = (finalStr != null && !finalStr.trim().isEmpty()) ? Double.valueOf(finalStr.trim()) : null;
+
+                List<String> rawList = extraGradesRawMap.get(studentId);
+                List<Double> extraGrades = new ArrayList<>();
+
+                for (int i = 0; i < maxExtraGrades; i++) {
+                    if (i < rawList.size()) {
+                        String s = rawList.get(i);
+                        extraGrades.add((s != null && !s.trim().isEmpty()) ? Double.valueOf(s.trim()) : null);
+                    } else {
+                        extraGrades.add(null);
+                    }
+                }
+                this.saveGradesForStudent(studentId, classroomId, midtermGrade, finalGrade, extraGrades);
+            } catch (NumberFormatException ex) {
+                System.err.println("Error parsing grades for studentId " + studentId + ": " + ex.getMessage());
+            }
+        }
+    }
+
+    @Override
+    public void initGradeDetailsForClassroom(Classroom classroom) {
+        Integer classroomId = classroom.getId();
+        Set<Student> students = classroom.getStudentSet();
+
+        Map<String, Integer> param = new HashMap<>();
+        param.put("classroomId", classroom.getId());
+        List<GradeDetail> allDetails = this.getGradeDetail(param);
+        int maxExtra = allDetails.stream()
+                .mapToInt(gd -> gd.getExtraGradeSet() == null ? 0 : gd.getExtraGradeSet().size())
+                .max()
+                .orElse(0);
+
+        for (Student s : students) {
+            Integer studentId = s.getId();
+
+            Map<String, Integer> ref = Map.of(
+                    "classroomId", classroomId,
+                    "studentId", studentId
+            );
+            List<GradeDetail> existing = this.getGradeDetail(ref);
+            if (existing.isEmpty()) {
+                GradeDetail gd = new GradeDetail();
+                gd.setCourse(classroom.getCourse());
+                gd.setSemester(classroom.getSemester());
+                gd.setStudent(s);
+                gd.setMidtermGrade(null);
+                gd.setFinalGrade(null);
+                gd.setExtraGradeSet(new HashSet<>());
+
+                for (int idx = 0; idx < maxExtra; idx++) {
+                    ExtraGrade eg = new ExtraGrade();
+                    eg.setGradeDetail(gd);
+                    eg.setGrade(null);
+                    eg.setGradeIndex(idx);
+                    
+                    gd.getExtraGradeSet().add(eg);
+                }
+                this.saveGradeDetail(gd);
+            }
+        }
     }
 
 }
