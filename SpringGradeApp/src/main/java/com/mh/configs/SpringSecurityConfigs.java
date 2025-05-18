@@ -111,18 +111,18 @@ public class SpringSecurityConfigs {
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/secure/**").authenticated()
+                    .requestMatchers("/api/login", "/api/users").permitAll()
+
+                    .requestMatchers("/api/secure/grades/student").hasRole("STUDENT")
+
+                    .requestMatchers("/api/secure/classrooms", "/api/secure/classrooms/*/forums",
+                            "/api/secure/ai/ask", "/api/secure/forums/**").hasAnyRole("LECTURER", "STUDENT")
                         
-                .requestMatchers("/api/login", "/api/users").permitAll()
-                        
-                .requestMatchers("/api/secure/ai/analysis/**", "/api/secure/classrooms/**").hasRole("LECTURER")
-                        
-                .requestMatchers("/api/secure/classrooms", "/api/secure/classrooms/*/forums",
-                        "/api/secure/ai/ask", "/api/secure/forums/**").hasAnyRole("LECTURER", "STUDENT")
-                        
-                .requestMatchers("/api/secure/grades/student").hasRole("STUDENT")
-                        
-                .anyRequest().authenticated()
+                    .requestMatchers("/api/secure/ai/analysis/**", "/api/secure/classrooms/**").hasRole("LECTURER")
+
+                    .requestMatchers("/api/secure/**").authenticated()
+
+                    .anyRequest().authenticated()
                 )
                 .addFilterBefore(new JwtFilter(), UsernamePasswordAuthenticationFilter.class)
                 .exceptionHandling(e -> e
