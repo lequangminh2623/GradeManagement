@@ -69,7 +69,7 @@ public class GoogleAuthController {
                 }
 
                 try {
-                    String jwtToken = JwtUtils.generateToken(user.getEmail());
+                    String jwtToken = JwtUtils.generateToken(user.getEmail(), user.getRole());
                     return ResponseEntity.ok().body(Collections.singletonMap("token", jwtToken));
                 } catch (Exception e) {
                     return ResponseEntity.status(500).body("Lỗi khi tạo JWT");

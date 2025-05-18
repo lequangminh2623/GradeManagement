@@ -104,7 +104,8 @@ public class ApiUserController {
 
         if (this.userDetailsService.authenticate(u.getEmail(), u.getPassword())) {
             try {
-                String token = JwtUtils.generateToken(u.getEmail());
+                User currentUser = this.userDetailsService.getUserByEmail(u.getEmail());
+                String token = JwtUtils.generateToken(u.getEmail(), currentUser.getRole());
                 return ResponseEntity.ok().body(Collections.singletonMap("token", token));
             } catch (Exception e) {
                 return ResponseEntity.status(500).body("Lỗi khi tạo JWT");
