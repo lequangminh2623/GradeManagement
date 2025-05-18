@@ -111,18 +111,13 @@ public class SpringSecurityConfigs {
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .authorizeHttpRequests(auth -> auth
-                    .requestMatchers("/api/login", "/api/users").permitAll()
-
-                    .requestMatchers("/api/secure/grades/student").hasRole("STUDENT")
-
-                    .requestMatchers("/api/secure/classrooms", "/api/secure/classrooms/*/forums",
-                            "/api/secure/ai/ask", "/api/secure/forums/**").hasAnyRole("LECTURER", "STUDENT")
-                        
-                    .requestMatchers("/api/secure/ai/analysis/**", "/api/secure/classrooms/**").hasRole("LECTURER")
-
-                    .requestMatchers("/api/secure/**").authenticated()
-
-                    .anyRequest().authenticated()
+                .requestMatchers("/api/login", "/api/users", "/api/auth/**").permitAll()
+                .requestMatchers("/api/secure/grades/student").hasRole("STUDENT")
+                .requestMatchers("/api/secure/classrooms", "/api/secure/classrooms/*/forums",
+                        "/api/secure/ai/ask", "/api/secure/forums/**").hasAnyRole("LECTURER", "STUDENT")
+                .requestMatchers("/api/secure/ai/analysis/**", "/api/secure/classrooms/**").hasRole("LECTURER")
+                .requestMatchers("/api/secure/**").authenticated()
+                .anyRequest().authenticated()
                 )
                 .addFilterBefore(new JwtFilter(), UsernamePasswordAuthenticationFilter.class)
                 .exceptionHandling(e -> e
@@ -142,8 +137,7 @@ public class SpringSecurityConfigs {
     @Order(2)
     public SecurityFilterChain webSecurity(HttpSecurity http) throws Exception {
         http.cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                .securityMatcher("/**")
-                .authorizeHttpRequests(auth -> auth
+                .csrf(c -> c.disable()).authorizeHttpRequests(auth -> auth
                 .requestMatchers("/login", "/css/**", "/js/**").permitAll()
                 .requestMatchers("/", "/home", "/users", "/users/**", "/classrooms", "/classrooms/**",
                         "/courses", "/courses/**", "/years", "/years/**",
@@ -153,14 +147,7 @@ public class SpringSecurityConfigs {
                 .loginProcessingUrl("/login")
                 .defaultSuccessUrl("/", true)
                 .failureUrl("/login?error=true").permitAll())
-                .logout(logout -> logout
-                .logoutUrl("/logout")
-                .logoutRequestMatcher(
-                        new AntPathRequestMatcher("/logout", "GET")
-                )
-                .logoutSuccessUrl("/login?logout")
-                .permitAll()
-                );
+                .logout(logout -> logout.logoutSuccessUrl("/login").permitAll());
 
         return http.build();
     }

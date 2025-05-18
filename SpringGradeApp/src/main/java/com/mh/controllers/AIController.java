@@ -47,7 +47,6 @@ public class AIController {
         User lecturer = userService.getUserByEmail(email);
 
         List<GradeDetail> gradeDetails = gradeDetailService.getGradeDetailsByLecturerAndSemester(lecturer.getId(), semesterId);
-        System.out.println(gradeDetails);
         SemesterAnalysisResult result = gradeDetailService.analyzeSemester(gradeDetails);
 
         List<Semester> allSemesters = semesterService.getSemesters(null);

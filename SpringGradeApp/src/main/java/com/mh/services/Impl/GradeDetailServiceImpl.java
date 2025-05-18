@@ -228,8 +228,7 @@ public class GradeDetailServiceImpl implements GradeDetailService {
     }
 
     private Double checkValidGrade(Double grade) {
-        
-        
+
         if (grade != null && (grade < 0 || grade > 10)) {
             throw new IllegalArgumentException("Điểm phải nằm trong khoảng từ 0 đến 10.");
         }
@@ -386,7 +385,7 @@ public class GradeDetailServiceImpl implements GradeDetailService {
             clusterAvg.put(entry.getKey(), sum / count);
         }
         // Nhóm có avg nhỏ hơn là yếu
-        int weakCluster = clusterAvg.get(0) <= clusterAvg.get(1) ? 0 : 1;
+        int weakCluster = (clusterAvg.get(0) == null ? 0 : clusterAvg.get(0)) <= (clusterAvg.get(1) == null ? 0 : clusterAvg.get(1)) ? 0 : 1;
 
         // 7. Mapping kết quả với nhãn cố định: 0 = yếu, 1 = giỏi
         List<GradeClusterResultDTO> clusterResults = new ArrayList<>();
