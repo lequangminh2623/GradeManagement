@@ -28,3 +28,7 @@
 .transition-colors {
     transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
 }
+
+.hover-card {
+    cursor: pointer;
+}

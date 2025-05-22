@@ -1,8 +1,8 @@
 import { Alert, Container } from "react-bootstrap";
 import SemesterTable from "./SemesterTable";
 import { useEffect, useState } from "react";
-import { authApis, endpoints } from "../configs/Apis";
-import MySpinner from "./layouts/MySpinner";
+import { authApis, endpoints } from "../../configs/Apis";
+import MySpinner from "../layouts/MySpinner";
 import { useSearchParams } from "react-router-dom";
 
 const Grade = () => {

@@ -3,21 +3,23 @@ import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
 import Footer from "./components/layouts/Footer";
 import Header from "./components/layouts/Header";
 import Home from "./components/Home";
-import Classrooms from './components/Classrooms';
+import Classrooms from './components/classrooms/Classrooms';
 import Login from './components/Login';
 import { Container } from 'react-bootstrap';
 import { MyDispatcherContext, MyUserContext } from "./configs/MyContexts";
 import { useEffect, useReducer } from "react";
 import MyUserReducer from "./reducers/MyUserReducer";
 import Register from './components/Register';
-import ClassroomDetail from './components/ClassroomDetail';
-import ChatBox from './components/ChatBox';
-import Grade from './components/Grade';
-import Forum from './components/Forum';
-import CreatePost from './components/CreatePost';
-import ForumPostDetail from './components/ForumPostDetail';
-import CreateReply from './components/CreateReply';
-import ForumReply from './components/ForumReply';
+import ClassroomDetail from './components/classrooms/ClassroomDetail';
+import ChatBox from './components/chat/ChatBox';
+import Grade from './components/grades/Grade';
+import Forum from './components/forums/Forum';
+import CreatePost from './components/forums/CreatePost';
+import ForumPostDetail from './components/forums/ForumPostDetail';
+import CreateReply from './components/forums/CreateReply';
+import ForumPostEdit from './components/forums/ForumPostEdit';
+import ForumReplyEdit from './components/forums/ForumReplyEdit';
+import Statistics from './components/statistics/Statistics';
 
 
 const App = () => {
@@ -77,12 +79,18 @@ const App = () => {
                           </Route>
                         </Route>
 
+                        <Route path="/classrooms/:classroomId/forums/:postId/edit" element={
+                          user ? (user.role === "ROLE_ADMIN" ? <Navigate to='/' /> : <ForumPostEdit />) : <Navigate to='/login' />} />
+                        <Route path="/classrooms/:classroomId/forums/:postId/replies/:replyId/edit" element={
+                          user ? (user.role === "ROLE_ADMIN" ? <Navigate to='/' /> : <ForumReplyEdit />) : <Navigate to='/login' />} />
 
                         <Route path="/chatbox" element={user ? <ChatBox /> : <Navigate to="/login" />} />
                         <Route path="/grades"
                           element={
                             user ? (user.role === "ROLE_STUDENT" ? <Grade /> : <Navigate to='/' />) : <Navigate to='/login' />
                           } />
+                        <Route path="/statistics" element={
+                          user ? (user.role === "ROLE_LECTURER" ? <Statistics /> : <Navigate to='/' />) : <Navigate to='/login' />} />
                       </Routes>
                     </Container>
                   </div>

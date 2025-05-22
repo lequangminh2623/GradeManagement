@@ -20,6 +20,8 @@ public interface ForumReplyService {
 
     int countForumRepliesByForumPostId(int forumPostId, Map<String, String> params);
 
+    int countForumRepliesByForumPostIdAndForumReplyId(int forumPostId, int parentId, Map<String, String> params);
+
     List<ForumReply> getAllForumReplys(Map<String, String> params);
 
     int countForumReplies(Map<String, String> params);

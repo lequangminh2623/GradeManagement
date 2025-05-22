@@ -1,6 +1,6 @@
 import React from "react";
-import "../styles/Sidebar.css";
-import TimeConvert from "./layouts/TimeConvert";
+import "../../styles/Sidebar.css";
+import TimeConvert from "../layouts/TimeConvert";
 
 export default function Sidebar({
   users,

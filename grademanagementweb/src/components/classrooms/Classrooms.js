@@ -1,10 +1,10 @@
 import { useEffect, useState, useCallback, useContext } from "react";
 import { Alert, Button, Card, Col, Container, Row } from "react-bootstrap";
-import { authApis, endpoints } from "../configs/Apis";
+import { authApis, endpoints } from "../../configs/Apis";
 import { useSearchParams } from "react-router-dom";
-import MySpinner from "./layouts/MySpinner";
+import MySpinner from "../layouts/MySpinner";
 import { useNavigate } from "react-router-dom";
-import { MyUserContext } from "../configs/MyContexts";
+import { MyUserContext } from "../../configs/MyContexts";
 import { Pagination } from "react-bootstrap";
 
 const ClassroomList = () => {
@@ -54,6 +54,8 @@ const ClassroomList = () => {
 
     return (
         <Container className="p-3" style={{ minHeight: "100vh" }}>
+            <h2 className="mb-3">Danh sách lớp học</h2>
+
             {classrooms.length === 0 && !loading && (
                 <Alert variant="info" className="m-2">
                     Không có lớp học nào!

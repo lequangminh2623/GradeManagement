@@ -1,11 +1,11 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Button, Card, Col, Image, OverlayTrigger, Tooltip, Row, Container } from 'react-bootstrap';
 import { useParams, useNavigate, Link, useLocation, Outlet } from 'react-router-dom';
-import { MyUserContext } from '../configs/MyContexts';
-import MySpinner from './layouts/MySpinner';
-import { authApis, endpoints } from '../configs/Apis';
+import { MyUserContext } from '../../configs/MyContexts';
+import MySpinner from '../layouts/MySpinner';
+import { authApis, endpoints } from '../../configs/Apis';
 import ForumReply from './ForumReply';
-import { checkPermission, checkCanEdit, formatVietnamTime } from '../utils/utils';
+import { checkPermission, checkCanEdit, formatVietnamTime } from '../../utils/utils';
 import { FaPenToSquare, FaTrashCan } from "react-icons/fa6";
 
 const ForumPostDetail = () => {
@@ -49,10 +49,11 @@ const ForumPostDetail = () => {
         try {
             await authApis().delete(endpoints['forum-post-detail'](post.id));
 
+            alert('Xóa bài đăng thành công!')
             nav(`/classrooms/${classroomId}/forums`)
         } catch (ex) {
             console.error("Delete error:", ex);
-            alert("Xoá bài viết thất bại!");
+            alert("Xoá bài đăng thất bại!");
         }
     }
 
@@ -66,6 +67,7 @@ const ForumPostDetail = () => {
 
     const handleReplyDeleted = (deletedId) => {
         setReplies(prev => prev.filter(r => r.id !== deletedId));
+        alert('Xóa phản hồi thành công!')
     }
 
     useEffect(() => {
@@ -106,7 +108,7 @@ const ForumPostDetail = () => {
 
     return (
         <Container className="p-3" style={{ minHeight: "100vh" }}>
-            <h3 className='mb-3'>{classRoomName}</h3>
+            <h3 className='mb-3'>Chi tiết bài đăng</h3>
             {post && <>
                 <Card className="shadow-sm">
                     <Card.Header className="d-flex align-items-center bg-light">
@@ -141,6 +143,7 @@ const ForumPostDetail = () => {
                                             className="rounded-5"
                                             variant="outline"
                                             disabled={!canEditOrDelete}
+                                            onClick={() => nav(`/classrooms/${classroomId}/forums/${post.id}/edit`, { state: { post: post } })}
                                         >
                                             <FaPenToSquare size={22} />
                                         </Button>

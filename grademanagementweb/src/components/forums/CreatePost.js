@@ -1,8 +1,8 @@
 import React, { useRef, useState } from 'react';
 import { Button, Form, Container, Alert, Spinner, Row, Col, Card } from 'react-bootstrap';
 import { useNavigate, useParams } from 'react-router-dom';
-import { authApis, endpoints } from '../configs/Apis';
-import MySpinner from './layouts/MySpinner';
+import { authApis, endpoints } from '../../configs/Apis';
+import MySpinner from '../layouts/MySpinner';
 
 const CreatePost = () => {
     const [post, setPost] = useState({})

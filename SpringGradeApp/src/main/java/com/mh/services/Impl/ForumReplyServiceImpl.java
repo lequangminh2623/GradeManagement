@@ -48,6 +48,11 @@ public class ForumReplyServiceImpl implements ForumReplyService {
     }
 
     @Override
+    public int countForumRepliesByForumPostIdAndForumReplyId(int forumPostId, int parentId, Map<String, String> params) {
+        return this.forumReplyRepo.countForumRepliesByForumPostIdAndForumReplyId(forumPostId, parentId, params);
+    }
+
+    @Override
     public List<ForumReply> getAllForumReplys(Map<String, String> params) {
         return this.forumReplyRepo.getAllForumReplys(params);
     }
