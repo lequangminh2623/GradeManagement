@@ -62,6 +62,7 @@ const Grade = () => {
 
     return (
         <Container className="p-3" style={{ minHeight: "100vh" }}>
+            <h3 className="mb-3">Bảng điểm</h3>
             {gradesBySemester.length > 0 ? gradesBySemester.map((semester, idx) =>
                 <SemesterTable
                     key={idx}

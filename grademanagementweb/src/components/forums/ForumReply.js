@@ -4,7 +4,7 @@ import { Link, Outlet, useLocation, useNavigate, useParams } from "react-router-
 import { MyUserContext } from "../../configs/MyContexts";
 import { checkPermission, checkCanEdit, formatVietnamTime } from '../../utils/utils';
 import { FaPenToSquare, FaTrashCan } from "react-icons/fa6";
-import { authApis, endpoints} from "../../configs/Apis"
+import { authApis, endpoints } from "../../configs/Apis"
 import MySpinner from "../layouts/MySpinner";
 import { FaReply } from "react-icons/fa6";
 import { IoCloseSharp } from "react-icons/io5";
@@ -38,8 +38,9 @@ const ForumReply = ({ reply, onReplyDeleted }) => {
     }
 
     const loadChildReplies = async () => {
-        setLoadingChildren(true);
         try {
+            setLoadingChildren(true);
+
             const url = `${endpoints['forum-child-replies'](postId, reply.id)}?page=${page}`;
             const res = await authApis().get(url);
 
@@ -49,7 +50,6 @@ const ForumReply = ({ reply, onReplyDeleted }) => {
                 setPage(0);
             }
 
-            setLoadedOnce(true);
         } catch (err) {
             console.error("Failed to load child replies:", err);
         } finally {
@@ -61,6 +61,7 @@ const ForumReply = ({ reply, onReplyDeleted }) => {
         setShowChildren(prev => !prev);
         if (!loadedOnce) {
             await loadChildReplies();
+            setLoadedOnce(true)
         }
     }
 
@@ -88,8 +89,9 @@ const ForumReply = ({ reply, onReplyDeleted }) => {
     }, []);
 
     useEffect(() => {
-        if (page > 0)
+        if (page > 0 && loadedOnce) {
             loadChildReplies();
+        }
     }, [page]);
 
     useEffect(() => {
@@ -112,7 +114,7 @@ const ForumReply = ({ reply, onReplyDeleted }) => {
 
 
     return (
-        <Card className="shadow-sm m-1">
+        <Card className="shadow-sm my-3">
             <Card.Header className="d-flex align-items-center bg-light">
                 <Image src={reply.user.avatar} roundedCircle width={50} height={50} className="me-3" />
                 <div>
@@ -176,22 +178,22 @@ const ForumReply = ({ reply, onReplyDeleted }) => {
 
                 {isAddPage && <div className="p-2"><Outlet /></div>}
 
-                {loadingChildren && <MySpinner />}
-
                 {showChildren && (
-                    <div className="mt-3 ms-4">
-                        {childReplies.map(child => (
-                            <ForumReply
-                                key={child.id}
-                                reply={child}
-                                onReplyDeleted={handleChildReplyDeleted}
-                            />
-                        ))}
+                    loadingChildren ? <MySpinner /> : <>
+                        <div className="mt-3 ms-4">
+                            {childReplies.length > 0 ? childReplies.map(child => (
+                                <ForumReply
+                                    key={child.id}
+                                    reply={child}
+                                    onReplyDeleted={handleChildReplyDeleted}
+                                />
+                            )) : <div>Không có phản hồi!</div>}
 
-                        {page > 0 && <div className="text-center mb-2 mt-3">
-                            <Button variant="primary" onClick={loadMore}> Xem thêm phản hồi...</Button>
-                        </div>}
-                    </div>
+                            {page > 0 && <div className="text-center mb-2 mt-3">
+                                <Button variant="primary" onClick={loadMore}> Xem thêm phản hồi...</Button>
+                            </div>}
+                        </div>
+                    </>
                 )}
 
             </Card.Body>

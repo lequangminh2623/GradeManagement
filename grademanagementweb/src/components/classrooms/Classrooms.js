@@ -62,9 +62,9 @@ const ClassroomList = () => {
                 </Alert>
             )}
 
-            <Row className="w-100 gy-3">
+            <Row className="gy-3">
                 {classrooms.map(c => (
-                    <Col key={c.id} md={4} xs={6} className="p-2">
+                    <Col key={c.id} md={4} className="p-2">
                         <Card className="shadow-sm rounded-3 forum-card">
                             <Card.Body>
                                 <Card.Title>{c.name}</Card.Title>
