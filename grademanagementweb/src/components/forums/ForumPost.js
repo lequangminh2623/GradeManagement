@@ -1,11 +1,11 @@
-import "../styles/ForumPost.css";
+import "../../styles/ForumPost.css";
 import React, { useContext, useEffect, useState } from 'react';
 import { Button, Card, Image, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import { useNavigate, useParams } from 'react-router-dom';
-import { MyUserContext } from '../configs/MyContexts';
-import { checkPermission, checkCanEdit, formatVietnamTime } from '../utils/utils';
+import { MyUserContext } from '../../configs/MyContexts';
+import { checkPermission, checkCanEdit, formatVietnamTime } from '../../utils/utils';
 import { FaPenToSquare, FaEye, FaTrashCan } from "react-icons/fa6";
-import { authApis, endpoints } from "../configs/Apis";
+import { authApis, endpoints } from "../../configs/Apis";
 
 const ForumPost = ({ post, classRoomName, onPostDeleted }) => {
     const nav = useNavigate();
@@ -88,6 +88,7 @@ const ForumPost = ({ post, classRoomName, onPostDeleted }) => {
                                     className="rounded-5"
                                     variant="outline"
                                     disabled={!canEditOrDelete}
+                                    onClick={() => nav(`/classrooms/${classroomId}/forums/${post.id}/edit`, {state: {post: post}})}
                                 >
                                     <FaPenToSquare size={22} />
                                 </Button>

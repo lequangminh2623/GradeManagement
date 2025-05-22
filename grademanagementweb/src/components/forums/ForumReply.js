@@ -1,11 +1,11 @@
 import { useContext, useEffect, useState } from "react";
 import { Button, Card, Image, OverlayTrigger, Tooltip } from "react-bootstrap";
 import { Link, Outlet, useLocation, useNavigate, useParams } from "react-router-dom";
-import { MyUserContext } from "../configs/MyContexts";
-import { checkPermission, checkCanEdit, formatVietnamTime } from '../utils/utils';
+import { MyUserContext } from "../../configs/MyContexts";
+import { checkPermission, checkCanEdit, formatVietnamTime } from '../../utils/utils';
 import { FaPenToSquare, FaTrashCan } from "react-icons/fa6";
-import { authApis, endpoints } from '../configs/Apis';
-import MySpinner from "./layouts/MySpinner";
+import { authApis, endpoints} from "../../configs/Apis"
+import MySpinner from "../layouts/MySpinner";
 import { FaReply } from "react-icons/fa6";
 import { IoCloseSharp } from "react-icons/io5";
 
@@ -22,6 +22,7 @@ const ForumReply = ({ reply, onReplyDeleted }) => {
     const location = useLocation()
     const isAddPage = location.pathname.endsWith(`/replies/${reply.id}/add`);
     const { classroomId } = useParams()
+    const [page, setPage] = useState(1)
     const nav = useNavigate()
 
     const handleDeleteReply = async () => {
@@ -34,24 +35,38 @@ const ForumReply = ({ reply, onReplyDeleted }) => {
             console.error("Delete error:", ex);
             alert("Xoá phản hồi thất bại!");
         }
+    }
+
+    const loadChildReplies = async () => {
+        setLoadingChildren(true);
+        try {
+            const url = `${endpoints['forum-child-replies'](postId, reply.id)}?page=${page}`;
+            const res = await authApis().get(url);
+
+            setChildReplies((prev) => [...prev, ...res.data.content]);
+
+            if (page >= res.data.totalPages) {
+                setPage(0);
+            }
+
+            setLoadedOnce(true);
+        } catch (err) {
+            console.error("Failed to load child replies:", err);
+        } finally {
+            setLoadingChildren(false);
+        }
     };
 
     const toggleChildren = async () => {
         setShowChildren(prev => !prev);
-
         if (!loadedOnce) {
-            setLoadingChildren(true);
-            try {
-                const res = await authApis().get(endpoints['forum-child-replies'](postId, reply.id));
-
-                setChildReplies(res.data);
-                setLoadedOnce(true);
-            } catch (err) {
-                console.error("Failed to load child replies:", err);
-            } finally {
-                setLoadingChildren(false);
-            }
+            await loadChildReplies();
         }
+    }
+
+    const loadMore = () => {
+        if (!loadingChildren && page > 0)
+            setPage(page + 1);
     }
 
     const toggleAddReply = () => {
@@ -65,6 +80,17 @@ const ForumReply = ({ reply, onReplyDeleted }) => {
     const handleChildReplyDeleted = (deletedId) => {
         setChildReplies((prev) => prev.filter((child) => child.id !== deletedId));
     }
+
+    useEffect(() => {
+        if (page !== 1)
+            setPage(1);
+        setChildReplies([])
+    }, []);
+
+    useEffect(() => {
+        if (page > 0)
+            loadChildReplies();
+    }, [page]);
 
     useEffect(() => {
         if (checkPermission(reply.user.id, user.id)) {
@@ -102,7 +128,9 @@ const ForumReply = ({ reply, onReplyDeleted }) => {
                         <>
                             <OverlayTrigger placement="top" overlay={<Tooltip>Bạn chỉ có thể chỉnh sửa trong 30 phút</Tooltip>}>
                                 <span className="me-2">
-                                    <Button size="sm" className="rounded-5" variant="outline" disabled={!canEditOrDelete}>
+                                    <Button size="sm" className="rounded-5" variant="outline" disabled={!canEditOrDelete}
+                                        onClick={() => nav(`/classrooms/${classroomId}/forums/${postId}/replies/${reply.id}/edit`, { state: { reply: reply } })}
+                                    >
                                         <FaPenToSquare size={22} />
                                     </Button>
                                 </span>
@@ -159,8 +187,13 @@ const ForumReply = ({ reply, onReplyDeleted }) => {
                                 onReplyDeleted={handleChildReplyDeleted}
                             />
                         ))}
+
+                        {page > 0 && <div className="text-center mb-2 mt-3">
+                            <Button variant="primary" onClick={loadMore}> Xem thêm phản hồi...</Button>
+                        </div>}
                     </div>
                 )}
+
             </Card.Body>
         </Card>
     );

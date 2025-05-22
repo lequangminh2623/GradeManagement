@@ -1,20 +1,19 @@
 import React, { useRef, useState } from 'react';
-import { Button, Form, Container, Alert, Spinner, Row, Col, Card } from 'react-bootstrap';
+import { Button, Form, Alert, Card, Col, Image, Row } from 'react-bootstrap';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
-import { authApis, endpoints } from '../configs/Apis';
-import MySpinner from './layouts/MySpinner';
+import { authApis, endpoints } from '../../configs/Apis';
+import MySpinner from '../layouts/MySpinner';
 
-const CreateReply = () => {
-    const [reply, setReply] = useState({})
+const ForumReplyEdit = () => {
+    const location = useLocation()
+    const [reply, setReply] = useState(location.state?.reply || {})
     const image = useRef()
     const [loading, setLoading] = useState(false);
     const [msg, setMsg] = useState("");
     const [fieldErrors, setFieldErrors] = useState({});
-    const { classroomId } = useParams();
+    const { classroomId, postId } = useParams();
     const nav = useNavigate();
-    const { postId } = useParams()
-    const locaiton = useLocation()
-    const parentId = locaiton.state?.parentId
+    const [previewImage, setPreviewImage] = useState(reply.image || null)
 
     const setState = (value, field) => {
         setReply({ ...reply, [field]: value });
@@ -29,7 +28,7 @@ const CreateReply = () => {
         return true
     }
 
-    const handleAddReply = async (e) => {
+    const handleUpdateReply = async (e) => {
         e.preventDefault();
         setMsg("");
         setFieldErrors({})
@@ -40,27 +39,21 @@ const CreateReply = () => {
 
                 let form = new FormData();
                 for (let key in reply) {
-                    form.append(key, reply[key]);
+                    if (key !== 'createdDate' && key !== 'updatedDate') {
+                        form.append(key, reply[key]);
+                    }
                 }
 
                 if (image.current.files[0]) {
                     form.append("file", image.current.files[0]);
                 }
 
-                if (parentId) {
-                    form.append("parentId", parentId)
-                }
-
-                const res = await authApis().post(endpoints['forum-reply'](postId), form, {
+                const res = await authApis().patch(endpoints['forum-reply-detail'](postId, reply.id), form, {
                     headers: { "Content-Type": "multipart/form-data" }
                 })
 
-                if (parentId) {
-                    nav(`/classrooms/${classroomId}/forums/${postId}`, { state: { newChildReply: res.data, parentId: parentId } });
-                } else {
-                    nav(`/classrooms/${classroomId}/forums/${postId}`, { state: { newReply: res.data } });
-                }
-
+                alert("Cập nhật phản hồi thành công!")
+                nav(`/classrooms/${classroomId}/forums/${postId}`)
             } catch (ex) {
                 console.log(ex)
                 if (ex.response?.status === 400 && Array.isArray(ex.response.data)) {
@@ -71,7 +64,7 @@ const CreateReply = () => {
 
                     setFieldErrors(errs);
                 } else {
-                    setMsg("Lỗi khi phản hồi");
+                    setMsg("Lỗi khi cập nhật phản hồi");
                 }
             } finally {
                 setLoading(false);
@@ -82,13 +75,13 @@ const CreateReply = () => {
     return (
         <Card className="shadow-sm my-3">
             <Card.Header >
-                <h3 className="text-center">Phản hồi</h3>
+                <h3 className="text-center">Chỉnh sửa phản hồi</h3>
             </Card.Header>
 
             <Card.Body className='p-4'>
                 {msg && <Alert variant="danger">{msg}</Alert>}
 
-                <Form onSubmit={handleAddReply}>
+                <Form onSubmit={handleUpdateReply}>
 
                     <Form.Group className="mb-3">
                         <Form.Label>Nội dung</Form.Label>
@@ -111,14 +104,43 @@ const CreateReply = () => {
                             ref={image}
                             type="file"
                             accept="image/*"
+                            onChange={(e) => {
+                                const file = e.target.files[0];
+                                if (file) {
+                                    const url = URL.createObjectURL(file);
+                                    setPreviewImage(url);
+                                    console.log(url)
+                                }
+                            }}
                         />
+
+                        {previewImage && (
+                            <div className="text-center m-3">
+                                <Image
+                                    src={previewImage}
+                                    fluid
+                                    rounded
+                                    className="post-image"
+                                />
+                            </div>
+                        )}
                     </Form.Group>
 
                     <div className="d-grid">
                         {loading ? <MySpinner /> :
-                            <Button variant="primary" type="submit" disabled={loading}>
-                                Gửi phản hồi
-                            </Button>
+                            <Row className="g-4 align-items-stretch">
+                                <Col md={6}>
+                                    <Button className='w-100' variant="secondary" disabled={loading}
+                                        onClick={() => nav(-1)}>
+                                        Hủy
+                                    </Button>
+                                </Col>
+                                <Col md={6}>
+                                    <Button className='w-100' variant="primary" type="submit" disabled={loading}>
+                                        Lưu thay đổi
+                                    </Button>
+                                </Col>
+                            </Row>
                         }
                     </div>
 
@@ -128,4 +150,4 @@ const CreateReply = () => {
     );
 };
 
-export default CreateReply;
+export default ForumReplyEdit;

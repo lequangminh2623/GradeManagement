@@ -34,6 +34,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -108,7 +109,7 @@ public class ApiForumController {
         ));
     }
 
-    @PutMapping("/{forumPostId}")
+    @PatchMapping("/{forumPostId}")
     public ResponseEntity<?> updateForumsPost(@ModelAttribute @Valid ForumPostDTO forumPostDTO, BindingResult result,
             @PathVariable(value = "forumPostId") int forumPostId) {
         if (result.hasErrors()) {
@@ -192,7 +193,12 @@ public class ApiForumController {
         }
 
         List<ForumReply> replies = this.forumReplyService.getForumRepliesByForumPostIdAndForumReplyId(forumPostId, replyId, params);
-        return ResponseEntity.status(HttpStatus.OK).body(replies);
+        int totalPages = (int) Math.ceil((double) this.forumReplyService.countForumRepliesByForumPostIdAndForumReplyId(forumPostId, replyId, params)
+                / PageSize.FORUM_REPLY_PAGE_SIZE.getSize());
+
+        return ResponseEntity.status(HttpStatus.OK).body(Map.of("content", replies,
+                "totalPages", totalPages
+        ));
     }
 
     @PostMapping("/{forumPostId}/replies")
@@ -232,7 +238,7 @@ public class ApiForumController {
         return ResponseEntity.status(HttpStatus.CREATED).body(this.forumReplyService.saveForumReply(reply));
     }
 
-    @PutMapping("/{forumPostId}/replies/{replyId}")
+    @PatchMapping("/{forumPostId}/replies/{replyId}")
     public ResponseEntity<?> updateForumsReply(@ModelAttribute @Valid ForumReplyDTO forumReplyDTO, BindingResult result,
             @PathVariable(value = "forumPostId") int forumPostId, @PathVariable(value = "replyId") int replyId) {
         if (result.hasErrors()) {
@@ -253,7 +259,7 @@ public class ApiForumController {
         Classroom classroom = this.classroomService.getClassroomByForumPostId(forumPostId);
 
         if (!this.forumPostService.checkForumPostPermission(user.getId(), classroom.getId())
-                || !this.forumReplyService.checkOwnerForumReplyPermission(user.getId(), forumPostId)) {
+                || !this.forumReplyService.checkOwnerForumReplyPermission(user.getId(), replyId)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                     .contentType(MediaType.parseMediaType("text/plain; charset=UTF-8"))
                     .body("Bạn không có quyền truy cập");

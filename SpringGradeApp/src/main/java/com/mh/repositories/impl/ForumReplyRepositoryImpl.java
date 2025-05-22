@@ -47,7 +47,6 @@ public class ForumReplyRepositoryImpl implements ForumReplyRepository {
                 Predicate namePredicate = cb.like(root.get("content"), "%" + kw + "%");
                 predicates.add(namePredicate);
             }
-
         }
 
         cq.where(cb.and(predicates.toArray(new Predicate[0])));
@@ -112,10 +111,29 @@ public class ForumReplyRepositoryImpl implements ForumReplyRepository {
                 Predicate namePredicate = cb.like(root.get("content"), "%" + kw + "%");
                 predicates.add(namePredicate);
             }
-
-            cq.where(cb.and(predicates.toArray(new Predicate[0])));
-
         }
+
+        cq.where(cb.and(predicates.toArray(new Predicate[0])));
+
+        Long result = session.createQuery(cq).getSingleResult();
+
+        return result.intValue();
+    }
+
+    @Override
+    public int countForumRepliesByForumPostIdAndForumReplyId(int forumPostId, int parentId, Map<String, String> params) {
+        Session session = this.factory.getObject().getCurrentSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<Long> cq = cb.createQuery(Long.class);
+        Root<ForumReply> root = cq.from(ForumReply.class);
+        cq.select(cb.count(root));
+
+        List<Predicate> predicates = new ArrayList<>();
+        predicates.add(cb.equal(root.get("forumPost").get("id"), forumPostId));
+        predicates.add(cb.equal(root.get("parent").get("id"), parentId));
+        predicates.add(cb.notEqual(root.get("parent").get("id"), root.get("id")));
+
+        cq.where(cb.and(predicates.toArray(new Predicate[0])));
 
         Long result = session.createQuery(cq).getSingleResult();
 

@@ -1,10 +1,10 @@
 import React, { useEffect, useState, useContext, useCallback } from "react";
-import Apis, { authApis, endpoints } from "../configs/Apis";
-import Sidebar from "./Sidebar";
-import ChatPanel from "./ChatPanel";
-import { MyUserContext } from "../configs/MyContexts";
+import Apis, { authApis, endpoints } from "../../configs/Apis";
+import Sidebar from "../chat/Sidebar";
+import ChatPanel from "../chat/ChatPanel";
+import { MyUserContext } from "../../configs/MyContexts";
 import { collection, onSnapshot, orderBy, query, where, doc, addDoc, setDoc, serverTimestamp } from "firebase/firestore";
-import { db } from "../configs/Firebase";
+import { db } from "../../configs/Firebase";
 import { useSearchParams } from "react-router-dom";
 
 export default function ChatBox() {

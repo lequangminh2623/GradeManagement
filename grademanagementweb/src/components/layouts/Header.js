@@ -53,6 +53,11 @@ const Header = () => {
                   Điểm
                 </Link>}
 
+              {(user.role === "ROLE_LECTURER") &&
+                <Link to="/statistics" className="nav-link">
+                  Thống kê
+                </Link>}
+
               <Link to="/chatbox" className="nav-link">
                 Tin nhắn
               </Link>

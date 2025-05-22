@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useContext, useRef } from "react";
-import { db } from "../configs/Firebase";
+import { db } from "../../configs/Firebase";
 import {
   collection,
   addDoc,
@@ -8,9 +8,9 @@ import {
   doc,
   setDoc
 } from "firebase/firestore";
-import { MyUserContext } from "../configs/MyContexts";
+import { MyUserContext } from "../../configs/MyContexts";
 import ReactMarkdown from "react-markdown"; // Import ReactMarkdown
-import "../styles/ChatPanel.css";
+import "../../styles/ChatPanel.css";
 
 export default function ChatPanel({ selectedUser, onChatbotInteraction }) {
   const user = useContext(MyUserContext);

@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
 import { Table, Button, Form, Row, Col } from "react-bootstrap";
 import { useParams, useSearchParams } from "react-router-dom";
-import { authApis, endpoints } from "../configs/Apis";
-import MySpinner from "./layouts/MySpinner";
+import { authApis, endpoints } from "../../configs/Apis";
+import MySpinner from "../layouts/MySpinner";
 import { FaSave, FaPlus, FaTimes, FaUpload, FaLock, FaFileCsv, FaFilePdf } from "react-icons/fa";
 
 const MAX_EXTRA_GRADES = 3;

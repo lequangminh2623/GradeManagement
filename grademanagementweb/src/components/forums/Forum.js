@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { authApis, endpoints } from '../configs/Apis';
+import { authApis, endpoints } from '../../configs/Apis';
 import { Alert, Button, Col, Container, Row } from 'react-bootstrap';
-import MySpinner from './layouts/MySpinner';
+import MySpinner from '../layouts/MySpinner';
 import { Outlet, useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import ForumPost from './ForumPost';
 
@@ -57,7 +57,8 @@ const Forum = () => {
     }
 
     const handlePostDeleted = (deletedId) => {
-        setPosts(prev => prev.filter(p => p.id !== deletedId));
+        setPosts(prev => prev.filter(p => p.id !== deletedId))
+        alert('Xóa bài đăng thành công!')
     }
 
     useEffect(() => {
@@ -84,7 +85,7 @@ const Forum = () => {
     return (
         <Container className="p-3" style={{ minHeight: "100vh" }}>
             <div className="d-flex justify-content-between mb-3">
-                <h3>{classRoomName}</h3>
+                <h3>Danh sách bài đăng - {classRoomName}</h3>
                 <Button variant="success" onClick={toggleAddPost}>
                     {isAddPage ? 'Đóng' : '+ Bài đăng mới'}
                 </Button>
