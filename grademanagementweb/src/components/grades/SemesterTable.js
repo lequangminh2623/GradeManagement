@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { Table, Card, Row, Col } from 'react-bootstrap';
+import { useTranslation } from 'react-i18next';
 
 const SemesterTable = ({ semesterTitle, subjects, summary }) => {
     const [isHovered, setIsHovered] = useState(false);
+    const { t } = useTranslation()
 
     return (
         <Card className="mb-4 shadow-sm rounded-3" onMouseEnter={() => setIsHovered(true)}
@@ -15,13 +17,13 @@ const SemesterTable = ({ semesterTitle, subjects, summary }) => {
                     <thead className={`${isHovered ? `table-primary` : ''} trasition-colors`}>
                         <tr>
                             <th>#</th>
-                            <th>Mã học phần</th>
-                            <th>Tên lớp</th>
-                            <th>Tên học phần</th>
-                            <th>Số tín chỉ</th>
-                            <th>Điểm bổ sung</th>
-                            <th>Điểm giữa kỳ</th>
-                            <th>Điểm cuối kỳ</th>
+                            <th>{t('course-code')}</th>
+                            <th>{t('classrooms')}</th>
+                            <th>{t('course')}</th>
+                            <th>{t('credit')}</th>
+                            <th>{t('extra-grades')}</th>
+                            <th>{t('midterm-grade')}</th>
+                            <th>{t('final-grade')}</th>
                         </tr>
                     </thead>
                     <tbody>

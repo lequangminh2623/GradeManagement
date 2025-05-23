@@ -20,3 +20,8 @@ export const formatVietnamTime = (utcDateStr) => {
         minute: '2-digit',
     }).format(utcDate);
 };
+
+export function capitalizeFirstWord(str) {
+    return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+  }
+  

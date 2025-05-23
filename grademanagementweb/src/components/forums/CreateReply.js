@@ -1,8 +1,9 @@
 import React, { useRef, useState } from 'react';
-import { Button, Form, Alert, Card } from 'react-bootstrap';
+import { Button, Form, Alert, Card, Image } from 'react-bootstrap';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { authApis, endpoints } from '../../configs/Apis';
 import MySpinner from '../layouts/MySpinner';
+import { useTranslation } from 'react-i18next';
 
 const CreateReply = () => {
     const [reply, setReply] = useState({})
@@ -15,6 +16,8 @@ const CreateReply = () => {
     const { postId } = useParams()
     const location = useLocation()
     const parentId = location.state?.parentId
+    const [previewImage, setPreviewImage] = useState(reply.image || null)
+    const { t } = useTranslation()
 
     const setState = (value, field) => {
         setReply({ ...reply, [field]: value });
@@ -82,7 +85,7 @@ const CreateReply = () => {
     return (
         <Card className="shadow-sm my-3">
             <Card.Header >
-                <h3 className="text-center">Phản hồi</h3>
+                <h3 className="text-center">{t('reply')}</h3>
             </Card.Header>
 
             <Card.Body className='p-4'>
@@ -91,13 +94,13 @@ const CreateReply = () => {
                 <Form onSubmit={handleAddReply}>
 
                     <Form.Group className="mb-3">
-                        <Form.Label>Nội dung</Form.Label>
+                        <Form.Label>{t('content')}</Form.Label>
                         <Form.Control
                             as="textarea"
                             rows={5}
                             value={reply['content']}
                             onChange={(e) => setState(e.target.value, "content")}
-                            placeholder="Nhập nội dung"
+                            placeholder={t('enter')}
                             isInvalid={!!fieldErrors['content']}
                         />
                         <Form.Control.Feedback type="invalid">
@@ -106,18 +109,37 @@ const CreateReply = () => {
                     </Form.Group>
 
                     <Form.Group className="mb-3">
-                        <Form.Label>Hình ảnh (tuỳ chọn)</Form.Label>
+                        <Form.Label>{t('image')} ({t('optional')})</Form.Label>
                         <Form.Control
                             ref={image}
                             type="file"
                             accept="image/*"
+                            onChange={(e) => {
+                                const file = e.target.files[0];
+                                if (file) {
+                                    const url = URL.createObjectURL(file);
+                                    setPreviewImage(url);
+                                    console.log(url)
+                                }
+                            }}
                         />
+
+                        {previewImage && (
+                            <div className="text-center m-3">
+                                <Image
+                                    src={previewImage}
+                                    fluid
+                                    rounded
+                                    className="post-image"
+                                />
+                            </div>
+                        )}
                     </Form.Group>
 
                     <div className="d-grid">
                         {loading ? <MySpinner /> :
                             <Button variant="primary" type="submit" disabled={loading}>
-                                Gửi phản hồi
+                                {t('send')}
                             </Button>
                         }
                     </div>

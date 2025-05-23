@@ -6,6 +6,8 @@ import MySpinner from "../layouts/MySpinner";
 import { useNavigate } from "react-router-dom";
 import { MyUserContext } from "../../configs/MyContexts";
 import { Pagination } from "react-bootstrap";
+import { useTranslation } from "react-i18next";
+import {capitalizeFirstWord} from "../../utils/utils"
 
 const ClassroomList = () => {
     const [classrooms, setClassrooms] = useState([]);
@@ -15,6 +17,7 @@ const ClassroomList = () => {
     const [q] = useSearchParams();
     const navigate = useNavigate();
     const user = useContext(MyUserContext);
+    const { t } = useTranslation()
 
     const loadClassrooms = useCallback(async () => {
         try {
@@ -54,11 +57,11 @@ const ClassroomList = () => {
 
     return (
         <Container className="p-3" style={{ minHeight: "100vh" }}>
-            <h2 className="mb-3">Danh sách lớp học</h2>
+            <h2 className="mb-3">{t('list-classrooms')}</h2>
 
             {classrooms.length === 0 && !loading && (
                 <Alert variant="info" className="m-2">
-                    Không có lớp học nào!
+                    {capitalizeFirstWord(`${t('no')} ${t('classrooms')}`)}
                 </Alert>
             )}
 
@@ -70,24 +73,24 @@ const ClassroomList = () => {
                                 <Card.Title>{c.name}</Card.Title>
 
                                 <Card.Text>
-                                    <strong>Trạng thái điểm:</strong> {c.gradeStatus}<br />
-                                    <strong>Học phần:</strong> {c.course?.name}<br />
-                                    <strong>Học kỳ:</strong> {c.semester?.academicYear.year + ' - ' + c.semester?.semesterType}<br />
-                                    <strong>Giảng viên:</strong> {c.lecturer?.lastName} {c.lecturer?.firstName}
+                                    <strong>{t('grades-status')}:</strong> {c.gradeStatus}<br />
+                                    <strong>{t('course')}:</strong> {c.course?.name}<br />
+                                    <strong>{t('semester')}:</strong> {c.semester?.academicYear.year + ' - ' + c.semester?.semesterType}<br />
+                                    <strong>{t('lecturer')}:</strong> {c.lecturer?.lastName} {c.lecturer?.firstName}
                                 </Card.Text>
 
                                 <Button
                                     variant="success"
                                     className="me-2"
                                     onClick={() => navigate(`/classrooms/${c.id}/forums`, { state: { classRoomName: c.name } })}>
-                                    Diễn đàn
+                                    {t('forum')}
                                 </Button>
 
                                 {user.role === "ROLE_LECTURER" && <Button
                                     variant="primary"
                                     className="me-2"
                                     onClick={() => navigate(`/classrooms/${c.id}`)}>
-                                    Quản lý điểm
+                                    {t('grades-manage')}
                                 </Button>}
                             </Card.Body>
                         </Card>

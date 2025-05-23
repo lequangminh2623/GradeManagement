@@ -8,6 +8,8 @@ import { authApis, endpoints } from "../../configs/Apis"
 import MySpinner from "../layouts/MySpinner";
 import { FaReply } from "react-icons/fa6";
 import { IoCloseSharp } from "react-icons/io5";
+import { useTranslation } from "react-i18next";
+import { capitalizeFirstWord } from "../../utils/utils"
 
 
 const ForumReply = ({ reply, onReplyDeleted }) => {
@@ -24,6 +26,7 @@ const ForumReply = ({ reply, onReplyDeleted }) => {
     const { classroomId } = useParams()
     const [page, setPage] = useState(1)
     const nav = useNavigate()
+    const { t } = useTranslation()
 
     const handleDeleteReply = async () => {
         if (!window.confirm("Bạn có chắc chắn muốn xoá phản hồi này?")) return;
@@ -128,7 +131,7 @@ const ForumReply = ({ reply, onReplyDeleted }) => {
                 <div className="d-flex justify-content-end mb-2">
                     {perm && (
                         <>
-                            <OverlayTrigger placement="top" overlay={<Tooltip>Bạn chỉ có thể chỉnh sửa trong 30 phút</Tooltip>}>
+                            <OverlayTrigger placement="top" overlay={<Tooltip>{t('edit-tooltip')}</Tooltip>}>
                                 <span className="me-2">
                                     <Button size="sm" className="rounded-5" variant="outline" disabled={!canEditOrDelete}
                                         onClick={() => nav(`/classrooms/${classroomId}/forums/${postId}/replies/${reply.id}/edit`, { state: { reply: reply } })}
@@ -137,7 +140,7 @@ const ForumReply = ({ reply, onReplyDeleted }) => {
                                     </Button>
                                 </span>
                             </OverlayTrigger>
-                            <OverlayTrigger placement="top" overlay={<Tooltip>Bạn chỉ có thể xoá trong 30 phút</Tooltip>}>
+                            <OverlayTrigger placement="top" overlay={<Tooltip>{t('delete-tooltip')}</Tooltip>}>
                                 <span className="me-2">
                                     <Button size="sm" className="rounded-5" variant="outline" onClick={handleDeleteReply} disabled={!canEditOrDelete}>
                                         <FaTrashCan size={22} />
@@ -164,7 +167,7 @@ const ForumReply = ({ reply, onReplyDeleted }) => {
                     className="mt-3 me-2"
                     onClick={toggleChildren}
                 >
-                    {showChildren ? 'Ẩn phản hồi' : 'Hiển thị phản hồi'}
+                    {showChildren ? `${t('hide-replies')}` : `${t('view-replies')}`}
                 </Button>
 
                 <Button
@@ -187,10 +190,10 @@ const ForumReply = ({ reply, onReplyDeleted }) => {
                                     reply={child}
                                     onReplyDeleted={handleChildReplyDeleted}
                                 />
-                            )) : <div>Không có phản hồi!</div>}
+                            )) : <div>{capitalizeFirstWord(`${t('no')} ${t('reply')}`)}</div>}
 
                             {page > 0 && <div className="text-center mb-2 mt-3">
-                                <Button variant="primary" onClick={loadMore}> Xem thêm phản hồi...</Button>
+                                <Button variant="primary" onClick={loadMore}> {capitalizeFirstWord(`${t('more')} ${t('reply')}`)}</Button>
                             </div>}
                         </div>
                     </>

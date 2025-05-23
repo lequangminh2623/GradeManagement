@@ -6,6 +6,7 @@ import { MyUserContext } from '../../configs/MyContexts';
 import { checkPermission, checkCanEdit, formatVietnamTime } from '../../utils/utils';
 import { FaPenToSquare, FaEye, FaTrashCan } from "react-icons/fa6";
 import { authApis, endpoints } from "../../configs/Apis";
+import { useTranslation } from "react-i18next";
 
 const ForumPost = ({ post, classRoomName, onPostDeleted }) => {
     const nav = useNavigate();
@@ -13,6 +14,7 @@ const ForumPost = ({ post, classRoomName, onPostDeleted }) => {
     const [canEditOrDelete, setCanEditOrDelete] = useState(false)
     const user = useContext(MyUserContext)
     const { classroomId } = useParams();
+    const { t } = useTranslation()
 
     const handleDeletePost = async () => {
         if (!window.confirm("Bạn có chắc chắn muốn xoá bài đăng này?")) return;
@@ -79,7 +81,7 @@ const ForumPost = ({ post, classRoomName, onPostDeleted }) => {
                         <OverlayTrigger
                             placement="top"
                             overlay={
-                                <Tooltip>Bạn chỉ có thể chỉnh sửa trong 30 phút</Tooltip>
+                                <Tooltip>{t('edit-tooltip')}</Tooltip>
                             }
                         >
                             <span className="me-2">
@@ -88,7 +90,7 @@ const ForumPost = ({ post, classRoomName, onPostDeleted }) => {
                                     className="rounded-5"
                                     variant="outline"
                                     disabled={!canEditOrDelete}
-                                    onClick={() => nav(`/classrooms/${classroomId}/forums/${post.id}/edit`, {state: {post: post}})}
+                                    onClick={() => nav(`/classrooms/${classroomId}/forums/${post.id}/edit`, { state: { post: post } })}
                                 >
                                     <FaPenToSquare size={22} />
                                 </Button>
@@ -98,7 +100,7 @@ const ForumPost = ({ post, classRoomName, onPostDeleted }) => {
                         <OverlayTrigger
                             placement="top"
                             overlay={
-                                <Tooltip>Bạn chỉ có thể xoá trong 30 phút</Tooltip>
+                                <Tooltip>{t('delete-tooltip')}</Tooltip>
                             }
                         >
                             <span className="me-2">

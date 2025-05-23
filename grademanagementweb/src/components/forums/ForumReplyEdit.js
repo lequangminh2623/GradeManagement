@@ -53,7 +53,7 @@ const ForumReplyEdit = () => {
                 })
 
                 alert("Cập nhật phản hồi thành công!")
-                nav(`/classrooms/${classroomId}/forums/${postId}`)
+                nav(-1)
             } catch (ex) {
                 console.log(ex)
                 if (ex.response?.status === 400 && Array.isArray(ex.response.data)) {

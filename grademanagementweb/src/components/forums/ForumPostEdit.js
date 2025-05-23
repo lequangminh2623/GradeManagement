@@ -12,7 +12,6 @@ const ForumPostEdit = () => {
     const [msg, setMsg] = useState("")
     const [fieldErrors, setFieldErrors] = useState({})
     const [previewImage, setPreviewImage] = useState(post.image || null)
-    const { classroomId } = useParams();
     const nav = useNavigate();
 
     const setState = (value, field) => {
@@ -58,7 +57,7 @@ const ForumPostEdit = () => {
                 });
 
                 alert("Cập nhật bài đăng thành công!")
-                nav(`/classrooms/${classroomId}/forums/${post.id}`)
+                nav(-1)
             } catch (ex) {
                 console.log(ex)
                 if (ex.response?.status === 400 && Array.isArray(ex.response.data)) {
