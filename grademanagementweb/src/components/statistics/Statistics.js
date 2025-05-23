@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Container, Form, Button, Table } from "react-bootstrap";
 import { Chart, registerables } from "chart.js"; // Import registerables
 import { authApis, endpoints } from "../../configs/Apis";
+import { useTranslation } from "react-i18next";
 Chart.register(...registerables);
 let chartInstance = null;
 
@@ -9,6 +10,7 @@ const Statistics = () => {
     const [semesters, setSemesters] = useState([]);
     const [semesterId, setSemesterId] = useState("1");
     const [result, setResult] = useState(null);
+    const { t } = useTranslation()
 
     useEffect(() => {
         // Fetch initial data (semesters and analysis for the default semester)
@@ -110,11 +112,11 @@ const Statistics = () => {
     return (
         <Container className="p-3" style={{ minHeight: "100vh" }}>
             <Form onSubmit={handleSubmit}>
-                <h2 className="mb-3">Thống kê học tập</h2>
+                <h2 className="mb-3">{t('statistics')}</h2>
 
                 <div className="col-md-6">
                     <Form.Group controlId="semesterSelect">
-                        <Form.Label>Học kỳ:</Form.Label>
+                        <Form.Label>{t('semester')}:</Form.Label>
                         <Form.Select value={semesterId} onChange={handleSemesterChange}>
                             {semesters.map((s) => (
                                 <option key={s.id} value={s.id} selected={s.id === semesterId}>
@@ -126,30 +128,30 @@ const Statistics = () => {
                 </div>
                 <div className="mt-3">
                     <Button type="submit" className="btn btn-primary">
-                        Xem thống kê
+                        {t('view-statistics')}
                     </Button>
                 </div>
             </Form>
 
             {result && (
                 <>
-                    <h3 className="mt-4">Biểu đồ thống kê tỷ lệ sinh viên yếu theo môn học</h3>
+                    <h3 className="mt-4">{t('chart-title')}</h3>
                     <canvas id="weakCourseChart" height="100"></canvas>
 
-                    <h3 className="mt-4">Danh sách môn học có tỷ lệ yếu cao (&ge;40%)</h3>
+                    <h3 className="mt-4">{t('list-courses')} (&ge;40%)</h3>
                     <ul>
                         {result.criticalCourses.map((course, index) => (
                             <li key={index}>{course}</li>
                         ))}
                     </ul>
 
-                    <h3 className="mt-5">Danh sách sinh viên yếu</h3>
+                    <h3 className="mt-5">{t('list-students')}</h3>
                     <Table bordered hover responsive className="mt-3">
                         <thead>
                             <tr>
-                                <th>Mã SV</th>
-                                <th>Họ tên</th>
-                                <th>Môn học</th>
+                                <th>{t('student-code')}</th>
+                                <th>{t('full-name')}</th>
+                                <th>{t('course')}</th>
                             </tr>
                         </thead>
                         <tbody>

@@ -4,11 +4,14 @@ import { useEffect, useState } from "react";
 import { authApis, endpoints } from "../../configs/Apis";
 import MySpinner from "../layouts/MySpinner";
 import { useSearchParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+import { capitalizeFirstWord } from "../../utils/utils"
 
 const Grade = () => {
     const [gradesBySemester, setGradesBySemester] = useState([]);
     const [loading, setLoading] = useState(false);
     const [q] = useSearchParams();
+    const { i18n, t } = useTranslation()
 
     const loadGrades = async () => {
         try {
@@ -28,9 +31,11 @@ const Grade = () => {
                 const semesterKey = `${grade.gradeDetail.semester.academicYear.year} - ${grade.gradeDetail.semester.semesterType}`;
                 if (!idx[semesterKey]) {
                     idx[semesterKey] = {
-                        semesterTitle: `Học kỳ ${grade.gradeDetail.semester.semesterType === "FIRST_TERM"
-                            ? "1" : grade.gradeDetail.semester.semesterType === "SECOND_TERM" ? "2" : "3"} 
-                        - Năm học ${grade.gradeDetail.semester.academicYear.year}`,
+                        semesterTitle: i18n.language === "vi" ?
+                            `${t('semester')} ${t(`semesterTypes.${grade.gradeDetail.semester.semesterType}`)}
+                        - ${t('year')} ${grade.gradeDetail.semester.academicYear.year}` :
+                            `${t(`semesterTypes.${grade.gradeDetail.semester.semesterType}`)}
+                        - ${grade.gradeDetail.semester.academicYear.year}`,
                         subjects: [],
                     };
                 }
@@ -58,11 +63,11 @@ const Grade = () => {
 
     useEffect(() => {
         loadGrades();
-    }, [q]);
+    }, [q, i18n.language]);
 
     return (
         <Container className="p-3" style={{ minHeight: "100vh" }}>
-            <h3 className="mb-3">Bảng điểm</h3>
+            <h3 className="mb-3">{t('grades-table')}</h3>
             {gradesBySemester.length > 0 ? gradesBySemester.map((semester, idx) =>
                 <SemesterTable
                     key={idx}
@@ -71,7 +76,7 @@ const Grade = () => {
                     summary={null}
                 />
             ) : <Alert variant="info" className="m-2">
-                Không có điểm!
+                {capitalizeFirstWord(`${t('no')} ${t('grades')}`)}
             </Alert>
             }
 

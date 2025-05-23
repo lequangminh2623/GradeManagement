@@ -4,6 +4,9 @@ import { useParams, useSearchParams } from "react-router-dom";
 import { authApis, endpoints } from "../../configs/Apis";
 import MySpinner from "../layouts/MySpinner";
 import { FaSave, FaPlus, FaTimes, FaUpload, FaLock, FaFileCsv, FaFilePdf } from "react-icons/fa";
+import { useTranslation } from "react-i18next";
+import { capitalizeFirstWord } from "../../utils/utils"
+
 
 const MAX_EXTRA_GRADES = 3;
 
@@ -20,12 +23,13 @@ const ClassroomDetail = () => {
     });
     const [students, setStudents] = useState([]);
     // Thêm state lưu lỗi điểm cho từng sinh viên
-    const [gradeErrors, setGradeErrors] = useState({}); 
+    const [gradeErrors, setGradeErrors] = useState({});
     const [extraCount, setExtraCount] = useState(0);
     const [loading, setLoading] = useState(false);
     const [q] = useSearchParams();
     const [page, setPage] = useState(1);
     const displayCount = Math.max(extraCount, 1);
+    const { t } = useTranslation()
 
     const fetchTranscript = useCallback(async () => {
         try {
@@ -249,7 +253,7 @@ const ClassroomDetail = () => {
     return (
         <>
             <div className="d-flex justify-content-between flex-wrap mb-3">
-                <h3 className="m-4">Bảng điểm lớp học</h3>
+                <h3 className="m-4">{capitalizeFirstWord(`${t('grades-table')} ${t('classrooms')}`)}</h3>
 
                 <div className="m-4">
                     <Button
@@ -259,7 +263,7 @@ const ClassroomDetail = () => {
                         className="me-2 mb-2"
                     >
                         <FaFileCsv className="me-2" />
-                        Xuất CSV
+                        {t('export')} CSV
                     </Button>
 
                     <Button
@@ -269,7 +273,7 @@ const ClassroomDetail = () => {
                         className="mb-2"
                     >
                         <FaFilePdf className="me-2" />
-                        Xuất PDF
+                        {t('export')} PDF
                     </Button>
                 </div>
             </div>
@@ -278,7 +282,7 @@ const ClassroomDetail = () => {
                 <Row>
                     <Col md={6}>
                         <Form.Group controlId="classroomName" className="mb-3">
-                            <Form.Label>Tên lớp:</Form.Label>
+                            <Form.Label>{t('classrooms')}:</Form.Label>
                             <Form.Control
                                 type="text"
                                 value={classInfo.classroomName}
@@ -288,7 +292,7 @@ const ClassroomDetail = () => {
                     </Col>
                     <Col md={6}>
                         <Form.Group controlId="lecturerName" className="mb-3">
-                            <Form.Label>Giảng viên:</Form.Label>
+                            <Form.Label>{t('lecturer')}:</Form.Label>
                             <Form.Control
                                 type="text"
                                 value={classInfo.lecturerName}
@@ -300,7 +304,7 @@ const ClassroomDetail = () => {
                 <Row>
                     <Col md={6}>
                         <Form.Group controlId="courseName" className="mb-3">
-                            <Form.Label>Môn học:</Form.Label>
+                            <Form.Label>{t('course')}:</Form.Label>
                             <Form.Control
                                 type="text"
                                 value={classInfo.courseName}
@@ -310,7 +314,7 @@ const ClassroomDetail = () => {
                     </Col>
                     <Col md={6}>
                         <Form.Group controlId="academicTerm" className="mb-3">
-                            <Form.Label>Học kỳ:</Form.Label>
+                            <Form.Label>{t('semester')}:</Form.Label>
                             <Form.Control
                                 type="text"
                                 value={classInfo.academicTerm}
@@ -342,10 +346,10 @@ const ClassroomDetail = () => {
                 <Table bordered hover>
                     <thead>
                         <tr>
-                            <th rowSpan={2}>MSSV</th>
-                            <th rowSpan={2}>Họ tên</th>
+                            <th rowSpan={2}>{t('student-code')}</th>
+                            <th rowSpan={2}>{t('full-name')}</th>
                             <th colSpan={displayCount} className="text-center">
-                                Điểm bổ sung{" "}
+                                {t('extra-grades')}{" "}
                                 <Button
                                     variant="outline-primary"
                                     size="sm"
@@ -355,8 +359,8 @@ const ClassroomDetail = () => {
                                     <FaPlus />
                                 </Button>
                             </th>
-                            <th rowSpan={2}>Điểm giữa kỳ</th>
-                            <th rowSpan={2}>Điểm cuối kỳ</th>
+                            <th rowSpan={2}>{t('midterm-grade')}</th>
+                            <th rowSpan={2}>{t('final-grade')}</th>
                         </tr>
                         <tr>
                             {Array.from({ length: displayCount }).map((_, idx) => (
@@ -475,12 +479,12 @@ const ClassroomDetail = () => {
                     }
                 >
                     <FaSave className="me-2" />
-                    Lưu bảng điểm
+                    {capitalizeFirstWord(`${t('save')} ${t('grade-table')}`)}
                 </Button>
 
                 <Button variant="danger" onClick={lockGrades} className="ms-2" disabled={loading || classInfo.gradeStatus === "LOCKED"}>
                     <FaLock className="me-2" />
-                    Khóa bảng điểm
+                    {capitalizeFirstWord(`${t('lock')} ${t('grade-table')}`)}
                 </Button>
             </div>
 

@@ -7,6 +7,9 @@ import { authApis, endpoints } from '../../configs/Apis';
 import ForumReply from './ForumReply';
 import { checkPermission, checkCanEdit, formatVietnamTime } from '../../utils/utils';
 import { FaPenToSquare, FaTrashCan } from "react-icons/fa6";
+import { useTranslation } from 'react-i18next';
+import {capitalizeFirstWord} from "../../utils/utils"
+
 
 const ForumPostDetail = () => {
     const { classroomId, postId } = useParams();
@@ -21,6 +24,7 @@ const ForumPostDetail = () => {
     const [{ classRoomName }, setClassRoomName] = useState(location.state || '')
     const isAddPage = location.pathname.endsWith(`forums/${postId}/add`);
     const [page, setPage] = useState(1)
+    const { t } = useTranslation()
 
 
     const loadForumPost = async () => {
@@ -108,7 +112,7 @@ const ForumPostDetail = () => {
 
     return (
         <Container className="p-3" style={{ minHeight: "100vh" }}>
-            <h3 className='mb-3'>Chi tiết bài đăng</h3>
+            <h3 className='mb-3'>{t('post-detail')}</h3>
             {post && <>
                 <Card className="shadow-sm">
                     <Card.Header className="d-flex align-items-center bg-light">
@@ -134,7 +138,7 @@ const ForumPostDetail = () => {
                                 <OverlayTrigger
                                     placement="top"
                                     overlay={
-                                        <Tooltip>Bạn chỉ có thể chỉnh sửa trong 30 phút</Tooltip>
+                                        <Tooltip>{t('edit-tooltip')}</Tooltip>
                                     }
                                 >
                                     <span className="me-2">
@@ -153,7 +157,7 @@ const ForumPostDetail = () => {
                                 <OverlayTrigger
                                     placement="top"
                                     overlay={
-                                        <Tooltip>Bạn chỉ có thể xoá trong 30 phút</Tooltip>
+                                        <Tooltip>{t('delete-tooltip')}</Tooltip>
                                     }
                                 >
                                     <span className="me-2">
@@ -191,9 +195,9 @@ const ForumPostDetail = () => {
                 <Row className="mt-4">
                     <Col>
                         <div className="d-flex justify-content-between mb-3">
-                            <h5>Phản hồi</h5>
+                            <h5>{t('reply')}</h5>
                             <Button variant="success" onClick={toggleAddReply}>
-                                {isAddPage ? 'Đóng' : '+ Thêm phản hồi'}
+                                {isAddPage ? `${t('close')}` : `+ ${t('new-reply')}`}
                             </Button>
                         </div>
 
@@ -204,13 +208,13 @@ const ForumPostDetail = () => {
                                 <ForumReply reply={i} onReplyDeleted={handleReplyDeleted} />
                             </div>
                         ) : <div className='text-center'>
-                            Không có phản hồi!
+                            {capitalizeFirstWord(`${t('no')} ${t('reply')}`)}
                         </div>}
 
                         {loading && <MySpinner />}
 
                         {page > 0 && <div className="text-center mb-2 mt-3">
-                            <Button variant="primary" onClick={loadMore}>Xem thêm...</Button>
+                            <Button variant="primary" onClick={loadMore}>{t('more')}</Button>
                         </div>}
                     </Col>
                 </Row>

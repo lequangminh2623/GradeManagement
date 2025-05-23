@@ -1,8 +1,9 @@
 import React, { useRef, useState } from 'react';
-import { Button, Form, Container, Alert, Spinner, Row, Col, Card } from 'react-bootstrap';
+import { Button, Form, Container, Alert, Spinner, Row, Col, Card, Image } from 'react-bootstrap';
 import { useNavigate, useParams } from 'react-router-dom';
 import { authApis, endpoints } from '../../configs/Apis';
 import MySpinner from '../layouts/MySpinner';
+import { useTranslation } from 'react-i18next';
 
 const CreatePost = () => {
     const [post, setPost] = useState({})
@@ -12,6 +13,8 @@ const CreatePost = () => {
     const [fieldErrors, setFieldErrors] = useState({});
     const { classroomId } = useParams();
     const nav = useNavigate();
+    const [previewImage, setPreviewImage] = useState(post.image || null)
+    const { t } = useTranslation()
 
     const setState = (value, field) => {
         setPost({ ...post, [field]: value });
@@ -75,7 +78,7 @@ const CreatePost = () => {
     return (
         <Card className="shadow-sm my-3">
             <Card.Header >
-                <h3 className="text-center">Tạo bài đăng mới</h3>
+                <h3 className="text-center">{t('new-post')}</h3>
             </Card.Header>
 
             <Card.Body className='p-4'>
@@ -84,12 +87,12 @@ const CreatePost = () => {
                 <Form onSubmit={handleAddPost}>
 
                     <Form.Group className="mb-3">
-                        <Form.Label>Tiêu đề</Form.Label>
+                        <Form.Label>{t('title')}</Form.Label>
                         <Form.Control
                             type="text"
                             value={post['title']}
                             onChange={(e) => setState(e.target.value, "title")}
-                            placeholder="Nhập tiêu đề"
+                            placeholder={t('enter')}
                             isInvalid={!!fieldErrors['title']}
                         />
                         <Form.Control.Feedback type="invalid">
@@ -98,13 +101,13 @@ const CreatePost = () => {
                     </Form.Group>
 
                     <Form.Group className="mb-3">
-                        <Form.Label>Nội dung</Form.Label>
+                        <Form.Label>{t('content')}</Form.Label>
                         <Form.Control
                             as="textarea"
                             rows={5}
                             value={post['content']}
                             onChange={(e) => setState(e.target.value, "content")}
-                            placeholder="Nhập nội dung"
+                            placeholder={t('enter')}
                             isInvalid={!!fieldErrors['content']}
                         />
                         <Form.Control.Feedback type="invalid">
@@ -113,18 +116,37 @@ const CreatePost = () => {
                     </Form.Group>
 
                     <Form.Group className="mb-3">
-                        <Form.Label>Hình ảnh (tuỳ chọn)</Form.Label>
+                        <Form.Label>{t('image')} ({t('optional')})</Form.Label>
                         <Form.Control
                             ref={image}
                             type="file"
                             accept="image/*"
+                            onChange={(e) => {
+                                const file = e.target.files[0];
+                                if (file) {
+                                    const url = URL.createObjectURL(file);
+                                    setPreviewImage(url);
+                                    console.log(url)
+                                }
+                            }}
                         />
+
+                        {previewImage && (
+                            <div className="text-center m-3">
+                                <Image
+                                    src={previewImage}
+                                    fluid
+                                    rounded
+                                    className="post-image"
+                                />
+                            </div>
+                        )}
                     </Form.Group>
 
                     <div className="d-grid">
                         {loading ? <MySpinner /> :
                             <Button variant="primary" type="submit" disabled={loading}>
-                                Đăng bài
+                                {t('do-post')}
                             </Button>
                         }
                     </div>

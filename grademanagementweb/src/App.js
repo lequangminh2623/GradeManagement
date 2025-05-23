@@ -20,11 +20,11 @@ import CreateReply from './components/forums/CreateReply';
 import ForumPostEdit from './components/forums/ForumPostEdit';
 import ForumReplyEdit from './components/forums/ForumReplyEdit';
 import Statistics from './components/statistics/Statistics';
-
+import './i18n';
 
 const App = () => {
   const initialUser = JSON.parse(localStorage.getItem("user"));
-  const [user, dispatch] = useReducer(MyUserReducer, initialUser);
+  const [user, dispatch] = useReducer(MyUserReducer, initialUser);  
 
   useEffect(() => {
     if (user) {

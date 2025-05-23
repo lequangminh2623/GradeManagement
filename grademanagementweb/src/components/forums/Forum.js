@@ -4,6 +4,8 @@ import { Alert, Button, Col, Container, Row } from 'react-bootstrap';
 import MySpinner from '../layouts/MySpinner';
 import { Outlet, useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import ForumPost from './ForumPost';
+import { useTranslation } from 'react-i18next';
+import {capitalizeFirstWord} from "../../utils/utils"
 
 const Forum = () => {
     const [posts, setPosts] = useState([])
@@ -14,6 +16,7 @@ const Forum = () => {
     const nav = useNavigate()
     const location = useLocation();
     const [{ classRoomName }, setClassRoomName] = useState(location.state || '')
+    const { t } = useTranslation()
 
     const isAddPage = location.pathname.endsWith('/add');
 
@@ -85,9 +88,9 @@ const Forum = () => {
     return (
         <Container className="p-3" style={{ minHeight: "100vh" }}>
             <div className="d-flex justify-content-between mb-3">
-                <h3>Danh sách bài đăng - {classRoomName}</h3>
+                <h3>{t('list-posts')} - {classRoomName}</h3>
                 <Button variant="success" onClick={toggleAddPost}>
-                    {isAddPage ? 'Đóng' : '+ Bài đăng mới'}
+                    {isAddPage ? `${t('close')}` : `+ ${t('new-post')}`}
                 </Button>
             </div>
 
@@ -102,14 +105,14 @@ const Forum = () => {
                     ))}
                 </Row>
             ) : <Alert variant="info" className="m-2">
-                Không có bài đăng!
+                {capitalizeFirstWord(`${t('no')} ${t('post')}`)}
             </Alert>
             }
 
             {loading && <MySpinner />}
 
             {page > 0 && <div className="text-center mb-2 mt-3">
-                <Button variant="primary" onClick={loadMore}>Xem thêm...</Button>
+                <Button variant="primary" onClick={loadMore}>{t('more')}</Button>
             </div>}
         </Container >
     );

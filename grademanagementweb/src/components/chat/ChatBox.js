@@ -6,6 +6,7 @@ import { MyUserContext } from "../../configs/MyContexts";
 import { collection, onSnapshot, orderBy, query, where, doc, addDoc, setDoc, serverTimestamp } from "firebase/firestore";
 import { db } from "../../configs/Firebase";
 import { useSearchParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 export default function ChatBox() {
   const user = useContext(MyUserContext);
@@ -15,6 +16,7 @@ export default function ChatBox() {
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
   const [q] = useSearchParams();
+  const { t } = useTranslation()
 
   const fetchUsers = useCallback(async () => {
     try {
@@ -135,7 +137,7 @@ export default function ChatBox() {
           justifyContent: "center",
           color: "#666"
         }}>
-          Chọn một người để bắt đầu chat
+          {t('select-chat')}
         </div>
       )}
     </div>
