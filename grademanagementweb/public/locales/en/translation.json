@@ -57,12 +57,14 @@
   "student-code": "Student code",
   "send": "Send",
   "no": "None",
+  "edit": "Edit",
+  "cancel": "Cancel",
+  "save": "Save",
+  "lock": "Lock",
 
 
   "grades-manage": "Manage grades",
   "grades-table": "Grades table",
-  "save-grades": "Save grades table",
-  "lock-grades": "Lock grades table",
   "extra-grades": "Extra grades",
   "midterm-grade": "Midterm grade",
   "final-grade": "Final grade",
