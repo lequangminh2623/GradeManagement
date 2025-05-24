@@ -479,12 +479,12 @@ const ClassroomDetail = () => {
                     }
                 >
                     <FaSave className="me-2" />
-                    {capitalizeFirstWord(`${t('save')} ${t('grade-table')}`)}
+                    {capitalizeFirstWord(`${t('save')} ${t('grades-table')}`)}
                 </Button>
 
                 <Button variant="danger" onClick={lockGrades} className="ms-2" disabled={loading || classInfo.gradeStatus === "LOCKED"}>
                     <FaLock className="me-2" />
-                    {capitalizeFirstWord(`${t('lock')} ${t('grade-table')}`)}
+                    {capitalizeFirstWord(`${t('lock')} ${t('grades-table')}`)}
                 </Button>
             </div>
 

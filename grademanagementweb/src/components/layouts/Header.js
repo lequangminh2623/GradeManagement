@@ -129,11 +129,10 @@ const Header = () => {
 
 
               <NavDropdown.Divider />
+              
               <NavDropdown.Item onClick={() => dispatch({ type: 'logout' })} className="text-danger">
                 {t('logout')}
               </NavDropdown.Item>
-
-              <NavDropdown.Divider />
 
             </NavDropdown>
           ) : (

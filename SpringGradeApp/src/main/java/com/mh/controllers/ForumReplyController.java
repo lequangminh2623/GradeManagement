@@ -77,7 +77,7 @@ public class ForumReplyController {
         List<ForumReply> replies = this.forumReplyService.getAllForumReplys(params);
         model.addAttribute("replies", replies);
         model.addAttribute("currentPage", Integer.parseInt(params.get("page")));
-        model.addAttribute("totalPages", (int) Math.ceil((double) this.forumReplyService.countForumReplies(params) / PageSize.FORUM_POST_PAGE_SIZE.getSize()));
+        model.addAttribute("totalPages", (int) Math.ceil((double) this.forumReplyService.countForumReplies(params) / PageSize.FORUM_REPLY_PAGE_SIZE.getSize()));
         model.addAttribute("kw", params.get("kw"));
 
         return "/forum/reply-list";
