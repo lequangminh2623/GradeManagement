@@ -1,8 +1,10 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useTransition } from 'react';
 import { Button, Form, Alert, Card, Col, Image, Row } from 'react-bootstrap';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { authApis, endpoints } from '../../configs/Apis';
 import MySpinner from '../layouts/MySpinner';
+import { useTranslation } from "react-i18next";
+import { capitalizeFirstWord } from "../../utils/utils"
 
 const ForumReplyEdit = () => {
     const location = useLocation()
@@ -14,6 +16,7 @@ const ForumReplyEdit = () => {
     const { classroomId, postId } = useParams();
     const nav = useNavigate();
     const [previewImage, setPreviewImage] = useState(reply.image || null)
+    const { t } = useTranslation()
 
     const setState = (value, field) => {
         setReply({ ...reply, [field]: value });
@@ -75,7 +78,7 @@ const ForumReplyEdit = () => {
     return (
         <Card className="shadow-sm my-3">
             <Card.Header >
-                <h3 className="text-center">Chỉnh sửa phản hồi</h3>
+                <h3 className="text-center">{capitalizeFirstWord(`${t('edit')} ${t('reply')}`)}</h3>
             </Card.Header>
 
             <Card.Body className='p-4'>
@@ -84,13 +87,13 @@ const ForumReplyEdit = () => {
                 <Form onSubmit={handleUpdateReply}>
 
                     <Form.Group className="mb-3">
-                        <Form.Label>Nội dung</Form.Label>
+                        <Form.Label>{t('content')}</Form.Label>
                         <Form.Control
                             as="textarea"
                             rows={5}
                             value={reply['content']}
                             onChange={(e) => setState(e.target.value, "content")}
-                            placeholder="Nhập nội dung"
+                            placeholder={t('enter')}
                             isInvalid={!!fieldErrors['content']}
                         />
                         <Form.Control.Feedback type="invalid">
@@ -99,7 +102,7 @@ const ForumReplyEdit = () => {
                     </Form.Group>
 
                     <Form.Group className="mb-3">
-                        <Form.Label>Hình ảnh (tuỳ chọn)</Form.Label>
+                        <Form.Label>{t('image')} ({t('optional')})</Form.Label>
                         <Form.Control
                             ref={image}
                             type="file"
@@ -132,12 +135,12 @@ const ForumReplyEdit = () => {
                                 <Col md={6}>
                                     <Button className='w-100' variant="secondary" disabled={loading}
                                         onClick={() => nav(-1)}>
-                                        Hủy
+                                        {t('cancel')}
                                     </Button>
                                 </Col>
                                 <Col md={6}>
                                     <Button className='w-100' variant="primary" type="submit" disabled={loading}>
-                                        Lưu thay đổi
+                                        {t('save')}
                                     </Button>
                                 </Col>
                             </Row>

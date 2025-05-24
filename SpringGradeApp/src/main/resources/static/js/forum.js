@@ -1,3 +1,30 @@
+function truncateSelectOptions(selectId, maxLength = 10) {
+    const select = document.getElementById(selectId);
+    if (!select)
+        return;
+
+    for (let i = 0; i < select.options.length; i++) {
+        const option = select.options[i];
+        const fullText = option.text;
+
+        option.title = fullText;
+
+        const parts = fullText.split(' - ');
+        if (parts.length < 2)
+            continue;
+
+        const prefix = parts[0];
+        const content = parts[1];
+
+        if (content.length > maxLength) {
+            option.text = `${prefix} - ${content.substring(0, maxLength - 3)}...`;
+        }
+    }
+}
+
+truncateSelectOptions("postSelect", 50);
+truncateSelectOptions("replySelect", 50);
+
 const userSelect = document.querySelector('#userSelect');
 if (userSelect) {
     new TomSelect(userSelect, {
@@ -133,6 +160,4 @@ function getChildReplies(btn, url, id, depth = 1, path = "/child-replies") {
             })
             .catch(err => console.error("Lỗi khi lấy phản hồi:", err));
 }
-
-
 
