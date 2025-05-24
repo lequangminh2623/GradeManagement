@@ -147,11 +147,11 @@ public class ForumController {
     @GetMapping("/forums/{postId}/replies/{replyId}/child-replies")
     public ResponseEntity<List<ForumReplyDTO>> getReplies(@PathVariable(value = "postId") int postId, @PathVariable(value = "replyId") int replyId,
             @RequestParam Map<String, String> params) {
-        String page = params.get("page");
-
-        if (page == null || page.isEmpty()) {
-            params.put("page", "1");
-        }
+//        String page = params.get("page");
+//
+//        if (page == null || page.isEmpty()) {
+//            params.put("page", "1");
+//        }
         List<ForumReply> replies = this.forumReplyService.getForumRepliesByForumPostIdAndForumReplyId(postId, replyId, params);
         List<ForumReplyDTO> repliesDto = replies.stream().map(ForumReplyDTO::new).collect(Collectors.toList());
         return ResponseEntity.status(HttpStatus.OK).body(repliesDto);

@@ -75,7 +75,7 @@
             <ul class="pagination justify-content-center">
                 <li class="page-item">
                     <a class="page-link"
-                       th:href="@{'/forums'(page=${currentPage - 1}, kw=${kw})}"
+                       th:href="@{'/replies'(page=${currentPage - 1}, kw=${kw})}"
                        th:classappend="${currentPage == 1} ? ' disabled'" 
                        aria-label="Previous">
                         <span aria-hidden="true"><</span>
@@ -85,7 +85,7 @@
                 <li class="page-item"
                     th:each="i : ${#numbers.sequence(1, totalPages)}">
                     <a class="page-link"
-                       th:href="@{'/forums'(page=${i}, kw=${kw})}"
+                       th:href="@{'/replies'(page=${i}, kw=${kw})}"
                        th:classappend="${i == currentPage} ? ' active'">
                         <span th:text="${i}"></span>
                     </a>
@@ -93,7 +93,7 @@
 
                 <li class="page-item">
                     <a class="page-link"
-                       th:href="@{'/forums'(page=${currentPage + 1}, kw=${kw})}"
+                       th:href="@{'/replies'(page=${currentPage + 1}, kw=${kw})}"
                        th:classappend="${currentPage == totalPages} ? ' disabled'"
                        aria-label="Next">
                         <span aria-hidden="true">></span>
