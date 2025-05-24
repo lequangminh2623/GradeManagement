@@ -64,29 +64,25 @@ let maxExtra = 3;
 function addExtraColumn() {
     const headerRow = document.querySelector("#extra-header-buttons");
     const anyCell = document.querySelector(".extra-grade-cells");
-
-    if (!anyCell)
-        return;
+    if (!anyCell) return;
 
     const existingIndices = Array.from(anyCell.children)
             .map(input => parseInt(input.name.match(/\[(\d+)\]$/)?.[1]))
-            .filter(n => !isNaN(n));
+        .filter(n => !isNaN(n));
 
     let newIndex = 0;
     while (existingIndices.includes(newIndex)) {
         newIndex++;
     }
-
-    if (newIndex >= maxExtra)
-        return;
+    if (newIndex >= maxExtra) return;
 
     document.querySelectorAll(".extra-grade-cells").forEach((cell) => {
-        const studentId = cell.getAttribute("data-student-id");
+        const studentIndex = cell.getAttribute("data-index");
 
         const input = document.createElement("input");
         input.type = "number";
         input.className = "form-control form-control-sm text-center";
-        input.name = `extraPoints[${studentId}][${newIndex}]`;
+        input.name = `grades[${studentIndex}].extraGrades[${newIndex}]`;
         input.min = 0;
         input.max = 10;
         input.step = 0.1;
@@ -103,15 +99,12 @@ function addExtraColumn() {
 
     headerRow.appendChild(removeButton);
 }
-
 function reindexExtraColumns() {
     document.querySelectorAll(".extra-grade-cells").forEach(cell => {
+        const studentIndex = cell.getAttribute("data-index");
         const inputs = cell.querySelectorAll("input");
         inputs.forEach((input, newIndex) => {
-            const nameParts = input.name.match(/extraPoints\[(\d+)\]\[(\d+)\]/);
-            if (nameParts) {
-                input.name = `extraPoints[${nameParts[1]}][${newIndex}]`;
-            }
+            input.name = `grades[${studentIndex}].extraGrades[${newIndex}]`;
         });
     });
 
@@ -123,7 +116,6 @@ function reindexExtraColumns() {
         });
     }
 }
-
 function removeExtraColumn(index) {
     if (confirm(`Bạn có chắc muốn xoá cột điểm bổ sung ${index + 1}?`)) {
         document.querySelectorAll(".extra-grade-cells").forEach(cell => {
@@ -137,7 +129,7 @@ function removeExtraColumn(index) {
         if (headerButtons && headerButtons.children.length > index) {
             headerButtons.children[index].remove();
         }
-        
+
         reindexExtraColumns();
     }
 }

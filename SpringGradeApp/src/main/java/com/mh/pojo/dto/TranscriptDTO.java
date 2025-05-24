@@ -5,6 +5,7 @@
 package com.mh.pojo.dto;
 
 import java.util.List;
+import jakarta.validation.Valid;
 
 /**
  *
@@ -17,6 +18,7 @@ public class TranscriptDTO {
     private String courseName;
     private String lecturerName;
     private String gradeStatus;
+    @Valid
     private List<GradeDTO> grades;
 
     public String getClassroomName() {
@@ -44,10 +46,10 @@ public class TranscriptDTO {
         this.lecturerName = lecturerName;
     }
     public List<GradeDTO> getStudents() {
-        return grades;
+        return getGrades();
     }
     public void setStudents(List<GradeDTO> grades) {
-        this.grades = grades;
+        this.setGrades(grades);
     }
 
     public String getGradeStatus() {
@@ -56,6 +58,20 @@ public class TranscriptDTO {
 
     public void setGradeStatus(String gradeStatus) {
         this.gradeStatus = gradeStatus;
+    }
+
+    /**
+     * @return the grades
+     */
+    public List<GradeDTO> getGrades() {
+        return grades;
+    }
+
+    /**
+     * @param grades the grades to set
+     */
+    public void setGrades(List<GradeDTO> grades) {
+        this.grades = grades;
     }
 
 }

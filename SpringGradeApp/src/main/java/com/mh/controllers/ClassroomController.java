@@ -6,7 +6,10 @@ package com.mh.controllers;
 
 import com.mh.pojo.Student;
 import com.mh.pojo.Classroom;
+import com.mh.pojo.ExtraGrade;
 import com.mh.pojo.GradeDetail;
+import com.mh.pojo.dto.GradeDTO;
+import com.mh.pojo.dto.TranscriptDTO;
 import com.mh.services.StudentService;
 import com.mh.services.ClassroomService;
 import com.mh.services.CourseService;
@@ -18,8 +21,6 @@ import com.mh.validators.WebAppValidator;
 import jakarta.persistence.PersistenceException;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Valid;
-import java.util.*;
-import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
@@ -30,6 +31,9 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/classrooms")
@@ -104,21 +108,37 @@ public class ClassroomController {
             classroom.setStudentSet(new HashSet<>());
         }
 
-        Map<Integer, GradeDetail> gradeMap = new HashMap<>();
+        List<GradeDTO> gradeDTOList = new ArrayList<>();
         for (Student s : classroom.getStudentSet()) {
-            Map<String, Integer> ref = new HashMap<>();
-            ref.put("classroomId", classroom.getId());
-            ref.put("studentId", s.getId());
+            Map<String, Integer> ref = Map.of("classroomId", classroom.getId(), "studentId", s.getId());
             List<GradeDetail> gradeDetails = gradeDetailService.getGradeDetail(ref);
             GradeDetail gd = !gradeDetails.isEmpty() ? gradeDetails.get(0) : new GradeDetail();
             if (gd.getExtraGradeSet() == null) {
                 gd.setExtraGradeSet(new HashSet<>());
             }
-            gradeMap.put(s.getId(), gd);
+
+            GradeDTO dto = new GradeDTO();
+            dto.setStudentId(s.getId());
+            dto.setStudentCode(s.getCode());
+            dto.setFullName(s.getUser().getLastName() + " " + s.getUser().getFirstName());
+            dto.setMidtermGrade(gd.getMidtermGrade());
+            dto.setFinalGrade(gd.getFinalGrade());
+            dto.setExtraGrades(gd.getExtraGradeSet().stream()
+                    .sorted(Comparator.comparingInt(ExtraGrade::getGradeIndex))
+                    .map(ExtraGrade::getGrade)
+                    .collect(Collectors.toList()));
+            gradeDTOList.add(dto);
         }
 
+        TranscriptDTO transcript = new TranscriptDTO();
+        transcript.setClassroomName(classroom.getCourse().getName() + " - " + classroom.getName());
+        transcript.setCourseName(classroom.getCourse().getName());
+        transcript.setAcademicTerm(classroom.getSemester().getSemesterType());
+        transcript.setLecturerName(classroom.getLecturer().getLastName() + " " + classroom.getLecturer().getFirstName());
+        transcript.setGrades(gradeDTOList);
+
         model.addAttribute("classroom", classroom);
-        model.addAttribute("gradeMap", gradeMap);
+        model.addAttribute("transcript", transcript);
         return "/classroom/classroom-form";
     }
 
@@ -127,33 +147,68 @@ public class ClassroomController {
             @ModelAttribute @Valid Classroom classroom,
             BindingResult bindingResult,
             Model model) {
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("errorMessage", "Có lỗi xảy ra");
+
+            if (classroom.getStudentSet() == null) {
+                classroom.setStudentSet(new HashSet<>());
+            }
+
+            List<GradeDTO> gradeDTOList = new ArrayList<>();
+            for (Student s : classroom.getStudentSet()) {
+                Map<String, Integer> ref = Map.of("classroomId", classroom.getId(), "studentId", s.getId());
+                List<GradeDetail> gradeDetails = gradeDetailService.getGradeDetail(ref);
+                GradeDetail gd = !gradeDetails.isEmpty() ? gradeDetails.get(0) : new GradeDetail();
+                if (gd.getExtraGradeSet() == null) {
+                    gd.setExtraGradeSet(new HashSet<>());
+                }
+
+                GradeDTO dto = new GradeDTO();
+                dto.setStudentId(s.getId());
+                dto.setStudentCode(s.getCode());
+                dto.setFullName(s.getUser().getLastName() + " " + s.getUser().getFirstName());
+                dto.setMidtermGrade(gd.getMidtermGrade());
+                dto.setFinalGrade(gd.getFinalGrade());
+                dto.setExtraGrades(gd.getExtraGradeSet().stream()
+                        .sorted(Comparator.comparingInt(ExtraGrade::getGradeIndex))
+                        .map(ExtraGrade::getGrade)
+                        .collect(Collectors.toList()));
+                gradeDTOList.add(dto);
+            }
+
+            TranscriptDTO transcript = new TranscriptDTO();
+            transcript.setClassroomName(classroom.getCourse().getName() + " - " + classroom.getName());
+            transcript.setCourseName(classroom.getCourse().getName());
+            transcript.setAcademicTerm(classroom.getSemester().getSemesterType());
+            transcript.setLecturerName(classroom.getLecturer().getLastName() + " " + classroom.getLecturer().getFirstName());
+            transcript.setGrades(gradeDTOList);
+
+            model.addAttribute("transcript", transcript);
+            return "/classroom/classroom-form";
+        }
 
         Classroom savedClassroom = classroomService.saveClassroom(classroom);
         gradeDetailService.initGradeDetailsForClassroom(savedClassroom);
 
-        Map<Integer, GradeDetail> gradeMap = savedClassroom.getStudentSet().stream()
-                .collect(Collectors.toMap(
-                        Student::getId,
-                        s -> gradeDetailService.getGradeDetail(
-                                Map.of("classroomId", savedClassroom.getId(),
-                                        "studentId", s.getId()))
-                                .stream().findFirst()
-                                .orElse(new GradeDetail())
-                ));
-        if (bindingResult.hasErrors()) {
-            model.addAttribute("errorMessage", "Có lỗi xảy ra");
-            model.addAttribute("classroom", classroom);
-            model.addAttribute("gradeMap", gradeMap);
-            return "/classroom/classroom-form";
-        }
-        
         return "redirect:/classrooms";
     }
 
     @PostMapping("/{id}/grades")
     public String saveGrades(@PathVariable("id") Integer classroomId,
-            @RequestParam Map<String, String> allParams) {
-        gradeDetailService.processAndSaveGrades(classroomId, allParams);
+            @ModelAttribute("transcript") @Valid TranscriptDTO transcript,
+            BindingResult result,
+            Model model) {
+
+        if (result.hasErrors()) {
+            model.addAttribute("errorMessage", "Có lỗi xảy ra");
+            Classroom classroom = classroomService.getClassroomWithStudents(classroomId);
+            model.addAttribute("classroom", classroom);
+            model.addAttribute("transcript", transcript);
+            return "/classroom/classroom-form";
+        }
+
+        gradeDetailService.updateGradesForClassroom(classroomId, transcript.getGrades());
+
         return "redirect:/classrooms";
     }
 
