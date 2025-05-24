@@ -256,9 +256,6 @@ public class GradeDetailServiceImpl implements GradeDetailService {
     public void uploadGradesFromCsv(Integer classroomId, MultipartFile file) throws IOException {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream()))) {
             String header = reader.readLine();
-            if (header == null) {
-                throw new IllegalArgumentException("CSV header is missing");
-            }
 
             int extraStart = 3;
             List<GradeDTO> gradeRequests = new ArrayList<>();
@@ -268,6 +265,9 @@ public class GradeDetailServiceImpl implements GradeDetailService {
             while ((line = reader.readLine()) != null) {
                 String[] tokens = line.split(",");
                 Integer studentId = Integer.valueOf(tokens[0].trim());
+                if(!classroomService.existUserInClassroom(studentId, classroomId)) {
+                    throw new IllegalArgumentException("Sinh viên không thuộc lớp học");
+                }
                 Double mid = parseDoubleSafe(tokens[1]);
                 Double fin = parseDoubleSafe(tokens[2]);
 

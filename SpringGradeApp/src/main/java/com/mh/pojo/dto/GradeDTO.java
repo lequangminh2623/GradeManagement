@@ -4,6 +4,9 @@
  */
 package com.mh.pojo.dto;
 
+import com.mh.validators.ValidExtraGrades;
+import jakarta.validation.constraints.DecimalMax;
+import jakarta.validation.constraints.DecimalMin;
 import java.util.List;
 
 /**
@@ -15,8 +18,15 @@ public class GradeDTO {
     private Integer studentId;
     private String studentCode;
     private String fullName;
+    
+    @DecimalMin(value = "0.0")
+    @DecimalMax(value = "10.0")
     private Double midtermGrade;
+    
+    @DecimalMin(value = "0.0")
+    @DecimalMax(value = "10.0")
     private Double finalGrade;
+    @ValidExtraGrades
     private List<Double> extraGrades;
     
     public GradeDTO() {

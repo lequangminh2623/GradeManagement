@@ -10,6 +10,7 @@ import com.mh.pojo.GradeDetail;
 import com.mh.pojo.User;
 import com.mh.pojo.dto.ForumPostDTO;
 import com.mh.pojo.dto.ForumReplyDTO;
+import com.mh.pojo.dto.TranscriptDTO;
 import com.mh.pojo.dto.UserDTO;
 import jakarta.validation.ConstraintViolation;
 import java.util.HashSet;
@@ -30,6 +31,10 @@ public class WebAppValidator implements Validator {
 
     @Override
     public boolean supports(Class<?> clazz) {
+        if (TranscriptDTO.class.isAssignableFrom(clazz)) {
+            return true;
+        }
+
         if (List.class.isAssignableFrom(clazz)) {
             return true;
         }

@@ -44,11 +44,11 @@ public interface ClassroomService {
 
     Classroom getClassroomByForumPostId(int id);
 
-    void lockClassroomGrades(Integer classroomId);
+    boolean lockClassroomGrades(Integer classroomId);
 
-    void checkLecturerPermission(Integer classroomId);
+    boolean checkLecturerPermission(Integer classroomId);
 
-    void checkExportPermission(Integer classroomId);
+    boolean checkExportPermission(Integer classroomId);
 
     void exportGradesToCsv(Integer classroomId, HttpServletResponse response) throws IOException;
 

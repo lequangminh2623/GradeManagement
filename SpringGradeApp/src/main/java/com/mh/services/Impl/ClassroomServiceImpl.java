@@ -114,13 +114,9 @@ public class ClassroomServiceImpl implements ClassroomService {
     }
 
     @Override
-    public void lockClassroomGrades(Integer classroomId) {
+    public boolean lockClassroomGrades(Integer classroomId) {
         Classroom classroom = this.getClassroomWithStudents(classroomId);
         Set<Student> students = classroom.getStudentSet();
-
-        if (students.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Không có sinh viên trong lớp này.");
-        }
 
         for (Student student : students) {
             Map<String, Integer> params = new HashMap<>();
@@ -128,19 +124,19 @@ public class ClassroomServiceImpl implements ClassroomService {
             params.put("studentId", student.getId());
             List<GradeDetail> gradeDetails = gradeDetailService.getGradeDetail(params);
             if (gradeDetails == null) {
-                return;
+                return true;
             }
             GradeDetail gradeDetail = gradeDetails.get(0);
             if (gradeDetail == null
                     || gradeDetail.getMidtermGrade() == null
                     || gradeDetail.getFinalGrade() == null) {
-                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Chưa nhập đầy đủ điểm cho tất cả sinh viên.");
+                return false;
             }
 
             if (gradeDetail.getExtraGradeSet() != null) {
                 for (ExtraGrade extra : gradeDetail.getExtraGradeSet()) {
                     if (extra.getGrade() == null) {
-                        throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Chưa nhập đầy đủ điểm cho tất cả sinh viên.");
+                        return false;
                     }
                 }
             }
@@ -159,6 +155,7 @@ public class ClassroomServiceImpl implements ClassroomService {
                 mailUtils.sendEmailAsync(user.getEmail(), subject, body);
             }
         }
+        return true;
     }
 
     @Override
@@ -297,26 +294,26 @@ public class ClassroomServiceImpl implements ClassroomService {
     }
 
     @Override
-    public void checkLecturerPermission(Integer classroomId) {
+    public boolean checkLecturerPermission(Integer classroomId) {
         Classroom classroom = this.getClassroomById(classroomId);
 
         String email = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
         String lecturerEmail = classroom.getLecturer().getEmail();
         if (!lecturerEmail.equalsIgnoreCase(email)) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Bạn không phải giảng viên phụ trách lớp này.");
+            return false;
         }
+        return true;
     }
 
     @Override
-    public void checkExportPermission(Integer classroomId) {
+    public boolean checkExportPermission(Integer classroomId) {
         Classroom classroom = this.getClassroomById(classroomId);
 
         if (!"LOCKED".equalsIgnoreCase(classroom.getGradeStatus())) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Bảng điểm chưa khóa, không thể xuất file.");
+            return false;
         }
-
-        checkLecturerPermission(classroomId);
+        return checkLecturerPermission(classroomId);
     }
 
     @Override

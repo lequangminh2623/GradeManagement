@@ -64,7 +64,9 @@ public class ApiClassroomController {
 
     @GetMapping("/{classroomId}/grades")
     public ResponseEntity<TranscriptDTO> getGradeSheetForClassroom(@PathVariable("classroomId") Integer classroomId, @RequestParam Map<String, String> params) {
-        classroomService.checkLecturerPermission(classroomId);
+        if (!classroomService.checkLecturerPermission(classroomId)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Bạn không phải giảng viên phụ trách lớp này.");
+        }
 
         TranscriptDTO gradeSheet = gradeDetailService.getTranscriptForClassroom(classroomId, params);
         return ResponseEntity.ok(gradeSheet);
@@ -72,14 +74,15 @@ public class ApiClassroomController {
 
     @PatchMapping("/{classroomId}/lock")
     public ResponseEntity<?> lockTranscript(@PathVariable("classroomId") Integer classroomId) {
-        classroomService.checkLecturerPermission(classroomId);
-        try {
-            classroomService.lockClassroomGrades(classroomId);
-        } catch (ResponseStatusException e) {
-            return ResponseEntity.status(e.getStatusCode()) // Lấy đúng mã lỗi
-                    .contentType(MediaType.parseMediaType("text/plain; charset=UTF-8"))
-                    .body(e.getReason());
+        if (!classroomService.checkLecturerPermission(classroomId)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Bạn không phải giảng viên phụ trách lớp này.");
         }
+        if(!classroomService.lockClassroomGrades(classroomId)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .contentType(MediaType.parseMediaType("text/plain; charset=UTF-8"))
+                .body("Chưa nhập đủ điểm cho tất cả sinh viên.");
+        }
+
         return ResponseEntity.status(HttpStatus.OK)
                 .contentType(MediaType.parseMediaType("text/plain; charset=UTF-8"))
                 .body("Điểm của lớp " + classroomId + " khóa thành công!");
@@ -88,8 +91,18 @@ public class ApiClassroomController {
     @PostMapping("/{classroomId}/grades")
     public ResponseEntity<String> saveGrades(
             @PathVariable("classroomId") Integer classroomId,
-            @RequestBody List<GradeDTO> gradeRequests) {
-        classroomService.checkLecturerPermission(classroomId);
+            @RequestBody @Valid List<GradeDTO> gradeRequests,
+            BindingResult result) {
+        
+        if (result.hasErrors()) {
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .contentType(MediaType.parseMediaType("text/plain; charset=UTF-8"))
+                    .body("Lỗi: " + "Điểm phải nằm trong khoảng từ 0 đến 10");
+        }
+        if (!classroomService.checkLecturerPermission(classroomId)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Bạn không phải giảng viên phụ trách lớp này.");
+        }
         try {
             gradeDetailService.updateGradesForClassroom(classroomId, gradeRequests);
         } catch (IllegalArgumentException e) {
@@ -107,7 +120,9 @@ public class ApiClassroomController {
     public ResponseEntity<String> uploadCsv(
             @PathVariable("classroomId") Integer classroomId,
             @RequestParam("file") MultipartFile file) {
-        classroomService.checkLecturerPermission(classroomId);
+        if (!classroomService.checkLecturerPermission(classroomId)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Bạn không phải giảng viên phụ trách lớp này.");
+        }
 
         try {
             gradeDetailService.uploadGradesFromCsv(classroomId, file);
@@ -128,7 +143,9 @@ public class ApiClassroomController {
             @PathVariable("classroomId") Integer classroomId,
             HttpServletResponse response) throws IOException {
 
-        classroomService.checkExportPermission(classroomId);
+        if(!classroomService.checkExportPermission(classroomId)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Bảng điểm chưa khóa hoặc bạn không phải giảng viên cửa lớp này.");
+        }
         classroomService.exportGradesToCsv(classroomId, response);
     }
 
@@ -137,7 +154,9 @@ public class ApiClassroomController {
             @PathVariable("classroomId") Integer classroomId,
             HttpServletResponse response) throws IOException {
 
-        classroomService.checkExportPermission(classroomId);
+        if(!classroomService.checkExportPermission(classroomId)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Bảng điểm chưa khóa hoặc bạn không phải giảng viên cửa lớp này.");
+        }
         classroomService.exportGradesToPdf(classroomId, response);
     }
 

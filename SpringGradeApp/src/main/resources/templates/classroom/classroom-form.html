@@ -108,48 +108,61 @@
                         <tr>
                             <th class="text-center">
                                 <div id="extra-header-buttons" class="d-flex gap-2 justify-content-center"
-                                     th:if="${#lists.size(classroom.studentSet) > 0}">
-                                    <span th:each="eg, iStat : ${gradeMap[classroom.studentSet[0].id]?.extraGradeSet}">
+                                     th:if="${#lists.size(transcript.grades) > 0}">
+                                    <span th:each="eg, iStat : ${transcript.grades[0].extraGrades}">
                                         <button type="button" class="btn btn-outline-danger btn-sm"
                                                 th:attr="onclick=|removeExtraColumn(${iStat.index})|">❌</button>
                                     </span>
                                 </div>
-                                <div id="extra-header-buttons" 
+                                <div id="extra-header-buttons"
                                      class="d-flex gap-2 justify-content-center"
-                                     th:unless="${#lists.size(classroom.studentSet) > 0}"></div>
+                                     th:unless="${#lists.size(transcript.grades) > 0}"></div>
                             </th>
                         </tr>
                     </thead>
 
-                    <tbody id="student-table-body">
-                        <tr th:each="s, iterStat : ${classroom.studentSet}" th:id="'row-student-' + ${s.id}">
-                            <td class="text-center align-middle" th:text="${s.code}"></td>
-                            <td class="align-middle" th:text="${s.user.lastName + ' ' + s.user.firstName}"></td>
+                    <tbody id="student-table-body" th:if="${classroom.id}">
+                        <tr th:each="g, iterStat : ${transcript.grades}" th:id="'row-student-' + ${g.studentId}">
+                            <td class="text-center align-middle">
+                                <span th:text="${g.studentCode}"></span>
+                                <input type="hidden" th:name="'grades[' + ${iterStat.index} + '].studentCode'" th:value="${g.studentCode}" />
+                            </td>
                             <td class="align-middle">
+                                <span th:text="${g.fullName}"></span>
+                                <input type="hidden" th:name="'grades[' + ${iterStat.index} + '].fullName'" th:value="${g.fullName}" />
+                            </td>
+                            <td class="align-middle">
+                                <input type="hidden" th:name="'grades[' + ${iterStat.index} + '].studentId'" th:value="${g.studentId}" />
                                 <div class="extra-grade-cells d-flex gap-2 justify-content-center"
-                                     th:attr="data-student-id=${s.id}, data-index=${iterStat.index}">
+                                     th:attr="data-student-id=${g.studentId}, data-index=${iterStat.index}">
                                     <input type="number" class="form-control form-control-sm text-center"
-                                           th:each="eg, iStat : ${gradeMap[s.id]?.extraGradeSet}"
-                                           th:name="'extraPoints[' + ${s.id} + '][' + ${iStat.index} + ']'"
-                                           min="0" max="10" step="0.1"
-                                           th:value="${eg.grade}" style="width: 60px;" />
+                                           th:each="eg, iStat : ${g.extraGrades}"
+                                           th:name="'grades[' + ${iterStat.index} + '].extraGrades[' + ${iStat.index} + ']'"
+                                           step="0.1"
+                                           min="0"
+                                           max="10"
+                                           th:value="${eg}" style="width: 60px;" />
                                 </div>
                             </td>
                             <td class="text-center align-middle">
                                 <input type="number" class="form-control form-control-sm text-center"
-                                       th:name="'midtermGrade[' + ${s.id} + ']'"
-                                       min="0" max="10" step="0.1"
-                                       th:value="${gradeMap[s.id]?.midtermGrade}" style="width: 60px;" />
+                                       th:name="'grades[' + ${iterStat.index} + '].midtermGrade'"
+                                       step="0.1"
+                                       min="0"
+                                       max="10"
+                                       th:value="${g.midtermGrade}" style="width: 60px;" />
                             </td>
                             <td class="text-center align-middle">
                                 <input type="number" class="form-control form-control-sm text-center"
-                                       th:name="'finalGrade[' + ${s.id} + ']'"
-                                       min="0" max="10" step="0.1"
-                                       th:value="${gradeMap[s.id]?.finalGrade}" style="width: 60px;" />
+                                       th:name="'grades[' + ${iterStat.index} + '].finalGrade'"
+                                       step="0.1"
+                                       min="0"
+                                       max="10"
+                                       th:value="${g.finalGrade}" style="width: 60px;" />
                             </td>
                             <td class="text-center align-middle">
                                 <button class="btn btn-danger btn-sm"
-                                        th:onclick="'removeStudentFromClassroom(\''+@{/classrooms/}+'\','+${classroom.id}+','+${s.id}+')'">🗑</button>
+                                        th:onclick="'removeStudentFromClassroom(\''+@{/classrooms/}+'\','+${classroom.id}+','+${g.studentId}+')'">🗑</button>
                             </td>
                         </tr>
                     </tbody>
