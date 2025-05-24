@@ -57,12 +57,14 @@
     "student-code": "MSSV",
     "send": "Gửi",
     "no": "Không có",
+    "edit": "Chỉnh sửa",
+    "cancel": "Hủy",
+    "save": "Lưu",
+    "lock": "Khóa",
 
 
     "grades-manage": "Quản lý điểm",
     "grades-table": "Bảng điểm",
-    "save-grades": "Lưu bảng điểm",
-    "lock-grades": "Khóa bảng điểm",
     "extra-grades": "Điểm bổ sung",
     "midterm-grade": "Điểm giữa kỳ",
     "final-grade": "Điểm cuối kỳ",
@@ -74,5 +76,4 @@
     "chart-title": "Biểu đồ thống kê tỷ lệ sinh viên yếu theo môn học",
     "list-courses": "Danh sách môn học có tỷ lệ yếu cao",
     "list-students": "Danh sách sinh viên yếu"
-    
   }

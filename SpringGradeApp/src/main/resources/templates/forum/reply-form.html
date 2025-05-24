@@ -59,7 +59,7 @@
                         <option value="">-- Chọn bài đăng --</option>
                         <option th:each="p : ${forumPosts}" 
                                 th:value="${p.id}" 
-                                th:text="${p.id}">
+                                th:text="${p.id} + ' - ' + ${p.title}">
                         </option>
                     </select>
                     <div class="invalid-feedback" th:errors="*{forumPost}"></div>
@@ -72,7 +72,7 @@
                         <option value="">-- Chọn phản hồi --</option>
                         <option th:each="r : ${replies}" 
                                 th:value="${r.id}" 
-                                th:text="${r.id}">
+                                th:text="${r.id} + ' - ' + ${r.content}">
                         </option>
                     </select>
                     <div class="invalid-feedback" th:errors="*{parent}"></div>

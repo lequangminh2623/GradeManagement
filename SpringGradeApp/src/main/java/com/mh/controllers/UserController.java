@@ -52,6 +52,11 @@ public class UserController {
         return "login";
     }
 
+    @GetMapping("/access-deny")
+    public String getDenyPage() {
+        return "deny";
+    }
+
     @GetMapping("/users")
     public String listUsers(Model model, @RequestParam Map<String, String> params) {
         String page = params.get("page");

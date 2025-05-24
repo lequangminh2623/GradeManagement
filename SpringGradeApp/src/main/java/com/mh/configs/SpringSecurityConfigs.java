@@ -36,6 +36,8 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.AccessDeniedHandler;
+import org.springframework.security.web.access.AccessDeniedHandlerImpl;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
@@ -138,16 +140,17 @@ public class SpringSecurityConfigs {
     public SecurityFilterChain webSecurity(HttpSecurity http) throws Exception {
         http.cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(c -> c.disable()).authorizeHttpRequests(auth -> auth
-                .requestMatchers("/login", "/css/**", "/js/**").permitAll()
+                .requestMatchers("/login", "/css/**", "/js/**", "/access-deny").permitAll()
                 .requestMatchers("/", "/home", "/users", "/users/**", "/classrooms", "/classrooms/**",
                         "/courses", "/courses/**", "/years", "/years/**",
                         "/forums", "/forums/**", "/replies", "/replies/**").hasRole("ADMIN")
-                )
+        )
                 .formLogin(form -> form.loginPage("/login")
                 .loginProcessingUrl("/login")
                 .defaultSuccessUrl("/", true)
                 .failureUrl("/login?error=true").permitAll())
-                .logout(logout -> logout.logoutSuccessUrl("/login").permitAll());
+                .logout(logout -> logout.logoutSuccessUrl("/login").permitAll())
+                .exceptionHandling(e -> e.accessDeniedHandler(accessDeniedHandler()));
 
         return http.build();
     }
@@ -225,6 +228,13 @@ public class SpringSecurityConfigs {
         source.registerCorsConfiguration("/**", config);
 
         return source;
+    }
+
+    @Bean
+    public AccessDeniedHandler accessDeniedHandler() {
+        AccessDeniedHandlerImpl handler = new AccessDeniedHandlerImpl();
+        handler.setErrorPage("/access-deny");
+        return handler;
     }
 
 }

@@ -51,7 +51,10 @@
                 <tbody>
                     <tr th:each="r : ${replies}">
                         <td th:text="${r.id}"></td>
-                        <td th:text="${r.content}"></td>
+                        <td>
+                            <span th:text="${#strings.abbreviate(r.content, 50)}"
+                                  th:title="${r.content}"></span>
+                        </td>
                         <td>
                             <a th:href="${r.image}" target="_blank">
                                 <img th:src="${r.image}"

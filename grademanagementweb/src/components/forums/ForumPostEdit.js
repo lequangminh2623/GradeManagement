@@ -3,6 +3,8 @@ import { Button, Card, Form, Alert, Container, Row, Col, Image } from 'react-boo
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { authApis, endpoints } from '../../configs/Apis';
 import MySpinner from '../layouts/MySpinner';
+import { useTranslation } from "react-i18next";
+import {capitalizeFirstWord} from "../../utils/utils"
 
 const ForumPostEdit = () => {
     const location = useLocation()
@@ -13,6 +15,7 @@ const ForumPostEdit = () => {
     const [fieldErrors, setFieldErrors] = useState({})
     const [previewImage, setPreviewImage] = useState(post.image || null)
     const nav = useNavigate();
+    const { t } = useTranslation()
 
     const setState = (value, field) => {
         setPost({ ...post, [field]: value });
@@ -82,19 +85,19 @@ const ForumPostEdit = () => {
         <Container className="p-3" style={{ minHeight: "100vh" }}>
             <Card className="shadow-sm my-3">
                 <Card.Header >
-                    <h3 className="text-center">Chỉnh sửa bài đăng</h3>
+                    <h3 className="text-center">{capitalizeFirstWord(`${t('edit')} ${t('post')}`)}</h3>
                 </Card.Header>
                 <Card.Body className='p-4'>
                     {msg && <Alert variant="danger">{msg}</Alert>}
 
                     <Form onSubmit={handleUpdatePost}>
                         <Form.Group className="mb-3">
-                            <Form.Label>Tiêu đề</Form.Label>
+                            <Form.Label>{t('title')}</Form.Label>
                             <Form.Control
                                 type="text"
                                 value={post['title'] || ''}
                                 onChange={(e) => setState(e.target.value, "title")}
-                                placeholder="Nhập tiêu đề"
+                                placeholder={t('enter')}
                                 isInvalid={!!fieldErrors['title']}
                             />
                             <Form.Control.Feedback type="invalid">
@@ -103,13 +106,13 @@ const ForumPostEdit = () => {
                         </Form.Group>
 
                         <Form.Group className="mb-3">
-                            <Form.Label>Nội dung</Form.Label>
+                            <Form.Label>{t('content')}</Form.Label>
                             <Form.Control
                                 as="textarea"
                                 rows={5}
                                 value={post['content'] || ''}
                                 onChange={(e) => setState(e.target.value, "content")}
-                                placeholder="Nhập nội dung"
+                                placeholder={t('enter')}
                                 isInvalid={!!fieldErrors['content']}
                             />
                             <Form.Control.Feedback type="invalid">
@@ -118,7 +121,7 @@ const ForumPostEdit = () => {
                         </Form.Group>
 
                         <Form.Group className="mb-3">
-                            <Form.Label>Hình ảnh (tuỳ chọn)</Form.Label>
+                            <Form.Label>{t('image')} ({t('optional')})</Form.Label>
                             <Form.Control
                                 ref={image}
                                 type="file"
@@ -151,12 +154,12 @@ const ForumPostEdit = () => {
                                     <Col md={6}>
                                         <Button className='w-100' variant="secondary" disabled={loading}
                                             onClick={() => nav(-1)}>
-                                            Hủy
+                                            {t('cancel')}
                                         </Button>
                                     </Col>
                                     <Col md={6}>
                                         <Button className='w-100' variant="primary" type="submit" disabled={loading}>
-                                            Lưu thay đổi
+                                            {t('save')}
                                         </Button>
                                     </Col>
                                 </Row>
