@@ -1,5 +1,5 @@
 import React, { useRef, useState, useTransition } from 'react';
-import { Button, Form, Alert, Card, Col, Image, Row } from 'react-bootstrap';
+import { Button, Form, Alert, Card, Col, Image, Row, Container } from 'react-bootstrap';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { authApis, endpoints } from '../../configs/Apis';
 import MySpinner from '../layouts/MySpinner';
@@ -76,80 +76,82 @@ const ForumReplyEdit = () => {
     };
 
     return (
-        <Card className="shadow-sm my-3">
-            <Card.Header >
-                <h3 className="text-center">{capitalizeFirstWord(`${t('edit')} ${t('reply')}`)}</h3>
-            </Card.Header>
+        <Container className="p-3" style={{ minHeight: "100vh" }}>
+            <Card className="shadow-sm my-3">
+                <Card.Header >
+                    <h3 className="text-center">{capitalizeFirstWord(`${t('edit')} ${t('reply')}`)}</h3>
+                </Card.Header>
 
-            <Card.Body className='p-4'>
-                {msg && <Alert variant="danger">{msg}</Alert>}
+                <Card.Body className='p-4'>
+                    {msg && <Alert variant="danger">{msg}</Alert>}
 
-                <Form onSubmit={handleUpdateReply}>
+                    <Form onSubmit={handleUpdateReply}>
 
-                    <Form.Group className="mb-3">
-                        <Form.Label>{t('content')}</Form.Label>
-                        <Form.Control
-                            as="textarea"
-                            rows={5}
-                            value={reply['content']}
-                            onChange={(e) => setState(e.target.value, "content")}
-                            placeholder={t('enter')}
-                            isInvalid={!!fieldErrors['content']}
-                        />
-                        <Form.Control.Feedback type="invalid">
-                            {fieldErrors['content']}
-                        </Form.Control.Feedback>
-                    </Form.Group>
+                        <Form.Group className="mb-3">
+                            <Form.Label>{t('content')}</Form.Label>
+                            <Form.Control
+                                as="textarea"
+                                rows={5}
+                                value={reply['content']}
+                                onChange={(e) => setState(e.target.value, "content")}
+                                placeholder={t('enter')}
+                                isInvalid={!!fieldErrors['content']}
+                            />
+                            <Form.Control.Feedback type="invalid">
+                                {fieldErrors['content']}
+                            </Form.Control.Feedback>
+                        </Form.Group>
 
-                    <Form.Group className="mb-3">
-                        <Form.Label>{t('image')} ({t('optional')})</Form.Label>
-                        <Form.Control
-                            ref={image}
-                            type="file"
-                            accept="image/*"
-                            onChange={(e) => {
-                                const file = e.target.files[0];
-                                if (file) {
-                                    const url = URL.createObjectURL(file);
-                                    setPreviewImage(url);
-                                    console.log(url)
-                                }
-                            }}
-                        />
+                        <Form.Group className="mb-3">
+                            <Form.Label>{t('image')} ({t('optional')})</Form.Label>
+                            <Form.Control
+                                ref={image}
+                                type="file"
+                                accept="image/*"
+                                onChange={(e) => {
+                                    const file = e.target.files[0];
+                                    if (file) {
+                                        const url = URL.createObjectURL(file);
+                                        setPreviewImage(url);
+                                        console.log(url)
+                                    }
+                                }}
+                            />
 
-                        {previewImage && (
-                            <div className="text-center m-3">
-                                <Image
-                                    src={previewImage}
-                                    fluid
-                                    rounded
-                                    className="post-image"
-                                />
-                            </div>
-                        )}
-                    </Form.Group>
+                            {previewImage && (
+                                <div className="text-center m-3">
+                                    <Image
+                                        src={previewImage}
+                                        fluid
+                                        rounded
+                                        className="post-image"
+                                    />
+                                </div>
+                            )}
+                        </Form.Group>
 
-                    <div className="d-grid">
-                        {loading ? <MySpinner /> :
-                            <Row className="g-4 align-items-stretch">
-                                <Col md={6}>
-                                    <Button className='w-100' variant="secondary" disabled={loading}
-                                        onClick={() => nav(-1)}>
-                                        {t('cancel')}
-                                    </Button>
-                                </Col>
-                                <Col md={6}>
-                                    <Button className='w-100' variant="primary" type="submit" disabled={loading}>
-                                        {t('save')}
-                                    </Button>
-                                </Col>
-                            </Row>
-                        }
-                    </div>
+                        <div className="d-grid">
+                            {loading ? <MySpinner /> :
+                                <Row className="g-4 align-items-stretch">
+                                    <Col md={6}>
+                                        <Button className='w-100' variant="secondary" disabled={loading}
+                                            onClick={() => nav(-1)}>
+                                            {t('cancel')}
+                                        </Button>
+                                    </Col>
+                                    <Col md={6}>
+                                        <Button className='w-100' variant="primary" type="submit" disabled={loading}>
+                                            {t('save')}
+                                        </Button>
+                                    </Col>
+                                </Row>
+                            }
+                        </div>
 
-                </Form>
-            </Card.Body>
-        </Card>
+                    </Form>
+                </Card.Body>
+            </Card>
+        </Container>
     );
 };
 
