@@ -82,9 +82,15 @@ public class ApiForumController {
     @GetMapping("/{forumPostId}")
     public ResponseEntity<?> getDetailForumsPost(@PathVariable(value = "forumPostId") int forumPostId, @RequestParam Map<String, String> params) {
         User user = this.userService.getCurrentUser();
+        Classroom classroom = this.classroomService.getClassroomByForumPostId(forumPostId);
 
-        boolean check = forumPostService.checkForumPostPermission(user.getId(),
-                this.classroomService.getClassroomByForumPostId(forumPostId).getId());
+        if (classroom == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .contentType(MediaType.parseMediaType("text/plain; charset=UTF-8"))
+                    .body("Không tìm thấy bài đăng");
+        }
+
+        boolean check = forumPostService.checkForumPostPermission(user.getId(), classroom.getId());
         if (!check) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                     .contentType(MediaType.parseMediaType("text/plain; charset=UTF-8"))
@@ -129,6 +135,12 @@ public class ApiForumController {
         User user = this.userService.getCurrentUser();
         Classroom classroom = this.classroomService.getClassroomByForumPostId(forumPostId);
 
+        if (classroom == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .contentType(MediaType.parseMediaType("text/plain; charset=UTF-8"))
+                    .body("Không tìm thấy bài đăng");
+        }
+
         if (!this.forumPostService.checkForumPostPermission(user.getId(), classroom.getId())
                 || !this.forumPostService.checkOwnerForumPostPermission(user.getId(), forumPostId)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
@@ -155,6 +167,12 @@ public class ApiForumController {
         User user = this.userService.getCurrentUser();
         Classroom classroom = this.classroomService.getClassroomByForumPostId(forumPostId);
 
+        if (classroom == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .contentType(MediaType.parseMediaType("text/plain; charset=UTF-8"))
+                    .body("Không tìm thấy bài đăng");
+        }
+
         if (!this.forumPostService.checkForumPostPermission(user.getId(), classroom.getId())
                 || !this.forumPostService.checkOwnerForumPostPermission(user.getId(), forumPostId)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
@@ -177,9 +195,15 @@ public class ApiForumController {
     public ResponseEntity<?> getReplies(@PathVariable(value = "forumPostId") int forumPostId, @PathVariable(value = "replyId") int replyId,
             @RequestParam Map<String, String> params) {
         User user = this.userService.getCurrentUser();
+        Classroom classroom = this.classroomService.getClassroomByForumPostId(forumPostId);
 
-        boolean check = forumPostService.checkForumPostPermission(user.getId(),
-                this.classroomService.getClassroomByForumPostId(forumPostId).getId());
+        if (classroom == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .contentType(MediaType.parseMediaType("text/plain; charset=UTF-8"))
+                    .body("Không tìm thấy bài đăng");
+        }
+
+        boolean check = forumPostService.checkForumPostPermission(user.getId(), classroom.getId());
         if (!check) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                     .contentType(MediaType.parseMediaType("text/plain; charset=UTF-8"))
@@ -219,9 +243,15 @@ public class ApiForumController {
         }
 
         User user = this.userService.getCurrentUser();
+        Classroom classroom = this.classroomService.getClassroomByForumPostId(forumPostId);
 
-        boolean check = forumPostService.checkForumPostPermission(user.getId(),
-                this.classroomService.getClassroomByForumPostId(forumPostId).getId());
+        if (classroom == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .contentType(MediaType.parseMediaType("text/plain; charset=UTF-8"))
+                    .body("Không tìm thấy bài đăng");
+        }
+
+        boolean check = forumPostService.checkForumPostPermission(user.getId(), classroom.getId());
         if (!check) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                     .contentType(MediaType.parseMediaType("text/plain; charset=UTF-8"))
@@ -258,6 +288,12 @@ public class ApiForumController {
         User user = this.userService.getCurrentUser();
         Classroom classroom = this.classroomService.getClassroomByForumPostId(forumPostId);
 
+        if (classroom == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .contentType(MediaType.parseMediaType("text/plain; charset=UTF-8"))
+                    .body("Không tìm thấy bài đăng");
+        }
+
         if (!this.forumPostService.checkForumPostPermission(user.getId(), classroom.getId())
                 || !this.forumReplyService.checkOwnerForumReplyPermission(user.getId(), replyId)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
@@ -282,6 +318,12 @@ public class ApiForumController {
     public ResponseEntity<?> deleteForumsReply(@PathVariable(value = "forumPostId") int forumPostId, @PathVariable(value = "replyId") int replyId) {
         User user = this.userService.getCurrentUser();
         Classroom classroom = this.classroomService.getClassroomByForumPostId(forumPostId);
+        
+        if (classroom == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .contentType(MediaType.parseMediaType("text/plain; charset=UTF-8"))
+                    .body("Không tìm thấy bài đăng");
+        }
 
         if (!this.forumPostService.checkForumPostPermission(user.getId(), classroom.getId())
                 || !this.forumReplyService.checkOwnerForumReplyPermission(user.getId(), replyId)) {
