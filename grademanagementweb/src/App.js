@@ -20,6 +20,7 @@ import CreateReply from './components/forums/CreateReply';
 import ForumPostEdit from './components/forums/ForumPostEdit';
 import ForumReplyEdit from './components/forums/ForumReplyEdit';
 import Statistics from './components/statistics/Statistics';
+import Profile from "./components/Profile";
 import './i18n';
 
 const App = () => {
@@ -91,6 +92,7 @@ const App = () => {
                           } />
                         <Route path="/statistics" element={
                           user ? (user.role === "ROLE_LECTURER" ? <Statistics /> : <Navigate to='/' />) : <Navigate to='/login' />} />
+                        <Route path="/profile" element={<Profile />} />
                       </Routes>
                     </Container>
                   </div>

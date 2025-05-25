@@ -48,7 +48,7 @@ public interface ClassroomService {
 
     boolean checkLecturerPermission(Integer classroomId);
 
-    boolean checkExportPermission(Integer classroomId);
+    boolean isLockedClassroom(Integer classroomId);
 
     void exportGradesToCsv(Integer classroomId, HttpServletResponse response) throws IOException;
 

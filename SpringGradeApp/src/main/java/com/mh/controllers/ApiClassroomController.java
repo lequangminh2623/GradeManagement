@@ -13,6 +13,7 @@ import com.mh.services.GradeDetailService;
 import com.mh.services.UserService;
 import com.mh.utils.PageSize;
 import com.mh.validators.WebAppValidator;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import java.io.IOException;
@@ -31,7 +32,6 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequestMapping("/api/secure/classrooms")
@@ -63,24 +63,41 @@ public class ApiClassroomController {
     }
 
     @GetMapping("/{classroomId}/grades")
-    public ResponseEntity<TranscriptDTO> getGradeSheetForClassroom(@PathVariable("classroomId") Integer classroomId, @RequestParam Map<String, String> params) {
+    public ResponseEntity<?> getGradeSheetForClassroom(@PathVariable("classroomId") Integer classroomId, @RequestParam Map<String, String> params) {
         if (!classroomService.checkLecturerPermission(classroomId)) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Bạn không phải giảng viên phụ trách lớp này.");
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .contentType(MediaType.parseMediaType("text/plain; charset=UTF-8"))
+                    .body("Bạn không phải giảng viên phụ trách lớp này.");
+        }
+        TranscriptDTO gradeSheet;
+        try {
+            gradeSheet = gradeDetailService.getTranscriptForClassroom(classroomId, params);
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .contentType(MediaType.parseMediaType("text/plain; charset=UTF-8"))
+                    .body("Lỗi: " + e.getMessage());
         }
 
-        TranscriptDTO gradeSheet = gradeDetailService.getTranscriptForClassroom(classroomId, params);
         return ResponseEntity.ok(gradeSheet);
     }
 
     @PatchMapping("/{classroomId}/lock")
     public ResponseEntity<?> lockTranscript(@PathVariable("classroomId") Integer classroomId) {
         if (!classroomService.checkLecturerPermission(classroomId)) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Bạn không phải giảng viên phụ trách lớp này.");
-        }
-        if(!classroomService.lockClassroomGrades(classroomId)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                .contentType(MediaType.parseMediaType("text/plain; charset=UTF-8"))
-                .body("Chưa nhập đủ điểm cho tất cả sinh viên.");
+                    .contentType(MediaType.parseMediaType("text/plain; charset=UTF-8"))
+                    .body("Bạn không phải giảng viên phụ trách lớp này.");
+        }
+        if (classroomService.isLockedClassroom(classroomId)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .contentType(MediaType.parseMediaType("text/plain; charset=UTF-8"))
+                    .body("Bảng điểm đã được khóa trước đó.");
+        }
+        if (!classroomService.lockClassroomGrades(classroomId)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .contentType(MediaType.parseMediaType("text/plain; charset=UTF-8"))
+                    .body("Chưa nhập đủ điểm cho tất cả sinh viên.");
         }
 
         return ResponseEntity.status(HttpStatus.OK)
@@ -93,7 +110,7 @@ public class ApiClassroomController {
             @PathVariable("classroomId") Integer classroomId,
             @RequestBody @Valid List<GradeDTO> gradeRequests,
             BindingResult result) {
-        
+
         if (result.hasErrors()) {
             return ResponseEntity
                     .status(HttpStatus.BAD_REQUEST)
@@ -101,7 +118,14 @@ public class ApiClassroomController {
                     .body("Lỗi: " + "Điểm phải nằm trong khoảng từ 0 đến 10");
         }
         if (!classroomService.checkLecturerPermission(classroomId)) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Bạn không phải giảng viên phụ trách lớp này.");
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .contentType(MediaType.parseMediaType("text/plain; charset=UTF-8"))
+                    .body("Bạn không phải giảng viên phụ trách lớp này.");
+        }
+        if (classroomService.isLockedClassroom(classroomId)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .contentType(MediaType.parseMediaType("text/plain; charset=UTF-8"))
+                    .body("Bảng điểm đã khóa.");
         }
         try {
             gradeDetailService.updateGradesForClassroom(classroomId, gradeRequests);
@@ -117,16 +141,25 @@ public class ApiClassroomController {
     }
 
     @PostMapping("/{classroomId}/grades/import")
-    public ResponseEntity<String> uploadCsv(
+    public ResponseEntity<String> importCsv(
             @PathVariable("classroomId") Integer classroomId,
             @RequestParam("file") MultipartFile file) {
         if (!classroomService.checkLecturerPermission(classroomId)) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Bạn không phải giảng viên phụ trách lớp này.");
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .contentType(MediaType.parseMediaType("text/plain; charset=UTF-8"))
+                    .body("Bạn không phải giảng viên phụ trách lớp này.");
+        }
+        if (classroomService.isLockedClassroom(classroomId)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .contentType(MediaType.parseMediaType("text/plain; charset=UTF-8"))
+                    .body("Bảng điểm đã khóa.");
         }
 
         try {
             gradeDetailService.uploadGradesFromCsv(classroomId, file);
-            return ResponseEntity.ok("Lưu điểm thành công!");
+            return ResponseEntity.status(HttpStatus.OK)
+                    .contentType(MediaType.parseMediaType("text/plain; charset=UTF-8"))
+                    .body("Lưu điểm thành công!");
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .contentType(MediaType.parseMediaType("text/plain; charset=UTF-8"))
@@ -139,25 +172,57 @@ public class ApiClassroomController {
     }
 
     @GetMapping("/{classroomId}/grades/export/csv")
-    public void exportGradesToCsv(
+    public ResponseEntity<String> exportGradesToCsv(
             @PathVariable("classroomId") Integer classroomId,
             HttpServletResponse response) throws IOException {
 
-        if(!classroomService.checkExportPermission(classroomId)) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Bảng điểm chưa khóa hoặc bạn không phải giảng viên cửa lớp này.");
+        if (!classroomService.checkLecturerPermission(classroomId)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .contentType(MediaType.parseMediaType("text/plain; charset=UTF-8"))
+                    .body("Bạn không phải giảng viên phụ trách lớp này.");
         }
-        classroomService.exportGradesToCsv(classroomId, response);
+        if (!classroomService.isLockedClassroom(classroomId)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .contentType(MediaType.parseMediaType("text/plain; charset=UTF-8"))
+                    .body("Bảng điểm chưa khóa.");
+        }
+        try {
+            classroomService.exportGradesToCsv(classroomId, response);
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .contentType(MediaType.parseMediaType("text/plain; charset=UTF-8"))
+                    .body("Lỗi: " + e.getMessage());
+        }
+
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 
     @GetMapping("/{classroomId}/grades/export/pdf")
-    public void exportGradesToPdf(
+    public ResponseEntity<String> exportGradesToPdf(
             @PathVariable("classroomId") Integer classroomId,
             HttpServletResponse response) throws IOException {
 
-        if(!classroomService.checkExportPermission(classroomId)) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Bảng điểm chưa khóa hoặc bạn không phải giảng viên cửa lớp này.");
+        if (!classroomService.checkLecturerPermission(classroomId)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .contentType(MediaType.parseMediaType("text/plain; charset=UTF-8"))
+                    .body("Bạn không phải giảng viên phụ trách lớp này.");
         }
-        classroomService.exportGradesToPdf(classroomId, response);
+        if (!classroomService.isLockedClassroom(classroomId)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .contentType(MediaType.parseMediaType("text/plain; charset=UTF-8"))
+                    .body("Bảng điểm chưa khóa.");
+        }
+        try {
+            classroomService.exportGradesToPdf(classroomId, response);
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .contentType(MediaType.parseMediaType("text/plain; charset=UTF-8"))
+                    .body("Lỗi: " + e.getMessage());
+        }
+
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 
     @GetMapping("")

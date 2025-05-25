@@ -4,7 +4,6 @@
  */
 package com.mh.services.Impl;
 
-import com.google.common.collect.HashBiMap;
 import com.mh.pojo.Classroom;
 import com.mh.pojo.ExtraGrade;
 import com.mh.pojo.GradeDetail;
@@ -45,6 +44,8 @@ import smile.clustering.KMeans;
 @Service
 public class GradeDetailServiceImpl implements GradeDetailService {
 
+    private static final int MAX_EXTRA_GRADES = 3;
+
     @Autowired
     private GradeDetailRepository gradeDetailRepo;
 
@@ -77,6 +78,9 @@ public class GradeDetailServiceImpl implements GradeDetailService {
         Classroom classroom = classroomService.getClassroomById(classroomId);
         if (student == null || classroom == null) {
             throw new IllegalArgumentException("Không tìm thấy sinh viên hoặc lớp học với id được cung cấp.");
+        }
+        if (!classroomService.existUserInClassroom(studentId, classroomId)) {
+            throw new IllegalArgumentException("Sinh viên với ID " + studentId + " không thuộc lớp học.");
         }
         Map<String, Integer> ref = new HashMap<>();
         ref.put("classroomId", classroomId);
@@ -195,10 +199,18 @@ public class GradeDetailServiceImpl implements GradeDetailService {
 
     @Override
     public void updateGradesForClassroom(Integer classroomId, List<GradeDTO> gradeRequests) {
+        if (gradeRequests == null) {
+            return;
+        }
+
         int maxExtraCount = gradeRequests.stream()
                 .mapToInt(req -> req.getExtraGrades() == null ? 0 : req.getExtraGrades().size())
                 .max()
                 .orElse(0);
+
+        if (maxExtraCount > MAX_EXTRA_GRADES) {
+            throw new IllegalArgumentException("Số điểm bổ sung không được vượt quá " + MAX_EXTRA_GRADES + ".");
+        }
 
         Set<Student> allStudents = classroomService.getClassroomWithStudents(classroomId)
                 .getStudentSet();
@@ -255,19 +267,30 @@ public class GradeDetailServiceImpl implements GradeDetailService {
     @Override
     public void uploadGradesFromCsv(Integer classroomId, MultipartFile file) throws IOException {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream()))) {
-            String header = reader.readLine();
+            String header = reader.readLine(); // Bỏ qua dòng tiêu đề
+
+            Classroom classroom = classroomService.getClassroomById(classroomId);
+            if (classroom == null) {
+                throw new EntityNotFoundException("Không tìm thấy lớp học với id: " + classroomId);
+            }
 
             int extraStart = 3;
             List<GradeDTO> gradeRequests = new ArrayList<>();
             String line;
-            int maxExtraCount = 0;
+            int lineNumber = 1;
 
             while ((line = reader.readLine()) != null) {
+                lineNumber++;
                 String[] tokens = line.split(",");
-                Integer studentId = Integer.valueOf(tokens[0].trim());
-                if(!classroomService.existUserInClassroom(studentId, classroomId)) {
-                    throw new IllegalArgumentException("Sinh viên không thuộc lớp học");
+                if (tokens.length < 3) {
+                    throw new IllegalArgumentException("Dòng " + lineNumber + " thiếu dữ liệu bắt buộc.");
                 }
+
+                Integer studentId = Integer.valueOf(tokens[0].trim());
+                if (!classroomService.existUserInClassroom(studentId, classroomId)) {
+                    throw new IllegalArgumentException("Sinh viên với ID " + studentId + " không thuộc lớp học.");
+                }
+
                 Double mid = parseDoubleSafe(tokens[1]);
                 Double fin = parseDoubleSafe(tokens[2]);
 
@@ -275,7 +298,11 @@ public class GradeDetailServiceImpl implements GradeDetailService {
                 for (int i = extraStart; i < tokens.length; i++) {
                     extras.add(parseDoubleSafe(tokens[i]));
                 }
-                maxExtraCount = Math.max(maxExtraCount, extras.size());
+
+                if (extras.size() > MAX_EXTRA_GRADES) {
+                    throw new IllegalArgumentException("Dòng " + lineNumber + " có quá nhiều hơn lượng điểm bổ sung tối đa.");
+                }
+
                 gradeRequests.add(new GradeDTO(studentId, mid, fin, extras));
             }
 
@@ -287,6 +314,12 @@ public class GradeDetailServiceImpl implements GradeDetailService {
     public List<GradeDTO> getGradesByClassroom(Integer classroomId) {
         Set<Student> students = classroomService.getClassroomWithStudents(classroomId).getStudentSet();
         List<GradeDTO> result = new ArrayList<>();
+
+        Classroom classroom = classroomService.getClassroomById(classroomId);
+
+        if (classroom == null) {
+            throw new EntityNotFoundException("Không tìm thấy lớp học với id: " + classroomId);
+        }
 
         for (Student s : students) {
             Map<String, Integer> param = new HashMap<>();
@@ -529,7 +562,7 @@ public class GradeDetailServiceImpl implements GradeDetailService {
                     eg.setGradeDetail(gd);
                     eg.setGrade(null);
                     eg.setGradeIndex(idx);
-                    
+
                     gd.getExtraGradeSet().add(eg);
                 }
                 this.saveGradeDetail(gd);

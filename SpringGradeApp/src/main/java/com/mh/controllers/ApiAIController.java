@@ -4,7 +4,6 @@ import com.mh.pojo.GradeDetail;
 import com.mh.pojo.Semester;
 import com.mh.pojo.User;
 import com.mh.pojo.dto.SemesterAnalysisResult;
-import com.mh.services.ClassroomService;
 import com.mh.services.GradeDetailService;
 import com.mh.services.SemesterService;
 import com.mh.services.UserService;
@@ -27,7 +26,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 @RestController
 @RequestMapping("/api/secure/ai")
-public class AIController {
+public class ApiAIController {
 
     @Autowired
     private GradeDetailService gradeDetailService;

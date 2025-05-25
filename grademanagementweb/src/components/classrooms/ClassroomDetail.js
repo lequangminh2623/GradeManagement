@@ -164,6 +164,8 @@ const ClassroomDetail = () => {
             );
 
             alert(res.data);
+
+            fetchTranscript();
         } catch (err) {
             alert(err.response?.data || "Lỗi khi upload file CSV");
         }
@@ -179,8 +181,6 @@ const ClassroomDetail = () => {
                 finalGrade: s.finalGrade,
                 extraGrades: s.extraGrades.slice(0, extraCount)
             }));
-
-            console.log(payload);
 
             const res = await authApis().post(endpoints['classroom-details'](classroomId), payload);
             alert(res.data);

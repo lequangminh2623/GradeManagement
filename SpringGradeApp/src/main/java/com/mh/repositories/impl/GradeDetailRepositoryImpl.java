@@ -80,14 +80,14 @@ public class GradeDetailRepositoryImpl implements GradeDetailRepository {
         return query.getResultList();
     }
 
-    @Override
-    public void deleteGradeDetail(Integer id) {
-        Session session = this.factory.getObject().getCurrentSession();
-        GradeDetail gd = session.get(GradeDetail.class, id);
-        if (gd != null) {
+@Override
+public void deleteGradeDetail(Integer id) {
+    Session session = this.factory.getObject().getCurrentSession();
+    GradeDetail gd = session.get(GradeDetail.class, id);
+    if (gd != null) {
             session.remove(gd);
-        }
     }
+}
 
     @Override
     public GradeDetail saveGradeDetail(GradeDetail gd) {
