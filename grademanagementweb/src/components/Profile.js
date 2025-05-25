@@ -34,7 +34,7 @@ const Profile = () => {
     }
 
     return (
-        <Container className="mt-5">
+        <Container className="mt-5" style={{ minHeight: "100vh" }}>
             <Row className="justify-content-center">
                 <Col md={6}>
                     <Card>
@@ -47,6 +47,7 @@ const Profile = () => {
                             />
                             <h4>{`${profile.lastName} ${profile.firstName}`}</h4>
                             <p>{profile.email}</p>
+                            {profile.role === "ROLE_STUDENT" && <p>{`MSSV: ${profile.student.code}`}</p>}
                             <p>{`Vai trò: ${profile.role}`}</p>
                             <p>{`Ngày tạo: ${profile.createdDate}`}</p>
                             <p>{`Ngày cập nhật: ${profile.updatedDate}`}</p>
