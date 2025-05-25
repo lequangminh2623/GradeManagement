@@ -66,5 +66,9 @@ public class UserDTOValidator implements Validator {
             }
         }
 
+        if (user.getFile() == null || user.getFile().isEmpty()) {
+            errors.rejectValue("avatar", "user.avatar.notNull");
+        }
+
     }
 }

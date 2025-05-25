@@ -35,7 +35,7 @@ const SemesterTable = ({ semesterTitle, subjects, summary }) => {
                                 <td>{s.name}</td>
                                 <td>{s.credit}</td>
                                 <td>
-                                    {s.extraGrade.length > 0 ? s.extraGrade.map(g => `${g} `) : '-'}
+                                    {s.extraGrade.length > 0 ? s.extraGrade.map((g, index) => <span key={index}>{g}&nbsp;&nbsp;</span>) : '-'}
                                 </td>
                                 <td>{s.midTermGrade || '-'}</td>
                                 <td>{s.finalGrade || '-'}</td>

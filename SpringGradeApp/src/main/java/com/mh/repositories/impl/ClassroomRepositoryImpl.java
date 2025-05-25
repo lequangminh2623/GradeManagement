@@ -296,7 +296,8 @@ public class ClassroomRepositoryImpl implements ClassroomRepository {
                 .where(cb.equal(root.get("id"), id));
 
         TypedQuery<Classroom> typedQuery = s.createQuery(cq);
-        return typedQuery.getSingleResult();
+        List<Classroom> results = typedQuery.getResultList();
+        return results.isEmpty() ? null : results.get(0);
     }
 
     @Override
