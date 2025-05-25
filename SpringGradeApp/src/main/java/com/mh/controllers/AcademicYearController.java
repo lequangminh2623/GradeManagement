@@ -8,7 +8,6 @@ import com.mh.pojo.AcademicYear;
 import com.mh.pojo.Semester;
 import com.mh.services.AcademicYearService;
 import com.mh.services.SemesterService;
-import com.mh.utils.ExceptionUtils;
 import com.mh.utils.PageSize;
 import com.mh.validators.WebAppValidator;
 import jakarta.validation.Valid;

@@ -89,7 +89,7 @@
                 <button type="submit" class="btn btn-primary m-1">💾 Lưu lớp học</button>
             </div>
         </form>
-        <form id="gradesForm" method="post" th:action="@{/classrooms/{id}/grades(id=${classroom.id})}" th:object="${classroom}" class="row g-3">
+        <form th:if="${classroom.id != null}" id="gradesForm" method="post" th:action="@{/classrooms/{id}/grades(id=${classroom.id})}" th:object="${classroom}" class="row g-3">
             <div class="col-12 mt-4">
                 <h3>Bảng điểm lớp học</h3>
                 <table class="table table-striped table-bordered">
@@ -107,21 +107,16 @@
                         </tr>
                         <tr>
                             <th class="text-center">
-                                <div id="extra-header-buttons" class="d-flex gap-2 justify-content-center"
-                                     th:if="${#lists.size(transcript.grades) > 0}">
-                                    <span th:each="eg, iStat : ${transcript.grades[0].extraGrades}">
-                                        <button type="button" class="btn btn-outline-danger btn-sm"
-                                                th:attr="onclick=|removeExtraColumn(${iStat.index})|">❌</button>
-                                    </span>
+                                <div th:if="${#lists.size(transcript.grades) > 0}" id="extra-header-buttons" 
+                                     class="d-flex gap-2 justify-content-center">
+                                    <button type="button" class="btn btn-outline-danger btn-sm"  th:each="eg, iStat : ${transcript.grades[0].extraGrades}"
+                                            th:attr="onclick=|removeExtraColumn(${iStat.index})|">❌</button>
                                 </div>
-                                <div id="extra-header-buttons"
-                                     class="d-flex gap-2 justify-content-center"
-                                     th:unless="${#lists.size(transcript.grades) > 0}"></div>
                             </th>
                         </tr>
                     </thead>
 
-                    <tbody id="student-table-body" th:if="${classroom.id}">
+                    <tbody id="student-table-body">
                         <tr th:each="g, iterStat : ${transcript.grades}" th:id="'row-student-' + ${g.studentId}">
                             <td class="text-center align-middle">
                                 <span th:text="${g.studentCode}"></span>
@@ -161,7 +156,7 @@
                                        th:value="${g.finalGrade}" style="width: 60px;" />
                             </td>
                             <td class="text-center align-middle">
-                                <button class="btn btn-danger btn-sm"
+                                <button type="button" class="btn btn-danger btn-sm"
                                         th:onclick="'removeStudentFromClassroom(\''+@{/classrooms/}+'\','+${classroom.id}+','+${g.studentId}+')'">🗑</button>
                             </td>
                         </tr>

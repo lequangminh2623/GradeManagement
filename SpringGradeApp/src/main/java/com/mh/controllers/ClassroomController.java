@@ -96,7 +96,7 @@ public class ClassroomController {
 
     @GetMapping("/add")
     public String addClassroom(Model model) {
-        model.addAttribute("gradeMap", new HashMap<>());
+        model.addAttribute("transcript", new TranscriptDTO());
         model.addAttribute("classroom", new Classroom());
         return "/classroom/classroom-form";
     }
@@ -154,36 +154,37 @@ public class ClassroomController {
                 classroom.setStudentSet(new HashSet<>());
             }
 
-            List<GradeDTO> gradeDTOList = new ArrayList<>();
-            for (Student s : classroom.getStudentSet()) {
-                Map<String, Integer> ref = Map.of("classroomId", classroom.getId(), "studentId", s.getId());
-                List<GradeDetail> gradeDetails = gradeDetailService.getGradeDetail(ref);
-                GradeDetail gd = !gradeDetails.isEmpty() ? gradeDetails.get(0) : new GradeDetail();
-                if (gd.getExtraGradeSet() == null) {
-                    gd.setExtraGradeSet(new HashSet<>());
-                }
-
-                GradeDTO dto = new GradeDTO();
-                dto.setStudentId(s.getId());
-                dto.setStudentCode(s.getCode());
-                dto.setFullName(s.getUser().getLastName() + " " + s.getUser().getFirstName());
-                dto.setMidtermGrade(gd.getMidtermGrade());
-                dto.setFinalGrade(gd.getFinalGrade());
-                dto.setExtraGrades(gd.getExtraGradeSet().stream()
-                        .sorted(Comparator.comparingInt(ExtraGrade::getGradeIndex))
-                        .map(ExtraGrade::getGrade)
-                        .collect(Collectors.toList()));
-                gradeDTOList.add(dto);
-            }
-
             TranscriptDTO transcript = new TranscriptDTO();
-            transcript.setClassroomName(classroom.getCourse().getName() + " - " + classroom.getName());
-            transcript.setCourseName(classroom.getCourse().getName());
-            transcript.setAcademicTerm(classroom.getSemester().getSemesterType());
-            transcript.setLecturerName(classroom.getLecturer().getLastName() + " " + classroom.getLecturer().getFirstName());
-            transcript.setGrades(gradeDTOList);
+            if (classroom.getId() != null) {
+                List<GradeDTO> gradeDTOList = new ArrayList<>();
+                for (Student s : classroom.getStudentSet()) {
+                    Map<String, Integer> ref = Map.of("classroomId", classroom.getId(), "studentId", s.getId());
+                    List<GradeDetail> gradeDetails = gradeDetailService.getGradeDetail(ref);
+                    GradeDetail gd = !gradeDetails.isEmpty() ? gradeDetails.get(0) : new GradeDetail();
+                    if (gd.getExtraGradeSet() == null) {
+                        gd.setExtraGradeSet(new HashSet<>());
+                    }
 
+                    GradeDTO dto = new GradeDTO();
+                    dto.setStudentId(s.getId());
+                    dto.setStudentCode(s.getCode());
+                    dto.setFullName(s.getUser().getLastName() + " " + s.getUser().getFirstName());
+                    dto.setMidtermGrade(gd.getMidtermGrade());
+                    dto.setFinalGrade(gd.getFinalGrade());
+                    dto.setExtraGrades(gd.getExtraGradeSet().stream()
+                            .sorted(Comparator.comparingInt(ExtraGrade::getGradeIndex))
+                            .map(ExtraGrade::getGrade)
+                            .collect(Collectors.toList()));
+                    gradeDTOList.add(dto);
+                }
+                transcript.setClassroomName(classroom.getCourse().getName() + " - " + classroom.getName());
+                transcript.setCourseName(classroom.getCourse().getName());
+                transcript.setAcademicTerm(classroom.getSemester().getSemesterType());
+                transcript.setLecturerName(classroom.getLecturer().getLastName() + " " + classroom.getLecturer().getFirstName());
+                transcript.setGrades(gradeDTOList);
+            }
             model.addAttribute("transcript", transcript);
+            model.addAttribute("classroom", classroom);
             return "/classroom/classroom-form";
         }
 
@@ -206,8 +207,16 @@ public class ClassroomController {
             model.addAttribute("transcript", transcript);
             return "/classroom/classroom-form";
         }
-
-        gradeDetailService.updateGradesForClassroom(classroomId, transcript.getGrades());
+         try {
+            gradeDetailService.updateGradesForClassroom(classroomId, transcript.getGrades());
+        } catch (IllegalArgumentException e) {
+             model.addAttribute("errorMessage", "Không thể có nhiều hơn 3 cột diểm bổ sung");
+            Classroom classroom = classroomService.getClassroomWithStudents(classroomId);
+            model.addAttribute("classroom", classroom);
+            model.addAttribute("transcript", transcript);
+            return "/classroom/classroom-form";
+        }
+        
 
         return "redirect:/classrooms";
     }

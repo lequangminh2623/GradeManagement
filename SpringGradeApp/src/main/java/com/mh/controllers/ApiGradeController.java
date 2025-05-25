@@ -4,7 +4,6 @@
  */
 package com.mh.controllers;
 
-import com.mh.pojo.GradeDetail;
 import com.mh.pojo.User;
 import com.mh.pojo.dto.GradeDetailDTO;
 import com.mh.services.GradeDetailService;
