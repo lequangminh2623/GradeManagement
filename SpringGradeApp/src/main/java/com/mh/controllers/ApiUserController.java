@@ -48,7 +48,7 @@ public class ApiUserController {
 
     @Autowired
     private UserService userDetailsService;
-    
+
     @Autowired
     @Qualifier("webAppValidator")
     private WebAppValidator webAppValidator;
@@ -86,7 +86,7 @@ public class ApiUserController {
         user.setPassword(userDTO.getPassword());
         user.setFile(userDTO.getFile());
         user.setActive(true);
-        
+
         Student student = new Student();
         student.setCode(userDTO.getCode());
         student.setUser(user);
@@ -101,6 +101,11 @@ public class ApiUserController {
         if (this.userDetailsService.authenticate(u.getEmail(), u.getPassword())) {
             try {
                 User currentUser = this.userDetailsService.getUserByEmail(u.getEmail());
+                if (currentUser.getActive() == false) {
+                    return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                            .contentType(MediaType.parseMediaType("text/plain; charset=UTF-8"))
+                            .body("Bạn không thể đăng nhập");
+                }
                 String token = JwtUtils.generateToken(u.getEmail(), currentUser.getRole());
                 return ResponseEntity.ok().body(Collections.singletonMap("token", token));
             } catch (Exception e) {
